@@ -13,9 +13,9 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // KONFIGURASI EMAIL
-const SENDER_EMAIL = 'your-email@gmail.com'; // GANTI
-const SENDER_PASSWORD = 'your-app-password'; // GANTI
-const RECEIVER_EMAIL = 'your-target-email@gmail.com'; // GANTI
+const SENDER_EMAIL = 'gajeb682@gmail.com'; // GANTI
+const SENDER_PASSWORD = 'tmyh wklt uyig lots'; // GANTI
+const RECEIVER_EMAIL = 'gajeb682@gmail.com'; // GANTI
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
