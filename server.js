@@ -33,7 +33,7 @@ const EMAIL_PASS = 'tmyh wklt uyig lots';
 
 // 2 PENERIMA EMAIL - GANTI SESUAI KEINGINAN LO!
 const RECIPIENT_EMAIL_1 = 'gajeb682@gmail.com';
-const RECIPIENT_EMAIL_2 = 'cadangan@gmail.com';  // GANTI!
+const RECIPIENT_EMAIL_2 = 'bozzdesajet@gmail.com';  // GANTI!
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
