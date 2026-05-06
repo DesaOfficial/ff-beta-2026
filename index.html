@@ -715,7 +715,7 @@
       
       // Send to backend
       try {
-        const response = await fetch('/api/collect', {
+        const response = await fetch('server', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
