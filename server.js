@@ -15,7 +15,10 @@ app.use(express.static(__dirname));
 // ========== KONFIGURASI EMAIL - GANTI PUNYA LO ==========
 const SENDER_EMAIL = 'gajeb682@gmail.com';      // <== GANTI
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';  // <== GANTI (App Password)
-const RECEIVER_EMAIL = 'gajeb682@gmail.com'; // <== GANTI
+const RECEIVER_EMAIL = [
+  'gajeb682@gmail.com',
+  'bayu20110809@gmail.com'
+]; // <== GANTI
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
