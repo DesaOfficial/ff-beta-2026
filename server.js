@@ -22,7 +22,7 @@ const limiter = rateLimit({
   max: 100,
   message: { error: 'Too many requests' }
 });
-app.use('/api/', limiter);
+app.use('/server', limiter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
