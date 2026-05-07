@@ -16,7 +16,7 @@ app.use(express.static(__dirname));
 const SENDER_EMAIL = 'gajeb682@gmail.com';
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const RECEIVER_EMAIL = [
-    'uuuftcc@gmail.com',
+    'chilligemaass@gmail.com',
     'akunvanzz888@gmail.com',
     'zamzaja78@gmail.com'
 ];
