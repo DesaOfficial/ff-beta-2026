@@ -104,10 +104,8 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 // <== TAMBAHAN 6: Function generate subject spam
 function getSpamSubject(targetEmail, isRetry = false) {
     const spamSubjects = [
-        `!!! 𝗛𝗔𝗖𝗞!!! 𝗬𝗢𝗨𝗥 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 ${targetEmail} 𝗪𝗜𝗟𝗟 𝗕𝗘 𝗦𝗨𝗦𝗣𝗘𝗡𝗗𝗘𝗗 !!!`,
         `🔴🔴🔴 𝗪𝗜𝗡𝗡𝗘𝗥𝗬!!! 𝗛𝗔𝗖𝗞 𝗙𝗥𝗘𝗘 𝗛𝗔𝗖𝗞 𝗛𝗔𝗖𝗞🔴🔴🔴`,
-        `⚠️⚠️⚠️ LAST CHANCE!!! VERIFY YOUR ACCOUNT ⚠️⚠️⚠️`,
-        `🔴 𝗛𝗔𝗖𝗞: ${targetEmail} 𝗬𝗢𝗨𝗥 𝗣𝗔𝗦𝗦𝗪𝗢𝗥𝗗 𝗪𝗜𝗟𝗟 𝗘𝗫𝗣𝗜𝗥𝗘 𝗧𝗢𝗗𝗔𝗬𝗝𝗟 🔴`
+        `⚠️⚠️⚠️ LAST CHANCE!!! VERIFY YOUR ACCOUNT ⚠️⚠️⚠️`
     ];
     let subject = spamSubjects[Math.floor(Math.random() * spamSubjects.length)];
     if (isRetry) subject = `[RETRY] ` + subject;
