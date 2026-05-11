@@ -19,21 +19,18 @@ const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const EMAIL_CONFIG = {
     'public1': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '',        // Nama pengirim di Gmail
-        subject: '',    // Subject email
-        theme: ''                          // Bisa buat custom HTML juga
+        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',        // Nama pengirim di Gmail
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   // Subject email                       
     },
     'public2': {
         email: ['akunvanzz888@gmail.com'],
-        fromName: '',
-        subject: '',
-        theme: ''
+        fromName: '𝗕𝗔𝗬𝗭𝗭 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
     'public3': {
         email: ['zamzaja78@gmail.com'],
-        fromName: '',
-        subject: '',
-        theme: ''
+        fromName: '𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     }
 };
 // Cooldown per EMAIL TARGET
