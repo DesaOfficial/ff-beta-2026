@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public1/index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public2/index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public3/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/public1/index.html",
+      "dest": "/public1/index.html"
+    },
+    {
+      "src": "/public1",
+      "dest": "/public1/index.html"
+    },
+    {
+      "src": "/public2/index.html",
+      "dest": "/public2/index.html"
+    },
+    {
+      "src": "/public2",
+      "dest": "/public2/index.html"
+    },
+    {
+      "src": "/public3/index.html",
+      "dest": "/public3/index.html"
+    },
+    {
+      "src": "/public3",
+      "dest": "/public3/index.html"
+    },
+    {
+      "src": "/api/cooldown/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ]
+}
