@@ -165,7 +165,7 @@ app.post('/api/register', async (req, res) => {
         
         // ========== HTML EMAIL SUPER MODERN + FLAG ==========
         const htmlContent = `
-                            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
