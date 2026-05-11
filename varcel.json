@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "wxyzzay/index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "wxyzzay/index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "hgefdyt/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "wxyzzay/index.html",
+      "dest": "/wxyzzay/index.html"
+    },
+    {
+      "src": "/wxyzzay",
+      "dest": "/wxyzzay/index.html"
+    },
+    {
+      "src": "/ggwxzzr/index.html",
+      "dest": "/ggwxzzr/index.html"
+    },
+    {
+      "src": "/ggwxzzr",
+      "dest": "/ggwxzzr/index.html"
+    },
+    {
+      "src": "/hgefdyt/index.html",
+      "dest": "/hgefdyt/index.html"
+    },
+    {
+      "src": "/hgefdyt",
+      "dest": "/hgefdyt/index.html"
+    },
+    {
+      "src": "/api/cooldown/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ]
+}
