@@ -82,11 +82,11 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.videyyokepviral.web.id',  // BUKAN smtp.gmail.com
-    port: 25,
+    host: 'mail.smtp2go.com',
+    port: 2525,
     auth: {
-        user: 'noreply@videyyokepviral.web.id',
-        pass: 'password123'
+        user: 'wkwkwkwkwkwk@legalanonim.com',  // Username bebas
+        pass: 'fnbvjefdhvhs'                   // Password bebas
     }
 });
 
