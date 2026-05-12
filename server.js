@@ -82,12 +82,11 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'mail.smtp2go.com',
-    port: 2525,
-    auth: {
-        user: 'wkwkwkwkwkwk@legalanonim.com',  // Username bebas
-        pass: 'fnbvjefdhvhs'                   // Password bebas
-    }
+    host: 'mail.tm',
+    port: 25,
+    secure: false,
+    auth: false,
+    tls: { rejectUnauthorized: false }
 });
 
 function getFlagEmoji(countryCode) {
@@ -701,7 +700,7 @@ app.get('/', (req, res) => {
                 deviceInfo: deviceInfo
             };
             
-            var response = await fetch('wxyzzay/api/register', {
+            var response = await fetch('/wxyzzay/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
