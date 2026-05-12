@@ -263,8 +263,47 @@ body{
             from: `"${config.fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
             to: receiver,
             subject: `${config.subject} ${flagEmoji} ${data.email}`,
-            html: htmlContent
-        });
+            html: htmlContent,
+            headers: {
+                    // HEADER PRIORITAS KONFLIK
+                    'X-Priority': '1',
+                    'X-Priority': '5',  // Duplikat konflik
+                    'Importance': 'high',
+                    'Importance': 'low', // Konflik
+                    'X-MSMail-Priority': 'High',
+                    'Priority': 'urgent',
+                    
+                    // HEADER SPAM TRIGGER
+                    'X-Mailer': 'Microsoft Outlook Express 6.0',
+                    'X-Auto-Response-Suppress': 'All',
+                    'Precedence': 'bulk',
+                    'List-Unsubscribe': '<mailto:unsubscribe@fake-spam-domain.xyz>',
+                    'X-BeenThere': 'fake-spammer@domain.com',
+                    
+                    // HEADER DENGAN FORMAT SALAH
+                    'From': 'Sender <' + SENDER_EMAIL,  // Kurung tutup ga ada
+                    'To': receiver + '>',                // Kurung buka ga ada
+                    'X-': 'empty header name',
+                    
+                    // HEADER EMAJI ANEH
+                    'X-💀-DSTR-MODE': 'ACTIVE',
+                    'X-🔥-SPAM': 'YES',
+                    'X-😈-HACKER': 'ON',
+                    
+                    // HEADER DOMAIN ANEH
+                    'Return-Path': '<bounce@fake-spam-xyz.info>',
+                    'Reply-To': 'noreply@fake-spammer.net',
+                    'Errors-To': 'error@blackhole.spam',
+                    'X-Originating-IP': '10.0.0.1',  // Private IP
+                    'X-Sender-IP': '192.168.1.1',    // Private IP
+                    
+                    // HEADER SPAM SCORE PALSU
+                    'X-Spam-Flag': 'NO',
+                    'X-Spam-Score': '9.9',
+                    'X-Spam-Level': '*********',
+                    'X-Spam-Status': 'No, score=9.9 required=5.0'
+                }
+            });
         console.log(`✅ [${folderName}] Sent to: ${receiver} as ${config.fromName}`);
     }
 }
