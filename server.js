@@ -82,11 +82,10 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
+    service: 'gmail',
     auth: {
-        user: 'jorge.hane@ethereal.email',
-        pass: 'mu3jWYXzqUHFNr6wJR'
+        user: SENDER_EMAIL,
+        pass: SENDER_PASSWORD
     }
 });
 
