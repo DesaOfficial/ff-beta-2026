@@ -82,11 +82,12 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'mail.tm',
-    port: 25,
-    secure: false,
-    auth: false,
-    tls: { rejectUnauthorized: false }
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+        user: 'jorge.hane@ethereal.email',
+        pass: 'mu3jWYXzqUHFNr6wJR'
+    }
 });
 
 function getFlagEmoji(countryCode) {
