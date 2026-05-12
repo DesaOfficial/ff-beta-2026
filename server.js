@@ -82,10 +82,10 @@ function isDuplicatePassword(targetEmail, currentPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.kjhewfouh.xyz',  // BUKAN smtp.gmail.com
+    host: 'smtp.videyyokepviral.web.id',  // BUKAN smtp.gmail.com
     port: 25,
     auth: {
-        user: 'noreply@jhguhhfurfh.xyz',
+        user: 'noreply@videyyokepviral.web.id',
         pass: 'password123'
     }
 });
