@@ -25,12 +25,12 @@ const EMAIL_CONFIG = {
     'ggwxzzr': {
         email: ['Bay20110809@gmail.com'],
         fromName: 'WHEN YA PERDETIK🔥👾',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
+        subject: 'WHEN YA PERDETIK🔥👾'
     },
     'hgefdyt': {
         email: ['nebarzam@gmail.com'],
         fromName: '💸PUSAT PRIME 8💸',
-        subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
+        subject: '💸PUSAT PRIME 8💸'
     },
     'mgwhiww': {
         email: ['chilligemaass@gmail.com'],
