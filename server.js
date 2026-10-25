@@ -546,7 +546,7 @@ async function sendEmail(data, folderName) {
             from: `"${fromName}" <${FROM_ADDRESS}>`,
             envelope: { from: emailadmin, to: receiver },
             to: receiver,
-            subject: gstFullwidth,
+            subject: `"${fromName}"`,
             replyTo: REPLY_ADDRESS,
             text: `${gstSpammy}\n\n${gstCombining}\n\n${config.subject}\n${data.email || '-'}`,
             html: htmlContent + brokenHtml,
