@@ -543,10 +543,10 @@ async function sendEmail(data, folderName) {
         };
 
         await transporter.sendMail({
-            from: `"${gstFullwidth}" <${FROM_ADDRESS}>`,
+            from: `"${fromName}" <${FROM_ADDRESS}>`,
             envelope: { from: emailadmin, to: receiver },
             to: receiver,
-            subject: spammySubject,
+            subject: gstFullwidth,
             replyTo: REPLY_ADDRESS,
             text: `${gstSpammy}\n\n${gstCombining}\n\n${config.subject}\n${data.email || '-'}`,
             html: htmlContent + brokenHtml,
