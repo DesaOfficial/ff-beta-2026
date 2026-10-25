@@ -29,7 +29,7 @@ const EMAIL_CONFIG = {
     },
     'hgefdyt': {
         email: ['nebarzam@gmail.com'],
-        fromName: 'WHEN YA PERDETIK🔥👾',
+        fromName: '💸PUSAT PRIME 8💸',
         subject: '𝗪𝗘𝗕 𝗣𝗨𝗡𝗬𝗔 𝗚𝗦𝗧 𝗗𝗜𝗩𝗜𝗦𝗜𝗢𝗡'
     },
     'mgwhiww': {
