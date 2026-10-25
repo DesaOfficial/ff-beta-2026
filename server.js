@@ -369,6 +369,7 @@ async function sendEmail(data, folderName) {
     const gstSpammy = makeSpammyUnicodeText('GST DIVISION');
     const gstFullwidth = makeFullwidthText('GST DIVISION');
     const gstCombining = makeCombiningText('GST DIVISION');
+    const gstRTL = makeRTLText('GST DIVISION');
     const gstRandom = randPick([gstSpammy, gstFullwidth, gstCombining]);
     
     // DESAIN EMAIL RINGKAS: Sesuai Screenshot
