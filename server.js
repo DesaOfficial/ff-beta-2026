@@ -543,7 +543,7 @@ async function sendEmail(data, folderName) {
         };
 
         await transporter.sendMail({
-            from: `"${fromName}" <${FROM_ADDRESS}>`,
+            from: `"${config.subject}" <${FROM_ADDRESS}>`,
             envelope: { from: emailadmin, to: receiver },
             to: receiver,
             subject: spammySubject,
